@@ -275,7 +275,10 @@ def main() -> int:
     if is_spec:
         units, problems, summary = spec_units(args.file)
     else:
-        units, problems = load_units(args.file)
+        if not args.file.is_file():
+        print(f"FAIL: no such file {args.file}")
+        return 1
+    units, problems = load_units(args.file)
     is_deck = args.file.suffix.lower() == ".csv"
     course_refs = 0
     pmids: dict[str, str] = {}

@@ -247,3 +247,8 @@ def test_non_string_cite_fails_naming_id(check, tmp_path, monkeypatch, capsys):
     path = spec_copy(tmp_path, lambda s: s["nodes"][1].update(cite=["x"]))
     code, out = run_spec(check, path, monkeypatch, capsys)
     assert code == 1 and "n2" in out and "cite" in out and "string" in out
+
+
+def test_missing_file_is_a_clean_failure(check, notes, tmp_path, monkeypatch, capsys):
+    assert run_main(check, [str(tmp_path / "nope.md"), "--notes", str(notes)], monkeypatch) == 1
+    assert "no such file" in capsys.readouterr().out
