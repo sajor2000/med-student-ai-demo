@@ -213,4 +213,11 @@ def test_tabs_and_newlines_stay_inside_one_anki_record(export, tmp_path, monkeyp
     body = "".join(l for l in text.splitlines(keepends=True) if not l.startswith("#"))
     rows = [r for r in csv.reader(_io.StringIO(body), delimiter="\t") if r]
     assert len(rows) == 2 and all(len(r) == 4 for r in rows)
-    assert rows[0][1] == "Line one\nline two?"
+    assert rows[0][1] == "Line one<br>line two?"
+
+
+def test_multiline_cloze_front_uses_html_breaks(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("{{c1::first\nsecond}} line", "", S3)])
+    run_main(export, [str(deck)], monkeypatch)
+    text = (tmp_path / "out/flashcards.cloze.anki.txt").read_text(encoding="utf-8")
+    assert "{{c1::first<br>second}}" in text

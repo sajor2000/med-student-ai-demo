@@ -148,17 +148,22 @@ def cloze_reveal(text: str) -> str:
     return CLOZE.sub(lambda m: f"<mark>{m.group(2)}</mark>", text)
 
 
+def anki_html(text: str) -> str:
+    """Escape card text for an HTML Anki field; line breaks become <br> (Anki clozes break on raw newlines)."""
+    return html.escape(text, quote=False).replace("\r\n", "\n").replace("\n", "<br>")
+
+
 def write_anki(path: Path, cards: list[dict], notetype: str, deck: str) -> None:
     with path.open("w", newline="", encoding="utf-8") as out:
         out.write(f"#separator:tab\n#html:true\n#notetype:{notetype}\n#deck:{deck}\n#guid column:1\n#tags column:4\n")
         writer = csv.writer(out, delimiter="\t", lineterminator="\n", quoting=csv.QUOTE_MINIMAL)
         for c in cards:
-            extra = linkify(html.escape(c["back"], quote=False))
+            extra = linkify(anki_html(c["back"]))
             sources = "<small>" + linkify(html.escape(c["sources"], quote=False)) + "</small>"
             back = f"{extra}<br>{sources}" if extra else sources
             tags = " ".join(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())
             # csv quoting keeps a tab or newline inside a field from splitting the Anki record
-            writer.writerow([guid(c["front"]), html.escape(c["front"], quote=False), back, tags])
+            writer.writerow([guid(c["front"]), anki_html(c["front"]), back, tags])
 
 
 def main() -> int:
