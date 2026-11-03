@@ -6,7 +6,9 @@
 
 Inputs (CSV columns): front, back, sources, tags
 Outputs, next to the CSV:
-  <name>.anki.txt   import in Anki: File > Import (tab-separated, HTML, tags column)
+  <name>.anki.txt   import in Anki: File > Import. Goes into deck "AI Study::<folder>".
+                    Each card has a stable ID from its question, so re-importing an
+                    edited deck updates cards instead of duplicating them.
   <name>.html       self-contained page: study guide + flip cards, citations linked
 
 Usage:
@@ -17,6 +19,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import html
 import json
 import re
@@ -44,11 +47,13 @@ def main() -> int:
 
     anki = args.csv.with_suffix(".anki.txt")
     with anki.open("w", encoding="utf-8") as out:
-        out.write("#separator:tab\n#html:true\n#tags column:3\n")
+        deck = "AI Study::" + (args.csv.parent.name or "deck")
+        out.write(f"#separator:tab\n#html:true\n#deck:{deck}\n#guid column:1\n#tags column:4\n")
         for c in cards:
+            guid = "msad-" + hashlib.sha1(c["front"].strip().lower().encode()).hexdigest()[:12]
             back = linkify(html.escape(c["back"])) + "<br><small>" + linkify(html.escape(c["sources"])) + "</small>"
             tags = " ".join(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())
-            out.write(f"{html.escape(c['front'])}\t{back}\t{tags}\n")
+            out.write(f"{guid}\t{html.escape(c['front'])}\t{back}\t{tags}\n")
 
     guide_html = ""
     if args.guide and args.guide.exists():

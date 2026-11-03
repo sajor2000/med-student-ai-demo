@@ -36,7 +36,7 @@ Image Library**.
 | Notes / knowledge base | **Logseq** (open source), **Obsidian** (free, closed), plain Markdown + git | `[[wikilinks]]` match this repo's citation style |
 | Document conversion | **pandoc**, **python-pptx**, **python-docx**, **Docling**, **MarkItDown** | Turn slides and PDFs into text the agent can cite |
 | Diagrams / concept maps | **Mermaid** | Agent draws the micro → immuno → path → pharm map in text |
-| Verification / CI | **GitHub Actions** running `scripts/check.py` | A study group's shared deck fails the build if any citation breaks |
+| Verification / CI | **GitHub Actions** running `scripts/check.py` | In a *private* study-group repo, the build fails if any citation breaks |
 
 ## 3. Ideas: how M1/M2 students could use the loop
 
@@ -60,15 +60,18 @@ Image Library**.
    fact (e.g. the discovery of PBP2a/mecA) and reads the full text through Paperclip.
 8. **Blueprint gap check.** Map the case objectives to the USMLE Step 1
    content outline and list the outline topics the case never covers.
-9. **Study-group repo.** Each student adds cards in a pull request, and CI
-   verifies every citation before the cards are merged into the shared deck.
+9. **Private study-group repo.** Each student adds cards in a pull request,
+   and CI runs `check.py` before merging. Keep that repo **private** and within
+   your course's sharing rules: cards built from faculty slides are course
+   material, so they never go in this public repo or a public fork.
 10. **Private mode.** The same skills running on a local model through
     Ollama, for students who don't want course files sent to any cloud service.
 
 ## 4. Guardrails to teach alongside the tools
 
-- **Never trust a citation the checker hasn't verified.** LLMs invent
-  realistic-looking PMIDs.
+- **Never trust a citation the checker hasn't verified, and spot-check the ones
+  it has.** LLMs invent realistic-looking PMIDs, and a real PMID can still be
+  the wrong paper for the claim.
 - **Course material is the exam's ground truth.** Bring discrepancies to
   faculty; don't let the AI quietly overrule them.
 - **Copyright:** keep slides local and never post them to a public repo or

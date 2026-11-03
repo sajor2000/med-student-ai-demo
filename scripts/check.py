@@ -14,6 +14,12 @@ What it checks:
     human can eyeball that it is on topic
   - no PMID is flagged as a retracted publication
   - every flashcard row has at least one citation
+  - every study-guide bullet, numbered item, and table row has a citation,
+    `[source needed]` (reported as a warning), or an `(AI mnemonic)` /
+    `(AI analogy)` label. The Self-test section is exempt.
+
+What PASS does NOT mean: that the source actually says what the card says.
+Open one or two cited slides/PMIDs and compare before you study a deck.
 
 Usage:
     uv run scripts/check.py output/study-guide.md --notes notes/rmd561-case1
@@ -36,6 +42,9 @@ import urllib.request
 from pathlib import Path
 
 COURSE = re.compile(r"\[\[([^\]#]+)#([SPT]\d+)\]\]")
+FACT_LINE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s|\|)")
+TABLE_SEP = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
+AI_LABEL = re.compile(r"\(AI (?:mnemonic|analogy)\)", re.I)
 PMID = re.compile(r"PMID:\s?(\d{4,9})")
 MALFORMED: list[str] = []
 ESUMMARY = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
@@ -84,6 +93,34 @@ def load_units(path: Path) -> list[tuple[str, str]]:
     return [(f"line {i}", line) for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)]
 
 
+def uncited_guide_lines(path: Path) -> tuple[list[str], list[str]]:
+    """Return (uncited factual lines, [source needed] lines) for a Markdown guide."""
+    lines = path.read_text(encoding="utf-8").splitlines()
+    uncited, needed = [], []
+    section, in_code = "", False
+    for i, line in enumerate(lines, 1):
+        if line.lstrip().startswith("```"):
+            in_code = not in_code
+            continue
+        if in_code:
+            continue
+        if line.startswith("#"):
+            section = line.lower()
+            continue
+        if "self-test" in section or not FACT_LINE.match(line):
+            continue
+        nxt = lines[i] if i < len(lines) else ""
+        if TABLE_SEP.match(line) or (line.lstrip().startswith("|") and TABLE_SEP.match(nxt)):
+            continue  # table separator or header row
+        if COURSE.search(line) or PMID.search(line) or AI_LABEL.search(line):
+            continue
+        if "[source needed]" in line.lower():
+            needed.append(f"line {i}: {line.strip()[:70]}")
+        else:
+            uncited.append(f"line {i}: uncited: {line.strip()[:70]}")
+    return uncited, needed
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("file", type=Path)
@@ -95,6 +132,10 @@ def main() -> int:
     problems: list[str] = list(MALFORMED)
     course_refs = 0
     pmids: dict[str, str] = {}
+    needed: list[str] = []
+    if not is_deck:
+        uncited, needed = uncited_guide_lines(args.file)
+        problems.extend(uncited)
 
     for label, text in units:
         refs = COURSE.findall(text)
@@ -130,12 +171,15 @@ def main() -> int:
 
     kind = f"{len(units)} cards" if is_deck else "study guide"
     print(f"\n{args.file.name} ({kind}): {course_refs} course citations, {len(pmids)} PubMed citations")
+    for n in needed:
+        print(f"  WARN [source needed] {n}")
     if problems:
         print(f"FAIL: {len(problems)} problem(s)")
         for p in problems:
             print(f"  - {p}")
         return 1
-    print("PASS: every citation resolves")
+    print("PASS: every citation resolves" + ("" if is_deck else " and every fact line is cited"))
+    print("Next: spot-check 2-3 citations yourself. PASS means the sources exist, not that they support the claim.")
     return 0
 
 
