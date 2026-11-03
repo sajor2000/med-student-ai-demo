@@ -1,0 +1,20 @@
+{
+  "source": "ankitects/anki: rslib/src/cloze.rs (occlusion cloze syntax; code comment 'rect:left=.2325:top=.3261:width=.202:height=.0975') and rslib/src/image_occlusion/imageocclusion.rs (field order Occlusion, Image, Header, Back Extra, Comments). Not captured from a live Anki note.",
+  "model": "Image Occlusion",
+  "field_order": ["Occlusion", "Image", "Header", "Back Extra", "Comments"],
+  "input": {
+    "slug": "staph-toxins",
+    "title": "S. aureus toxins",
+    "image": "staph-toxins.card.png",
+    "label": "Exfoliative toxin",
+    "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+    "box": {"left": 0.2325, "top": 0.3261, "width": 0.202, "height": 0.0975}
+  },
+  "fields": {
+    "Occlusion": "{{c1::image-occlusion:rect:left=.2325:top=.3261:width=.202:height=.0975:oi=1}}",
+    "Image": "<img src=\"staph-toxins.card.png\">",
+    "Header": "S. aureus toxins",
+    "Back Extra": "Exfoliative toxin<br><small>[[MICRO/Staphylococcus aureus (sample lecture)#S4]]</small>",
+    "Comments": ""
+  }
+}
