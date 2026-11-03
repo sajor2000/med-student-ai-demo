@@ -1,0 +1,14 @@
+{
+  "title": "S. aureus toxins",
+  "type": "flowchart",
+  "nodes": [
+    {"id": "n1", "label": "Exfoliative toxin", "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"},
+    {"id": "n2", "label": "Desmoglein-1", "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"},
+    {"id": "n3", "label": "Scalded skin syndrome", "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"},
+    {"id": "n4", "label": "PBP2a", "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S6]]"}
+  ],
+  "edges": [
+    {"id": "e1", "from": "n1", "to": "n2", "label": "cleaves", "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"},
+    {"id": "e2", "from": "n2", "to": "n3"}
+  ]
+}
