@@ -271,14 +271,14 @@ def main() -> int:
     ap.add_argument("--notes", type=Path, required=True, help="folder made by extract.py")
     args = ap.parse_args()
 
+    if not args.file.is_file():
+        print(f"FAIL: no such file {args.file}")
+        return 1
     is_spec = args.file.suffix.lower() == ".json"
     if is_spec:
         units, problems, summary = spec_units(args.file)
     else:
-        if not args.file.is_file():
-        print(f"FAIL: no such file {args.file}")
-        return 1
-    units, problems = load_units(args.file)
+        units, problems = load_units(args.file)
     is_deck = args.file.suffix.lower() == ".csv"
     course_refs = 0
     pmids: dict[str, str] = {}
