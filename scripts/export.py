@@ -19,7 +19,13 @@ Outputs, next to the CSV:
 
 Usage:
     uv run scripts/export.py output/<case>/flashcards.csv \\
-        [--guide output/<case>/study-guide.md] [--notes notes/<case>]
+        [--guide output/<case>/study-guide.md] [--notes notes/<case>] \\
+        [--diagrams output/<case>/diagrams] [--art output/<case>/art]
+
+--diagrams adds a "Diagrams" tab: each <slug>.occlusion.json (from occlude.py) shows its card
+PNG, title, and labels with linked citations. --art adds a "Memory aids" tab with the PNGs
+from mnemonic_art.py, headed "AI illustrations - memory aids, not references". PNGs are copied
+to <name>_media/. Without either flag the page is unchanged.
 """
 
 from __future__ import annotations
@@ -140,6 +146,82 @@ def linkify(text: str, linker: SourceLinker | None = None) -> str:
     return COURSE.sub(course, text)
 
 
+ART_HEADING = "AI illustrations — memory aids, not references"
+
+
+def _media_src(src: Path, kind: str, page: Path) -> str:
+    """Copy a PNG next to the page under <name>_media/<kind>/ and return its relative URL."""
+    folder = f"{page.stem}_media"
+    dest = page.parent / folder / kind / src.name
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(src, dest)
+    return f"{folder}/{kind}/{urllib.parse.quote(src.name)}"
+
+
+def _folder(path: Path, flag: str) -> Path:
+    if not path.is_dir():
+        raise SystemExit(f"{flag}: {path} is not a folder")
+    return path
+
+
+def diagrams_section(folder: Path, page: Path, linker: SourceLinker | None) -> str:
+    """HTML for the Diagrams tab: the card PNG (never the SVG/HTML) and its cited labels."""
+    folder = _folder(folder, "--diagrams").resolve()
+    blocks = []
+    for spec_path in sorted(folder.glob("*.occlusion.json")):
+        spec = json.loads(spec_path.read_text(encoding="utf-8"))
+        png = (folder / str(spec.get("image", ""))).resolve()
+        if png.suffix.lower() != ".png" or not png.is_file() or not png.is_relative_to(folder):
+            print(f"warning: {spec_path.name}: card image missing; diagram skipped")
+            continue
+        title = html.escape(str(spec.get("title") or spec.get("slug") or png.stem))
+        items = "".join(
+            f"<li>{html.escape(str(lab.get('label', '')))} "
+            f"<small>{linkify(html.escape(str(lab.get('cite', ''))), linker)}</small></li>"
+            for lab in spec.get("labels", [])
+        )
+        blocks.append(
+            f'<figure class="dg"><h2>{title}</h2>'
+            f'<img class="diagram" src="{html.escape(_media_src(png, "diagrams", page))}" alt="{title}">'
+            f"<ul>{items}</ul></figure>"
+        )
+    return "\n".join(blocks)
+
+
+def art_section(folder: Path, page: Path) -> str:
+    """HTML for the Memory aids tab: every PNG under a heading that says it is not a reference."""
+    folder = _folder(folder, "--art").resolve()
+    blocks = []
+    for png in sorted(folder.glob("*.png")):
+        caption = png.stem.replace("-", " ").replace("_", " ")
+        sidecar = png.with_suffix(".json")
+        if sidecar.is_file():
+            try:
+                caption = str(json.loads(sidecar.read_text(encoding="utf-8")).get("caption") or caption)
+            except (ValueError, AttributeError):
+                pass
+        cap = html.escape(caption)
+        blocks.append(
+            f'<figure class="aid"><img class="art" src="{html.escape(_media_src(png, "art", page))}" alt="{cap}">'
+            f"<figcaption>{cap}</figcaption></figure>"
+        )
+    if not blocks:
+        return ""
+    return f"<h2>{ART_HEADING}</h2>\n" + "\n".join(blocks)
+
+
+EXTRA_CSS = (
+    "figure{margin:0 0 28px}figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}"
+    "figcaption,.dg small{color:var(--muted);font-size:13px}.dg li{margin:4px 0}"
+)
+EXTRA_JS = (
+    "<script>(function(){const T=[['tg','guide'],['tc','cards'],['td','diagrams'],['ta','art']]"
+    ".filter(p=>document.getElementById(p[0]));T.forEach(([b,s])=>{document.getElementById(b).onclick=()=>{"
+    "T.forEach(([b2,s2])=>{document.getElementById(s2).hidden=s2!==s;"
+    "document.getElementById(b2).setAttribute('aria-pressed',b2===b)})}})})();</script>"
+)
+
+
 def cloze_front(text: str) -> str:
     return CLOZE.sub(lambda m: f'<span class="cz">[{m.group(3) or "…"}]</span>', text)
 
@@ -164,6 +246,8 @@ def main() -> int:
     ap.add_argument("csv", type=Path)
     ap.add_argument("--guide", type=Path, help="study guide Markdown to include on the page")
     ap.add_argument("--notes", type=Path, help="notes folder from extract.py; makes course citations clickable")
+    ap.add_argument("--diagrams", type=Path, help="folder of <slug>.occlusion.json + card PNGs; adds a Diagrams tab")
+    ap.add_argument("--art", type=Path, help="folder of mnemonic-art PNGs; adds a Memory aids tab")
     args = ap.parse_args()
 
     with args.csv.open(newline="", encoding="utf-8") as fh:
@@ -211,6 +295,18 @@ def main() -> int:
     page = TEMPLATE.replace("__TITLE__", html.escape(args.csv.stem.replace("-", " ").title()))
     page = page.replace("__GUIDE__", guide_html or "<p>No study guide passed (use --guide).</p>")
     page = page.replace("__CARDS__", json.dumps(data))
+    extras = []  # (button id, label, section id, inner html) for the optional tabs
+    if args.diagrams and (inner := diagrams_section(args.diagrams, site, linker)):
+        extras.append(("td", "Diagrams", "diagrams", inner))
+    if args.art and (inner := art_section(args.art, site)):
+        extras.append(("ta", "Memory aids", "art", inner))
+    if extras:
+        buttons = "".join(f'<button id="{b}" aria-pressed="false">{label}</button>' for b, label, _, _ in extras)
+        sections = "".join(f'<section id="{sid}" hidden>{inner}</section>\n' for _, _, sid, inner in extras)
+        page = page.replace("</nav>", buttons + "</nav>", 1)
+        page = page.replace("</main><script>", sections + "</main><script>", 1)
+        page = page.replace("</style>", EXTRA_CSS + "</style>", 1)
+        page = page.replace("</script></body></html>", "</script>" + EXTRA_JS + "</body></html>", 1)
     site.write_text(page, encoding="utf-8")
 
     print(f"{len(basic)} basic cards -> {anki} (Anki: File > Import)")

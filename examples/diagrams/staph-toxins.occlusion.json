@@ -1,0 +1,184 @@
+{
+  "case": "sample",
+  "slug": "staph-toxins",
+  "title": "S. aureus toxins",
+  "image": "staph-toxins.card.png",
+  "labels": [
+    {
+      "id": "n1",
+      "kind": "node",
+      "label": "Exfoliative toxin",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.0621,
+        "top": 0.2832,
+        "width": 0.1196,
+        "height": 0.0587
+      },
+      "note_id": "msad-d5ced37205d6",
+      "occlusion": "{{c1::image-occlusion:rect:left=.0621:top=.2832:width=.1196:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n1.masked.png",
+      "highlight": "staph-toxins.n1.highlight.png"
+    },
+    {
+      "id": "n2",
+      "kind": "node",
+      "label": "Desmoglein-1",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.3564,
+        "top": 0.2832,
+        "width": 0.107,
+        "height": 0.0587
+      },
+      "note_id": "msad-2f2b1fbee448",
+      "occlusion": "{{c1::image-occlusion:rect:left=.3564:top=.2832:width=.107:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n2.masked.png",
+      "highlight": "staph-toxins.n2.highlight.png"
+    },
+    {
+      "id": "n3",
+      "kind": "node",
+      "label": "Scalded skin syndrome",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.6294,
+        "top": 0.2832,
+        "width": 0.1793,
+        "height": 0.0587
+      },
+      "note_id": "msad-54ee065cde18",
+      "occlusion": "{{c1::image-occlusion:rect:left=.6294:top=.2832:width=.1793:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n3.masked.png",
+      "highlight": "staph-toxins.n3.highlight.png"
+    },
+    {
+      "id": "n4",
+      "kind": "node",
+      "label": "TSST-1 superantigen",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.0514,
+        "top": 0.5485,
+        "width": 0.1622,
+        "height": 0.0587
+      },
+      "note_id": "msad-c07d8973bfe2",
+      "occlusion": "{{c1::image-occlusion:rect:left=.0514:top=.5485:width=.1622:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n4.masked.png",
+      "highlight": "staph-toxins.n4.highlight.png"
+    },
+    {
+      "id": "n5",
+      "kind": "node",
+      "label": "Massive cytokine release",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.3984,
+        "top": 0.5485,
+        "width": 0.1925,
+        "height": 0.0587
+      },
+      "note_id": "msad-3a49bde7330c",
+      "occlusion": "{{c1::image-occlusion:rect:left=.3984:top=.5485:width=.1925:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n5.masked.png",
+      "highlight": "staph-toxins.n5.highlight.png"
+    },
+    {
+      "id": "n6",
+      "kind": "node",
+      "label": "Toxic shock syndrome",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.7764,
+        "top": 0.5485,
+        "width": 0.1715,
+        "height": 0.0587
+      },
+      "note_id": "msad-096300a6f5ff",
+      "occlusion": "{{c1::image-occlusion:rect:left=.7764:top=.5485:width=.1715:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n6.masked.png",
+      "highlight": "staph-toxins.n6.highlight.png"
+    },
+    {
+      "id": "n7",
+      "kind": "node",
+      "label": "Heat-stable enterotoxin",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.0626,
+        "top": 0.8138,
+        "width": 0.1823,
+        "height": 0.0587
+      },
+      "note_id": "msad-8709f947b359",
+      "occlusion": "{{c1::image-occlusion:rect:left=.0626:top=.8138:width=.1823:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n7.masked.png",
+      "highlight": "staph-toxins.n7.highlight.png"
+    },
+    {
+      "id": "n8",
+      "kind": "node",
+      "label": "Vomiting within 1-6 h",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.4399,
+        "top": 0.8138,
+        "width": 0.1627,
+        "height": 0.0587
+      },
+      "note_id": "msad-6ac783f68887",
+      "occlusion": "{{c1::image-occlusion:rect:left=.4399:top=.8138:width=.1627:height=.0587:oi=1}}",
+      "masked": "staph-toxins.n8.masked.png",
+      "highlight": "staph-toxins.n8.highlight.png"
+    },
+    {
+      "id": "e1",
+      "kind": "edge",
+      "label": "cleaves",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.254,
+        "top": 0.2474,
+        "width": 0.0504,
+        "height": 0.0459
+      },
+      "note_id": "msad-a506b8dfe083",
+      "occlusion": "{{c1::image-occlusion:rect:left=.254:top=.2474:width=.0504:height=.0459:oi=1}}",
+      "masked": "staph-toxins.e1.masked.png",
+      "highlight": "staph-toxins.e1.highlight.png"
+    },
+    {
+      "id": "e3",
+      "kind": "edge",
+      "label": "causes",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.2767,
+        "top": 0.5128,
+        "width": 0.0473,
+        "height": 0.0459
+      },
+      "note_id": "msad-2bcb50f51005",
+      "occlusion": "{{c1::image-occlusion:rect:left=.2767:top=.5128:width=.0473:height=.0459:oi=1}}",
+      "masked": "staph-toxins.e3.masked.png",
+      "highlight": "staph-toxins.e3.highlight.png"
+    },
+    {
+      "id": "e5",
+      "kind": "edge",
+      "label": "causes",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]",
+      "box": {
+        "left": 0.3191,
+        "top": 0.7781,
+        "width": 0.0473,
+        "height": 0.0459
+      },
+      "note_id": "msad-2e8a7f36185c",
+      "occlusion": "{{c1::image-occlusion:rect:left=.3191:top=.7781:width=.0473:height=.0459:oi=1}}",
+      "masked": "staph-toxins.e5.masked.png",
+      "highlight": "staph-toxins.e5.highlight.png"
+    }
+  ]
+}

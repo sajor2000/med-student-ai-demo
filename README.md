@@ -69,6 +69,9 @@ Stuck? Open an issue: https://github.com/sajor2000/med-student-ai-demo/issues
 | `/flashcards <case-name>` again | New cards aimed at your weak spots. Re-importing updates cards instead of duplicating them |
 | `/study-guide <case-name> ["topic"]` | A cited reference to check yourself against **after** recall, with "beyond the slides" boxes from StatPearls/PubMed |
 | `/deepen "<concept>" [case-name]` | "How do we know?" explainer from StatPearls, reviews, and Paperclip full text |
+| `/visualize <case-name> "topic"` | A cited diagram spec, a rendered diagram, and Anki Image Occlusion cards (see "See it, drill it, sync it") |
+| `/mnemonic-art <case-name> ["concept"]` | One captioned AI illustration as a memory hook. An aid, never a reference |
+| `/anki-sync <case-name>` | Pushes your cards and diagram cards into Anki desktop, and pulls cards you keep missing back into `weak-spots.md` |
 
 **Card types.** Basic cards are a question and an answer. Cloze cards hide part of a sentence
 in Anki markup, e.g. `Exfoliative toxin cleaves {{c1::desmoglein-1}}.` In Anki, import each
@@ -76,6 +79,46 @@ file once (File → Import). Re-importing an edited deck updates cards instead o
 
 These cards **supplement** a premade deck (e.g. AnKing): they follow *your
 course's* cases and faculty emphasis, tagged by discipline.
+
+## See it, drill it, sync it
+
+Three optional commands add pictures and a live link to Anki. Each runs only when you type it.
+
+- `/visualize <case> "topic"` writes a cited diagram spec (`output/<case>/diagrams/<slug>.json`), checks it
+  like a deck, renders it with the diagram-design plugin, and cuts one occlusion card per label.
+- `/mnemonic-art <case> ["concept"]` draws one memory-hook picture. It is an **aid**: it is always labeled
+  "AI illustration - not a reference", and a citation always points to your notes.
+- `/anki-sync <case>` adds your cards to Anki desktop and reads back the ones you miss. It only touches
+  notes in `AI Study::<case>` tagged `msad`. Your other decks are never changed.
+
+One-time setup:
+
+1. **diagram-design plugin** (for `/visualize`). In Claude Code run
+   `/plugin marketplace add cathrynlavery/diagram-design`, then `/plugin install diagram-design@diagram-design`.
+   `/visualize` installs the teaching profile (`docs/diagram-teaching-profile.md`) for you.
+2. **Chromium** (for occlusion boxes and card images): `uv run --with playwright playwright install chromium`
+3. **AnkiConnect** (for `/anki-sync`): in Anki desktop, Tools > Add-ons > Get Add-ons, code `2055492159`,
+   restart Anki. Keep Anki open while you sync.
+4. **OpenRouter key** (for `/mnemonic-art` only): create a key at openrouter.ai with a **spend limit**, then
+   `export OPENROUTER_API_KEY=...`. Each image costs your OpenRouter credits.
+   `/mnemonic-art` sends the prompt you approve to a second provider (OpenRouter), so check your school's AI
+   policy first. `/visualize` and `/anki-sync` send nothing new.
+
+Pick **one** way to get the diagram cards into Anki:
+
+- `/anki-sync <case>` creates Image Occlusion notes (the masks stay editable), or
+- File > Import `output/<case>/diagrams.apkg` (no add-on; each label becomes a masked card).
+
+To see them on your study page, add the folders to the export:
+
+```bash
+uv run scripts/export.py output/<case>/flashcards.csv --guide output/<case>/study-guide.md \
+    --notes notes/<case> --diagrams output/<case>/diagrams [--art output/<case>/art]
+```
+
+The page gets a Diagrams tab (the picture plus each label with its citation) and, with `--art`, a Memory aids
+tab under the heading "AI illustrations — memory aids, not references". A finished example, with no art, is in
+`examples/diagrams/` and `examples/flashcards.html`.
 
 ## What the checker proves, and what it doesn't
 
@@ -118,23 +161,28 @@ use the loop.
 3. **The course is the exam's ground truth.** When a source disagrees, the
    agent flags a ⚠️ discrepancy for you to ask faculty about. It never
    overwrites the slide, and it only checks the topics it researched.
-4. **Spot-check before you study.** PASS means the sources exist, not that they're right.
-5. **Study aid, not a shortcut.** Don't use it for graded work.
-6. **Do the reviews yourself.** The agent writes the cards, but the learning comes from recalling the answers.
+4. **AI pictures are memory aids.** Diagrams are cited specs you can check. `/mnemonic-art` pictures are
+   labeled aids, not sources, and each one costs credits and goes to a second provider.
+5. **Spot-check before you study.** PASS means the sources exist, not that they're right.
+6. **Study aid, not a shortcut.** Don't use it for graded work.
+7. **Do the reviews yourself.** The agent writes the cards, but the learning comes from recalling the answers.
 
 ## Repo map
 
 ```
 CLAUDE.md                 rules the agent follows (citations, sources, style)
-.claude/skills/           /ingest /flashcards /quiz /study-guide /deepen
+.claude/skills/           /ingest /flashcards /quiz /study-guide /deepen /visualize /mnemonic-art /anki-sync
 .mcp.json                 PubMed + Paperclip connectors
 .claude/settings.json     pre-approves only the 3 scripts + PubMed/Paperclip tools (edits still ask)
 scripts/extract.py        pptx/docx -> Markdown with [S#]/[P#]/[T#] anchors
 scripts/check.py          citation verifier (PubMed lookup, slide anchors, coverage)
-scripts/export.py         CSV -> Anki import files (basic + cloze) + flip-card page with clickable sources
+scripts/export.py         CSV -> Anki import files (basic + cloze) + flip-card page with clickable sources, diagrams, and memory aids
+scripts/occlude.py        diagram HTML -> occlusion boxes, masked cards, diagrams.apkg (needs Chromium)
+scripts/anki_sync.py      pushes cards and diagram cards into Anki desktop through AnkiConnect
+scripts/mnemonic_art.py   one captioned AI illustration through your OpenRouter key
 sample/                   synthetic lecture to practice on
-examples/                 finished guide + deck built from the sample
+examples/                 finished guide + deck + one cited diagram built from the sample
 docs/OPEN-RESOURCES.md    open-source and trusted-source menu + ideas
 curriculum/               YOUR files go here (gitignored)
-tests/                    script tests: uv run --with pytest --with markdown pytest tests -q
+tests/                    script tests: uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q
 ```

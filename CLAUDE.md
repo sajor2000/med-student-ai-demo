@@ -41,6 +41,17 @@ source the student can open.
 6. A PASS means the sources **exist**, not that they **support** the claim.
    Tell the student this and point them to one citation worth opening.
 
+## Diagrams, AI illustrations, and Anki sync
+
+- A diagram is a **cited spec** (`output/<case>/diagrams/<slug>.json`): every node has a label and a citation,
+  and every labeled edge has one. Run `uv run scripts/check.py <spec> --notes notes/<case>` and fix every
+  failure, exactly as for a deck. The picture is rendered from the spec, never the other way round.
+- AI illustrations (`/mnemonic-art`) are memory aids. Always keep their "AI illustration - not a reference"
+  label. Never cite one, never put one in a guide as evidence, and never put patient details in the prompt.
+  Show the prompt and get a yes before it goes to OpenRouter.
+- `/anki-sync` only touches notes tagged `msad` in the deck `AI Study::<case>`. Never edit or delete other
+  notes or decks.
+
 ## Trusted source ladder (use the highest rung that answers the question)
 
 1. The student's course materials (`notes/`)
