@@ -45,6 +45,10 @@ SETUP = """OPENROUTER_API_KEY is not set. To enable illustrations:
 Then re-run this command."""
 
 # Second check after the student's own review: refuse text that looks patient-identifying.
+POLICY_WORDS = ("zdr", "data policy", "guardrail")
+POLICY_HINT = ("Your OpenRouter privacy settings exclude every image endpoint for this model. Enable an "
+               "image-capable endpoint at https://openrouter.ai/settings/privacy (or turn off "
+               "zero-data-retention for image models), then retry once.")
 PHI_PATTERNS = [
     (re.compile(r"\d{6,}"), "a number with 6 or more digits (MRN-like)"),
     (re.compile(r"\b(?:MRN|DOB)\b|date\s+of\s+birth|medical\s+record", re.I), "MRN or date-of-birth wording"),
@@ -178,6 +182,8 @@ def main() -> int:
         img = stamp(png)
     except ApiError as e:
         print(f"Error: OpenRouter returned {e.status}: {e.message}", file=sys.stderr)
+        if any(w in e.message.lower() for w in POLICY_WORDS):
+            print(POLICY_HINT, file=sys.stderr)
         return 1
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)

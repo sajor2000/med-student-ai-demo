@@ -32,6 +32,17 @@ details. The check is a second safeguard; the student review in step 2 is the fi
 - Output: `output/<case>/art/<slug>.png` with the caption "AI illustration — not a reference" in a bottom band,
   and `<slug>.json` holding prompt, model, and timestamp.
 
+## OpenRouter privacy settings (ZDR)
+
+Requests ask for `data_collection: "deny"`, and the student's account can also enforce zero-data-retention (ZDR) or
+a data policy at https://openrouter.ai/settings/privacy. Many image endpoints keep data, so these settings can
+leave a model with no allowed image endpoint. The script then gets an error naming ZDR, a data policy, or a
+guardrail, and prints a one-line hint.
+
+On that error the student enables an image-capable endpoint (or turns off zero-data-retention for image models)
+in the privacy settings and retries ONCE. Do not cycle through other models: every retry sends the prompt again
+to a third party.
+
 ## School AI policy
 
 Generated images may be restricted by a course or school AI policy. Check the policy before putting an image in a

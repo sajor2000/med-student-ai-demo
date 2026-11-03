@@ -232,3 +232,19 @@ def test_clinical_text_not_refused(art, net, monkeypatch, scene):
     monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
     assert run_main(art, args(**{"--scene": scene, "--yes": True}), monkeypatch) == 0
     assert len(net.calls) == 1
+
+
+def test_zdr_policy_error_prints_hint_exit_1(art, monkeypatch, capsys, tmp_path):
+    import urllib.error
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+
+    def fake_urlopen(req, timeout=None):
+        raise urllib.error.HTTPError(req.full_url, 404, "Not Found", {}, io.BytesIO(
+            b'{"error":{"message":"No endpoints found: ZDR violation"}}'))
+
+    monkeypatch.setattr(art.urllib.request, "urlopen", fake_urlopen)
+    assert run_main(art, args(**{"--yes": True}), monkeypatch) == 1
+    out = capsys.readouterr()
+    assert "Your OpenRouter privacy settings exclude every image endpoint for this model." in out.err + out.out
+    assert "https://openrouter.ai/settings/privacy" in out.err + out.out
+    assert KEY not in out.out + out.err

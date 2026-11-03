@@ -21,10 +21,14 @@ The *spec* is the source of truth: cited JSON first, picture second. Schema, typ
    Done when the file parses as JSON and each node has `label` and `cite`.
 3. **Check.** Run `uv run scripts/check.py output/<case>/diagrams/<slug>.json --notes notes/<case>`. Fix and rerun.
    Done when it prints PASS.
-4. **Render.** Invoke the `diagram-design` skill on the spec and write `output/<case>/diagrams/<slug>.html`.
+4. **Render.** Invoke the Skill `diagram-design:diagram-design` on the spec and write `output/<case>/diagrams/<slug>.html`
+   (if the Skill call is unavailable, read the installed plugin's `SKILL.md` and author the HTML following it).
    Every label `<text>` carries `data-node="<spec id>"`; title and legend text carry `data-decorative="true"`.
-   Done when the HTML exists and the count of `data-node` attributes equals nodes plus labeled edges.
+   Keep edge labels to 14 characters and node labels to 6 words.
+   Run its self check: `python3 <diagram-design skill dir>/scripts/self_check.py --offline <html>`.
+   Done when the HTML exists, the self check passes, and step 5 prints a `data-node labels: N` that equals nodes plus labeled edges.
 5. **Occlude.** Run `uv run scripts/occlude.py output/<case>/diagrams/<slug>.html --spec output/<case>/diagrams/<slug>.json --case <case>`. Fix the HTML or spec and rerun.
+   It compares labels case-insensitively and prints the `data-node labels: N` count that step 4 checks against.
    Done when it prints the label summary with no FAIL lines.
 6. **Pack the offline deck.** Run `uv run scripts/occlude.py --apkg output/<case>/diagrams --case <case>`.
    Done when `output/<case>/diagrams.apkg` exists.

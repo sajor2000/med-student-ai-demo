@@ -21,7 +21,9 @@ source the student can open.
 
 1. Cite course material as `[[<path under notes/<case>/, no .md>#<anchor>]]`,
    where the anchor is `S12` (slide 12), `P34` (Word paragraph 34), or `T2`
-   (Word table 2). Example: `[[MICRO/Staph aureus#S3]]`. Cite PubMed as
+   (Word table 2). Example: `[[MICRO/Staph aureus#S3]]`. Copy paths exactly as they appear in `notes/`, with spaces,
+   parentheses and `&` written verbatim and never URL-escaped:
+   `[[GUIDE/Self Study Guide 01 Smith & Lee#P561]]`. Cite PubMed as
    `[PMID:12345678]`.
 2. **Never write a PMID you did not get from a PubMed tool call in this
    session.** No PMIDs from memory. If you cannot find a source, write

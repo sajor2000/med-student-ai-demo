@@ -10,6 +10,8 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
 1. Read the notes for the topic. **If `output/<case>/weak-spots.md` exists, read it too**: cover those topics first,
    and use them as the topic when none was given.
 2. Write `output/<case>/flashcards.csv` with columns `front,back,sources,tags`. Quote any field that contains a comma.
+   When the file already exists, merge: keep every existing row, add the new rows, and dedupe by `front`.
+   Done when the row count is at least the old count and no `front` appears twice.
    - One fact per card. Specific question, answer under ~20 words. No "list all 8" cards.
    - Mix: ~40% mechanism/"why", ~30% recall, ~20% clinical vignette ("A 7-year-old with honey-crusted lesions… organism?"), ~10% compare/contrast.
    - About a quarter of the cards may be **cloze** cards, which suit lists, pathways, and "X causes Y" facts. Write them in Anki
@@ -29,4 +31,6 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
      folder is course material: keep it for yourself and don't share it.
    - These cards supplement a premade deck: they cover *this course's* framing and faculty emphasis.
    - Before studying, spot-check 3 random cards against their cited slide or paper.
+   - After `/study-guide`, `/visualize` or `/mnemonic-art`, re-run export with every flag that applies
+     (`--guide`, `--notes`, `--diagrams`, `--art`) so the study page picks up the new files.
 6. Suggest `/anki-sync <case>` to push these cards into Anki and pull back the ones the student keeps missing.

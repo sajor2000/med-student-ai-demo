@@ -202,11 +202,13 @@ class Sync:
             adopted = True
         elif self.call("findNotes", query=f"tag:{tag}"):
             self.counts["skipped"] += 1  # tagged note lives outside the owned deck
+            print(f"skip {note['id']}: note sits outside {self.deck}")
             return
         else:
             nid = None
         if nid is not None and not self.owned(nid):
             self.counts["skipped"] += 1
+            print(f"skip {note['id']}: note has a card outside {self.deck}")
             return
         if "media" in note:
             self.store_media(note)

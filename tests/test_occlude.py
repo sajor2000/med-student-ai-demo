@@ -330,3 +330,33 @@ def test_chromium_missing_exits_2(occ, monkeypatch, work, capsys):
     monkeypatch.setattr(occ, "launch_chromium", boom)
     assert run(occ, monkeypatch, work) == 2
     assert "playwright install chromium" in capsys.readouterr().out
+
+
+# ---- acceptance-run fixes ----
+
+def _spec_and_texts(svg_text, label="overwhelmed"):
+    spec = {"nodes": [{"id": "n1", "label": label, "cite": "[[A/B#S1]]"}], "edges": []}
+    return spec, [{"id": "n1", "decorative": False, "text": svg_text, "box": {}}]
+
+
+def test_label_compare_is_case_insensitive(occ):
+    spec, texts = _spec_and_texts("OVERWHELMED")
+    assert occ.validate(spec, texts)[0] == []
+
+
+def test_label_compare_still_fails_on_other_difference(occ):
+    spec, texts = _spec_and_texts("OVERWHELM")
+    fails, _ = occ.validate(spec, texts)
+    assert len(fails) == 1 and "n1" in fails[0]
+
+
+def test_summary_lines_separate_id_and_kind(occ):
+    labels = [{"id": "hypothalamus", "kind": "node", "label": "Hypothalamus",
+               "box": {"left": 0.1, "top": 0.2, "width": 0.3, "height": 0.05}},
+              {"id": "e1", "kind": "edge", "label": "ACTH",
+               "box": {"left": 0.5, "top": 0.2, "width": 0.1, "height": 0.05}}]
+    lines = occ.summary_lines("s", labels)
+    assert lines[0] == "s: 2 labels"
+    assert lines[1].startswith("  hypothalamus   node  ")
+    assert "hypothalamusnode" not in "".join(lines)
+    assert lines[-1] == "data-node labels: 2 (nodes + labeled edges)"

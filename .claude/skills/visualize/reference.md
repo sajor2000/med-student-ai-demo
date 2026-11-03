@@ -34,6 +34,11 @@ Keep a diagram to 9 nodes or fewer; split larger topics into two slugs. A topic 
 - Pass the plugin the spec's `type`, title, nodes, and edges. Labels are the spec's strings verbatim; do not reword them.
 - Output format is `html`. The occlusion step makes the PNG itself; skip the plugin's export step.
 - Every `<text>` the student should be quizzed on carries `data-node="<id>"`, edge labels included. Title, legend, and axis captions carry `data-decorative="true"`. The occlusion check runs both ways: a spec id with no `<text>`, or an unmarked `<text>`, is a FAIL.
+- Edge labels stay within 14 characters: diagram-design renders them in capitals, and `occlude.py` compares labels
+  case-insensitively after whitespace normalization, so `cleaves` matches `CLEAVES`. Any other text difference fails.
+- Node labels stay within 6 words.
+- Run the plugin's self check before occluding: `python3 <diagram-design skill dir>/scripts/self_check.py --offline <html>`.
+- Invoke the Skill `diagram-design:diagram-design`; when it is unavailable, read the installed plugin's `SKILL.md` and author the HTML following it.
 - Use the `node-name` role at 20px as the teaching profile defines. Leave the profile's `accent` on one focal node.
 
 ## Troubleshooting

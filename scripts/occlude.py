@@ -162,7 +162,7 @@ def validate(spec: dict, texts: list[dict]) -> tuple[list[str], dict]:
     for tid, w in want.items():
         if tid not in found:
             fails.append(f'{tid}: spec label "{w["label"]}" has no <text data-node="{tid}"> in the SVG')
-        elif norm_ws(found[tid]["text"]) != norm_ws(w["label"]):
+        elif norm_ws(found[tid]["text"]).casefold() != norm_ws(w["label"]).casefold():
             fails.append(f'{tid}: SVG text "{norm_ws(found[tid]["text"])}" differs from spec label "{norm_ws(w["label"])}"')
     return fails, {tid: (want[tid], found[tid]) for tid in want if tid in found}
 
@@ -256,11 +256,18 @@ def run_diagram(html_path: Path, spec_path: Path, case: str) -> int:
     data = {"case": case, "slug": slug, "title": spec.get("title", slug),
             "image": f"{slug}.card.png", "labels": labels}
     (out / f"{slug}.occlusion.json").write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print(f"{slug}: {len(labels)} labels")
+    print("\n".join(summary_lines(slug, labels)))
+    return 0
+
+
+def summary_lines(slug: str, labels: list[dict]) -> list[str]:
+    lines = [f"{slug}: {len(labels)} labels"]
     for l in labels:
         b = l["box"]
-        print(f"  {l['id']:<6}{l['kind']:<5} left={b['left']} top={b['top']} w={b['width']} h={b['height']}  {l['label']}")
-    return 0
+        lines.append(f"  {l['id']:<14} {l['kind']:<5} left={b['left']} top={b['top']} "
+                     f"w={b['width']} h={b['height']}  {l['label']}")
+    lines.append(f"data-node labels: {len(labels)} (nodes + labeled edges)")
+    return lines
 
 
 def build_apkg(folder: Path, case: str) -> int:

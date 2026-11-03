@@ -441,3 +441,33 @@ def test_version_mismatch_is_reported(anki_mod, monkeypatch, fake_factory, workd
     out = capsys.readouterr()
     assert rc == 2 and "version" in (out.out + out.err).lower() and "5" in (out.out + out.err)
     assert fake.actions == ["version"]
+
+
+def test_skip_prints_reason_foreign_deck(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    front = "What does exfoliative toxin cleave?"
+    gid = gid_of(front)
+    fake.put_note("Basic", {"Front": front, "Back": "mine"}, ["msad", f"msad-id::{gid}"], "Other deck")
+    write_csv(workdir)
+    sync(anki_mod, monkeypatch, fake, workdir)
+    out = capsys.readouterr().out
+    assert f"skip {gid}: note sits outside AI Study::case-1" in out
+
+
+def test_skip_prints_reason_not_owned(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    fake.decks.add(DECK)
+    front = "What does exfoliative toxin cleave?"
+    gid = gid_of(front)
+    fake.put_note("Basic", {"Front": front, "Back": "mine"}, ["msad", f"msad-id::{gid}"], DECK,
+                  extra_decks=("Other deck",))
+    write_csv(workdir)
+    sync(anki_mod, monkeypatch, fake, workdir)
+    assert f"skip {gid}: note has a card outside AI Study::case-1" in capsys.readouterr().out
+
+
+def test_diagrams_only_sync(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    d = write_diagrams(workdir)
+    assert sync(anki_mod, monkeypatch, fake, workdir, csv_path=False, diagrams=d) == 0
+    assert summary(capsys.readouterr().out)["added"] == 2
