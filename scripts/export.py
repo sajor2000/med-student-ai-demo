@@ -36,7 +36,7 @@ from pathlib import Path
 
 import markdown
 
-PMID = re.compile(r"\[?PMID:\s?(\d{4,9})\]?")
+PMID = re.compile(r"\[?PMID:\s*(\d{4,9})\]?")  # any whitespace, incl. a CRLF line break
 COURSE = re.compile(r"\[\[([^\]#]+)#([SPT]\d+)\]\]")
 CLOZE = re.compile(r"\{\{c(\d+)::(.*?)(?:::(.*?))?\}\}", re.S)
 ANCHORED_HEADING = re.compile(r"^(#{1,6})\s*\[([SPT]\d+)\]\s*(.*)$")

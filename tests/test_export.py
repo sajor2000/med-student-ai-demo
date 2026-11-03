@@ -228,3 +228,9 @@ def test_citation_split_by_newline_still_links_in_anki(export, tmp_path, monkeyp
     run_main(export, [str(deck)], monkeypatch)
     text = (tmp_path / "out/flashcards.anki.txt").read_text(encoding="utf-8")
     assert "pubmed.ncbi.nlm.nih.gov/12345678/" in text
+
+
+def test_crlf_inside_citation_still_links(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Q?", "See [PMID:\r\n12345678] here", S2)])
+    run_main(export, [str(deck)], monkeypatch)
+    assert "pubmed.ncbi.nlm.nih.gov/12345678/" in (tmp_path / "out/flashcards.anki.txt").read_text(encoding="utf-8")

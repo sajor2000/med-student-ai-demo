@@ -85,3 +85,10 @@ def test_hallucination_example_still_reports_three(check, monkeypatch, capsys):
     )
     assert code == 1
     assert "FAIL: 3 problem(s)" in capsys.readouterr().out
+
+
+def test_crlf_inside_pmid_citation_is_checked(check, notes, tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(check, "pubmed_summaries", lambda pmids: {})
+    deck = write_deck(tmp_path / "d.csv", [card("Q?", sources="[PMID:\r\n99999999]")])
+    assert run_main(check, [str(deck), "--notes", str(notes)], monkeypatch) == 1
+    assert "PMID:99999999 does not exist" in capsys.readouterr().out

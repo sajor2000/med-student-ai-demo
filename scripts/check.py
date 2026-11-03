@@ -48,7 +48,7 @@ COURSE = re.compile(r"\[\[([^\]#]+)#([SPT]\d+)\]\]")
 FACT_LINE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s|\|)")
 TABLE_SEP = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
 AI_LABEL = re.compile(r"\(AI (?:mnemonic|analogy)\)", re.I)
-PMID = re.compile(r"PMID:\s?(\d{4,9})")
+PMID = re.compile(r"PMID:\s*(\d{4,9})")  # any whitespace, incl. a CRLF line break
 CLOZE_START = re.compile(r"\{\{c(?:\d|:)")  # a cloze prefix, not ordinary text like {{class}}
 CLOZE_BODY = re.compile(r"^c(\d+)::(.*?)(?:::(.*))?$", re.S)
 
