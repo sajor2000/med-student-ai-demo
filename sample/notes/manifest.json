@@ -1,0 +1,13 @@
+{
+  "input": "sample/curriculum",
+  "files": [
+    {
+      "source": "MICRO/Staphylococcus aureus (sample lecture).pptx",
+      "notes": "sample/notes/MICRO/Staphylococcus aureus (sample lecture).md",
+      "kind": "slides",
+      "units": 6,
+      "words": 253
+    }
+  ],
+  "skipped": []
+}

@@ -1,0 +1,128 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>Flashcards</title>
+<style>
+:root{--bg:#f7f6f2;--fg:#1d1d1b;--muted:#6b6a65;--card:#fff;--line:#dedbd2;--accent:#0b6e4f}
+@media (prefers-color-scheme:dark){:root{--bg:#161614;--fg:#ecebe6;--muted:#a3a19a;--card:#21211e;--line:#3a3934;--accent:#5fc9a2}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:24px 16px 80px}
+nav{display:flex;gap:8px;margin:8px 0 24px}nav button{flex:1;padding:10px;border:1px solid var(--line);background:var(--card);color:var(--fg);border-radius:8px;font:inherit;cursor:pointer}
+nav button[aria-pressed=true]{border-color:var(--accent);color:var(--accent);font-weight:600}
+table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+.cite{font-size:12px;color:var(--accent);white-space:nowrap}.cite.course{color:var(--muted)}
+#card{background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:260px;padding:28px;cursor:pointer;display:flex;flex-direction:column;justify-content:center}
+#card .q{font-size:20px;font-weight:600}#card .a{margin-top:18px;display:none}#card.flipped .a{display:block}
+.src{margin-top:14px;font-size:13px;color:var(--muted)}.row{display:flex;gap:8px;margin-top:12px;align-items:center}
+.row button{padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit;cursor:pointer}
+.row span{margin-left:auto;color:var(--muted);font-size:14px}
+</style></head><body><main>
+<h1>Flashcards</h1>
+<nav><button id="tg" aria-pressed="false">Study guide</button><button id="tc" aria-pressed="true">Flashcards</button></nav>
+<section id="guide" hidden><h1>Study guide: <em>Staphylococcus aureus</em> (sample)</h1>
+<blockquote>
+<p>Built by the agent from <code>sample/curriculum</code> (a synthetic lecture) with
+<code>/study-guide</code>. Every bullet cites a slide <code>[[deck#S#]]</code> or a verified
+PubMed record <code>[PMID:…]</code>. Checked with <code>scripts/check.py</code>.</p>
+</blockquote>
+<h2>Learning objectives</h2>
+<ol>
+<li>Identify <em>S. aureus</em> in the lab. 2. Link virulence factors to disease. 3. Explain methicillin resistance. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S1</span></li>
+</ol>
+<h2>One-page summary</h2>
+<ul>
+<li>Gram-positive cocci in clusters; <strong>catalase +</strong> (vs strep) and <strong>coagulase +</strong> (vs most other staph). <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S2</span></li>
+<li>It evades opsonization: <strong>protein A</strong> binds the IgG Fc region, and the <strong>capsule</strong> resists phagocytosis. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S3</span></li>
+<li>Disease comes either from <strong>invasion</strong> (abscess, endocarditis, osteomyelitis) or from <strong>toxins</strong> (TSS, scalded skin, food poisoning). <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S4</span> <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S5</span></li>
+<li><strong>MRSA</strong> = <em>mecA</em> → <strong>PBP2a</strong> (low β-lactam affinity), carried on <strong>SCCmec</strong>. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S6</span> <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/30209034/">PMID 30209034</a></li>
+</ul>
+<h2>Virulence factor → disease</h2>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>Mechanism</th>
+<th>Disease</th>
+<th>Source</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Protein A</td>
+<td>Binds IgG Fc and blocks opsonization</td>
+<td>Persistence, abscess</td>
+<td><span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S3</span></td>
+</tr>
+<tr>
+<td>TSST-1</td>
+<td>Superantigen that cross-links MHC II and the TCR outside the peptide groove → cytokine storm</td>
+<td>Toxic shock syndrome</td>
+<td><span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S4</span> <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/38247655/">PMID 38247655</a></td>
+</tr>
+<tr>
+<td>Exfoliative toxins</td>
+<td>Cleave desmoglein-1</td>
+<td>Scalded skin syndrome</td>
+<td><span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S4</span></td>
+</tr>
+<tr>
+<td>Enterotoxins</td>
+<td>Preformed and heat-stable</td>
+<td>Vomiting 1–6 h after eating</td>
+<td><span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S4</span></td>
+</tr>
+<tr>
+<td>PVL</td>
+<td>Kills leukocytes</td>
+<td>Necrotizing skin infection and pneumonia</td>
+<td><span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S4</span></td>
+</tr>
+</tbody>
+</table>
+<h2>Integration thread (micro → immuno → path → pharm)</h2>
+<p>Protein A blocks antibody-mediated opsonization (immuno) <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S3</span> → neutrophils pile up and wall off the
+infection as an <strong>abscess</strong> (path) <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S5</span> → treatment must work against PBP2a when MRSA is suspected (pharm). <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S6</span></p>
+<h2>Beyond the slides</h2>
+<ul>
+<li><strong>Overview review:</strong> Tong et al. cover epidemiology, pathophysiology, and management of <em>S. aureus</em> infections across the whole clinical spectrum. A good second read after the lecture. <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/26016486/">PMID 26016486</a></li>
+<li><strong>StatPearls chapters (free, peer-reviewed):</strong> <em>Staphylococcus aureus Infection</em> <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/28722898/">PMID 28722898</a> and <em>Methicillin-Resistant Staphylococcus aureus</em> <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/29489200/">PMID 29489200</a>.</li>
+<li><strong>Why PBP2a escapes β-lactams:</strong> an updated review of the molecular determinants of β-lactam resistance in MRSA. <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/37760659/">PMID 37760659</a></li>
+</ul>
+<blockquote>
+<p>🔬 <strong>How do we know?</strong> The slide says daptomycin is not used for pneumonia <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S6</span>. The evidence: pulmonary
+surfactant inhibits daptomycin in vitro, matching its failure in pneumonia trials. <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/15898002/">PMID 15898002</a></p>
+</blockquote>
+<h2>Discrepancies</h2>
+<p>None found between the sample slides and the sources above. (With real course decks, the agent lists any
+⚠️ differences here for you to ask faculty about.)</p>
+<h2>Self-test (answers below)</h2>
+<ol>
+<li>Why does catalase separate staph from strep?</li>
+<li>Why would protein A make <em>S. aureus</em> harder to clear?</li>
+<li>How does a superantigen activate so many T cells?</li>
+<li>Why is MRSA resistant to almost all β-lactams?</li>
+<li>Why is daptomycin avoided for pneumonia?</li>
+</ol>
+<details><summary>Answers</summary>
+
+1. Staphylococci are catalase-positive and streptococci are not. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S2</span>
+2. It binds the Fc region of IgG, blocking opsonization and phagocytosis. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S3</span>
+3. It binds MHC II and the TCR outside the peptide groove, activating T cells regardless of antigen. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S4</span>
+4. *mecA* encodes PBP2a, which has low affinity for β-lactams. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S6</span>
+5. Pulmonary surfactant inactivates it. <span class="cite course" title="MICRO/Staphylococcus aureus (sample lecture)">MICRO/Staphylococcus aureus (sample lecture) · S6</span> <a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/15898002/">PMID 15898002</a>
+</details></section>
+<section id="cards"><div id="card"><div class="q"></div><div class="a"><div class="b"></div><div class="src"></div></div></div>
+<div class="row"><button id="prev">← Prev</button><button id="flip">Flip (space)</button><button id="next">Next →</button><span id="pos"></span></div>
+<p class="src">Click the card or press space to flip. Arrow keys move between cards.</p></section>
+</main><script>
+const C=[{"front": "Which bedside enzyme test separates staphylococci from streptococci?", "back": "Catalase: staphylococci are positive and streptococci are negative.", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S2</span>", "tags": "sample;micro;lab-id"}, {"front": "Which test separates S. aureus from most other staphylococci?", "back": "Coagulase (S. aureus is coagulase-positive).", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S2</span>", "tags": "sample;micro;lab-id"}, {"front": "How does protein A help S. aureus evade the immune system?", "back": "It binds the Fc region of IgG and blocks opsonization and phagocytosis.", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S3</span>", "tags": "sample;immuno;virulence"}, {"front": "Why does TSST-1 activate so many T cells at once?", "back": "It is a superantigen: it cross-links MHC II and the TCR outside the peptide groove regardless of antigen.", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S4</span> <a class=\"cite\" href=\"https://pubmed.ncbi.nlm.nih.gov/38247655/\">PMID 38247655</a>", "tags": "sample;immuno;toxins"}, {"front": "What does exfoliative toxin cleave to cause scalded skin syndrome?", "back": "Desmoglein-1", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S4</span>", "tags": "sample;micro;toxins"}, {"front": "A group vomits 2 hours after eating custard at a picnic. Mechanism?", "back": "Preformed heat-stable S. aureus enterotoxin (rapid onset of 1\u20136 h).", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S4</span>", "tags": "sample;micro;vignette"}, {"front": "Which S. aureus toxin is associated with necrotizing pneumonia?", "back": "Panton-Valentine leukocidin (PVL)", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S4</span>", "tags": "sample;micro;toxins"}, {"front": "Which heart valve is classically affected by S. aureus endocarditis in people who inject drugs?", "back": "Tricuspid valve", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S5</span>", "tags": "sample;path;vignette"}, {"front": "What gene and protein make MRSA resistant to beta-lactams?", "back": "mecA encodes PBP2a (low affinity for beta-lactams).", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S6</span> <a class=\"cite\" href=\"https://pubmed.ncbi.nlm.nih.gov/30209034/\">PMID 30209034</a>", "tags": "sample;pharm;resistance"}, {"front": "What mobile genetic element carries mecA?", "back": "SCCmec (staphylococcal cassette chromosome mec)", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S6</span> <a class=\"cite\" href=\"https://pubmed.ncbi.nlm.nih.gov/30209034/\">PMID 30209034</a>", "tags": "sample;pharm;resistance"}, {"front": "Why is daptomycin NOT used for MRSA pneumonia?", "back": "Pulmonary surfactant inactivates daptomycin.", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S6</span> <a class=\"cite\" href=\"https://pubmed.ncbi.nlm.nih.gov/15898002/\">PMID 15898002</a>", "tags": "sample;pharm;why"}, {"front": "What drives abscess formation in S. aureus infection?", "back": "Neutrophil recruitment walls off the infection.", "sources": "<span class=\"cite course\" title=\"MICRO/Staphylococcus aureus (sample lecture)\">MICRO/Staphylococcus aureus (sample lecture) \u00b7 S5</span>", "tags": "sample;path;why"}];let i=0;const card=document.getElementById('card');
+function show(){const c=C[i];card.classList.remove('flipped');card.querySelector('.q').innerHTML=c.front;
+card.querySelector('.b').innerHTML=c.back;card.querySelector('.src').innerHTML='Sources: '+c.sources+(c.tags?' · '+c.tags:'');
+document.getElementById('pos').textContent=(i+1)+' / '+C.length}
+const flip=()=>card.classList.toggle('flipped');card.onclick=e=>{if(e.target.tagName!=='A')flip()};
+document.getElementById('flip').onclick=flip;document.getElementById('next').onclick=()=>{i=(i+1)%C.length;show()};
+document.getElementById('prev').onclick=()=>{i=(i-1+C.length)%C.length;show()};
+document.onkeydown=e=>{if(e.key===' '){e.preventDefault();flip()}if(e.key==='ArrowRight')document.getElementById('next').click();if(e.key==='ArrowLeft')document.getElementById('prev').click()};
+const tg=document.getElementById('tg'),tc=document.getElementById('tc');
+tg.onclick=()=>{guide.hidden=false;cards.hidden=true;tg.setAttribute('aria-pressed',true);tc.setAttribute('aria-pressed',false)};
+tc.onclick=()=>{guide.hidden=true;cards.hidden=false;tc.setAttribute('aria-pressed',true);tg.setAttribute('aria-pressed',false)};
+if(C.length)show();
+</script></body></html>

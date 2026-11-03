@@ -1,0 +1,15 @@
+# Course materials belong to your school. Never commit them.
+curriculum/*
+!curriculum/README.md
+notes/
+output/
+.venv/
+__pycache__/
+.DS_Store
+~$*
+
+# Synthetic sample notes are safe to commit
+!sample/notes/
+
+# Instructor run sheet (names a specific course); kept local
+DEMO.md

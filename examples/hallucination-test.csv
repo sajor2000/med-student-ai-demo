@@ -1,0 +1,5 @@
+front,back,sources,tags
+What toxin causes scalded skin syndrome?,Exfoliative toxin (cleaves desmoglein-1).,[[MICRO/Staphylococcus aureus (sample lecture)#S4]],demo;good
+Who discovered PBP2a?,A made-up answer with a realistic-looking citation.,[PMID:99999999],demo;fake-pmid
+What is on slide 14?,The sample deck only has 6 slides.,[[MICRO/Staphylococcus aureus (sample lecture)#S14]],demo;bad-slide
+Card with no source,The agent forgot to cite.,,demo;no-source
