@@ -89,7 +89,7 @@ def test_links_resolve_to_anchors_for_slide_paragraph_table(export, notes, tmp_p
     expected = {"S3": "desmoglein-1", "P3": "PBP2a", "T1": "Vancomycin"}
     for href in links:
         path, frag = urllib.parse.unquote(href).split("#")
-        target = (page.parent / path)
+        target = page.parent / path
         assert target.exists(), target
         body = target.read_text(encoding="utf-8")
         m = re.search(rf'id="{frag}"[^>]*>(.*?)(?=<[^/]*id="|\Z)', body, re.S)
@@ -147,3 +147,40 @@ def test_page_marks_cloze_cards(export, tmp_path, monkeypatch):
     run_main(export, [str(deck)], monkeypatch)
     cards = page_cards(tmp_path / "out/flashcards.html")
     assert [c.get("cloze") for c in cards] == [False, True]
+    cloze = cards[1]
+    assert "desmoglein-1" not in cloze["front"] and "[protein]" in cloze["front"]
+    assert "<mark>desmoglein-1</mark>" in cloze["reveal"]
+
+
+def test_hintless_cloze_shows_ellipsis(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Toxin cleaves {{c1::desmoglein-1}}.", "", S3)])
+    run_main(export, [str(deck)], monkeypatch)
+    (card,) = page_cards(tmp_path / "out/flashcards.html")
+    assert "desmoglein-1" not in card["front"] and "[\u2026]" in card["front"]
+
+
+def test_traversal_to_real_file_is_blocked(export, notes, tmp_path, monkeypatch, capsys):
+    (tmp_path / "secret.md").write_text("## [S1] secret\n", encoding="utf-8")
+    deck = write_deck(tmp_path / "out", [("Q?", "A", "[[../secret#S1]]")])
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    assert "outside" in capsys.readouterr().out
+    assert not list(tmp_path.rglob("secret.html"))
+    assert hrefs((tmp_path / "out/flashcards.html").read_text(encoding="utf-8")) == []
+
+
+def test_refuses_to_delete_unowned_sources_folder(export, notes, tmp_path, monkeypatch):
+    out = tmp_path / "out"
+    (out / "flashcards_sources").mkdir(parents=True)
+    (out / "flashcards_sources" / "mine.txt").write_text("keep me", encoding="utf-8")
+    deck = write_deck(out, [("Q?", "A", S3)])
+    import pytest
+    with pytest.raises(SystemExit):
+        run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    assert (out / "flashcards_sources" / "mine.txt").exists()
+
+
+def test_rerun_replaces_own_sources_folder(export, notes, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Q?", "A", S3)])
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    assert (tmp_path / "out/flashcards_sources/.generated-by-export").exists()

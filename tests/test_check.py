@@ -21,7 +21,7 @@ def card(front, sources=DECK, back=""):
     return {"front": front, "back": back, "sources": sources}
 
 
-def test_valid_cloze_card_passes(check, notes, tmp_path, monkeypatch, capsys):
+def test_valid_cloze_card_passes(check, notes, tmp_path, monkeypatch):
     deck = write_deck(tmp_path / "d.csv", [card("Exfoliative toxin cleaves {{c1::desmoglein-1}}.")])
     assert run_main(check, [str(deck), "--notes", str(notes)], monkeypatch) == 0
 
@@ -63,9 +63,12 @@ def test_basic_card_with_empty_back_unchanged(check, notes, tmp_path, monkeypatc
     assert run_main(check, [str(deck), "--notes", str(notes)], monkeypatch) == 0
 
 
+def test_template_like_text_is_not_cloze(check, notes, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "d.csv", [card("Explain {{class}} of this drug?")])
+    assert run_main(check, [str(deck), "--notes", str(notes)], monkeypatch) == 0
+
+
 def test_cloze_helpers(check):
-    assert check.is_cloze("x {{c1::y}}")
-    assert not check.is_cloze("plain question?")
     assert check.cloze_problems("ok {{c1::a}} and {{c2::b::hint}}") == []
     assert check.cloze_problems("bad {{c1::a")
     assert check.cloze_problems("bad {{c::a}}")

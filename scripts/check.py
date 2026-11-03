@@ -49,13 +49,8 @@ FACT_LINE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s|\|)")
 TABLE_SEP = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
 AI_LABEL = re.compile(r"\(AI (?:mnemonic|analogy)\)", re.I)
 PMID = re.compile(r"PMID:\s?(\d{4,9})")
-CLOZE_START = re.compile(r"\{\{c")
+CLOZE_START = re.compile(r"\{\{c(?:\d|:)")  # a cloze prefix, not ordinary text like {{class}}
 CLOZE_BODY = re.compile(r"^c(\d+)::(.*?)(?:::(.*))?$", re.S)
-
-
-def is_cloze(text: str) -> bool:
-    """True when a card front uses Anki cloze markup."""
-    return bool(CLOZE_START.search(text or ""))
 
 
 def cloze_problems(text: str) -> list[str]:

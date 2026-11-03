@@ -1,6 +1,6 @@
 """Shared fixtures. Scripts are standalone uv inline scripts, so tests load them by path.
 
-Run: uv run --with pytest --with python-pptx --with python-docx --with markdown pytest tests -q
+Run: uv run --with pytest --with markdown pytest tests -q
 """
 from __future__ import annotations
 
