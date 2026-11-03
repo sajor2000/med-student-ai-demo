@@ -5,14 +5,21 @@
 """Export a flashcard CSV to Anki, and build a one-page study site.
 
 Inputs (CSV columns): front, back, sources, tags
+A card whose front uses Anki cloze markup ({{c1::answer}} or {{c1::answer::hint}})
+is a cloze card; its back is optional "extra" text. Every other card is basic.
+
 Outputs, next to the CSV:
-  <name>.anki.txt   import in Anki: File > Import. Goes into deck "AI Study::<folder>".
-                    Each card has a stable ID from its question, so re-importing an
-                    edited deck updates cards instead of duplicating them.
-  <name>.html       self-contained page: study guide + flip cards, citations linked
+  <name>.anki.txt        basic cards  -> Anki: File > Import (note type Basic)
+  <name>.cloze.anki.txt  cloze cards  -> Anki: File > Import (note type Cloze), only if any
+                         Both go into deck "AI Study::<folder>". Each card has a stable ID
+                         from its front, so re-importing an edited deck updates cards.
+  <name>.html            self-contained page: study guide + flip cards
+  <name>_sources/        with --notes: rendered copies of each cited notes file, so
+                         every course citation on the page opens the exact slide
 
 Usage:
-    uv run scripts/export.py output/flashcards.csv [--guide output/study-guide.md]
+    uv run scripts/export.py output/<case>/flashcards.csv \\
+        [--guide output/<case>/study-guide.md] [--notes notes/<case>]
 """
 
 from __future__ import annotations
@@ -23,59 +30,205 @@ import hashlib
 import html
 import json
 import re
+import shutil
+import urllib.parse
 from pathlib import Path
 
 import markdown
 
 PMID = re.compile(r"\[?PMID:\s?(\d{4,9})\]?")
 COURSE = re.compile(r"\[\[([^\]#]+)#([SPT]\d+)\]\]")
+CLOZE = re.compile(r"\{\{c(\d+)::(.*?)(?:::(.*?))?\}\}", re.S)
+ANCHORED_HEADING = re.compile(r"^(#{1,6})\s*\[([SPT]\d+)\]\s*(.*)$")
+ANCHORED_LINE = re.compile(r"^\[([SPT]\d+)\]\s*(.*)$")
+BANNER = "Course material from your school — for your own study, do not share."
 
 
-def linkify(text: str) -> str:
+def guid(front: str) -> str:
+    return "msad-" + hashlib.sha1(front.strip().lower().encode()).hexdigest()[:12]
+
+
+def is_cloze(front: str) -> bool:
+    return bool(CLOZE.search(front or ""))
+
+
+class SourceLinker:
+    """Renders cited notes files into <name>_sources/ and returns relative links to their anchors."""
+
+    def __init__(self, notes_dir: Path, page: Path):
+        self.notes = notes_dir.resolve()
+        self.folder_name = f"{page.stem}_sources"
+        self.out = (page.parent / self.folder_name).resolve()
+        if self.out.is_dir():
+            shutil.rmtree(self.out)  # our own generated folder; rebuilt every run
+        self.rendered: dict[str, set[str]] = {}
+        self.warnings: list[str] = []
+
+    def _warn(self, msg: str) -> None:
+        if msg not in self.warnings:
+            self.warnings.append(msg)
+
+    def href(self, rel: str, anchor: str) -> str | None:
+        rel = rel.strip()
+        src = (self.notes / f"{rel}.md").resolve()
+        dest = (self.out / f"{rel}.html").resolve()
+        if not src.is_relative_to(self.notes) or not dest.is_relative_to(self.out):
+            self._warn(f"warning: citation [[{rel}#{anchor}]] points outside the notes folder; left as a label")
+            return None
+        if not src.is_file():
+            self._warn(f"warning: no notes file for [[{rel}#{anchor}]]; left as a label")
+            return None
+        if rel not in self.rendered:
+            self.rendered[rel] = self._render(src, dest, rel)
+        if anchor not in self.rendered[rel]:
+            self._warn(f"warning: {anchor} is not a slide/paragraph/table marker in {rel}; left as a label")
+            return None
+        path = "/".join(urllib.parse.quote(part) for part in rel.split("/"))
+        return f"{self.folder_name}/{path}.html#{anchor}"
+
+    @staticmethod
+    def _render(src: Path, dest: Path, rel: str) -> set[str]:
+        ids: set[str] = set()
+        parts: list[str] = []
+        plain: list[str] = []
+
+        def flush() -> None:
+            if plain:
+                parts.append(markdown.markdown("\n".join(plain), extensions=["tables"]))
+                plain.clear()
+
+        for line in src.read_text(encoding="utf-8").splitlines():
+            if m := ANCHORED_HEADING.match(line):
+                flush()
+                level, aid, rest = len(m.group(1)), m.group(2), m.group(3)
+                ids.add(aid)
+                parts.append(f'<h{level} id="{aid}"><span class="tag">[{aid}]</span> {html.escape(rest)}</h{level}>')
+            elif m := ANCHORED_LINE.match(line):
+                flush()
+                aid, rest = m.group(1), m.group(2)
+                ids.add(aid)
+                parts.append(f'<p id="{aid}"><span class="tag">[{aid}]</span> {html.escape(rest)}</p>')
+            else:
+                plain.append(line)
+        flush()
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        page = SOURCE_TEMPLATE.replace("__TITLE__", html.escape(rel)).replace("__BODY__", "\n".join(parts))
+        dest.write_text(page.replace("__BANNER__", html.escape(BANNER)), encoding="utf-8")
+        return ids
+
+
+def linkify(text: str, linker: SourceLinker | None = None) -> str:
+    """Turn citations into links. Course citations link only when a linker is given."""
     text = PMID.sub(r'<a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/\1/">PMID \1</a>', text)
-    return COURSE.sub(r'<span class="cite course" title="\1">\1 · \2</span>', text)
+
+    def course(m: re.Match) -> str:
+        rel, anchor = m.group(1), m.group(2)
+        label = f"{html.escape(rel)} · {anchor}"
+        href = linker.href(html.unescape(rel), anchor) if linker else None
+        if href:
+            return f'<a class="cite course" href="{html.escape(href)}" target="_blank" title="Open the cited source">{label}</a>'
+        return f'<span class="cite course" title="{html.escape(rel)}">{label}</span>'
+
+    return COURSE.sub(course, text)
+
+
+def cloze_front(text: str) -> str:
+    return CLOZE.sub(lambda m: f'<span class="cz">[{m.group(3) or "…"}]</span>', text)
+
+
+def cloze_reveal(text: str) -> str:
+    return CLOZE.sub(lambda m: f"<mark>{m.group(2)}</mark>", text)
+
+
+def write_anki(path: Path, cards: list[dict], notetype: str, deck: str) -> None:
+    with path.open("w", encoding="utf-8") as out:
+        out.write(f"#separator:tab\n#html:true\n#notetype:{notetype}\n#deck:{deck}\n#guid column:1\n#tags column:4\n")
+        for c in cards:
+            extra = linkify(html.escape(c["back"]))
+            sources = "<small>" + linkify(html.escape(c["sources"])) + "</small>"
+            back = f"{extra}<br>{sources}" if extra else sources
+            tags = " ".join(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())
+            out.write(f"{guid(c['front'])}\t{html.escape(c['front'])}\t{back}\t{tags}\n")
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("csv", type=Path)
-    ap.add_argument("--guide", type=Path)
+    ap.add_argument("--guide", type=Path, help="study guide Markdown to include on the page")
+    ap.add_argument("--notes", type=Path, help="notes folder from extract.py; makes course citations clickable")
     args = ap.parse_args()
 
     with args.csv.open(newline="", encoding="utf-8") as fh:
         cards = list(csv.DictReader(fh))
 
+    seen: dict[str, str] = {}
+    for c in cards:
+        g = guid(c["front"])
+        if g in seen:
+            print(f"warning: duplicate card front (same Anki ID): {c['front'][:60]!r}")
+        seen[g] = c["front"]
+
+    deck = "AI Study::" + (args.csv.parent.name or "deck")
+    basic = [c for c in cards if not is_cloze(c["front"])]
+    cloze = [c for c in cards if is_cloze(c["front"])]
     anki = args.csv.with_suffix(".anki.txt")
-    with anki.open("w", encoding="utf-8") as out:
-        deck = "AI Study::" + (args.csv.parent.name or "deck")
-        out.write(f"#separator:tab\n#html:true\n#deck:{deck}\n#guid column:1\n#tags column:4\n")
-        for c in cards:
-            guid = "msad-" + hashlib.sha1(c["front"].strip().lower().encode()).hexdigest()[:12]
-            back = linkify(html.escape(c["back"])) + "<br><small>" + linkify(html.escape(c["sources"])) + "</small>"
-            tags = " ".join(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())
-            out.write(f"{guid}\t{html.escape(c['front'])}\t{back}\t{tags}\n")
+    cloze_file = args.csv.with_suffix(".cloze.anki.txt")
+    write_anki(anki, basic, "Basic", deck)
+    if cloze:
+        write_anki(cloze_file, cloze, "Cloze", deck)
+    elif cloze_file.exists():
+        cloze_file.unlink()
+
+    site = args.csv.with_suffix(".html")
+    linker = SourceLinker(args.notes, site) if args.notes else None
 
     guide_html = ""
     if args.guide and args.guide.exists():
-        guide_html = linkify(markdown.markdown(args.guide.read_text(encoding="utf-8"), extensions=["tables"]))
+        guide_html = linkify(markdown.markdown(args.guide.read_text(encoding="utf-8"), extensions=["tables"]), linker)
 
-    data = [
-        {
-            "front": html.escape(c["front"]),
-            "back": linkify(html.escape(c["back"])),
-            "sources": linkify(html.escape(c["sources"])),
-            "tags": c.get("tags", ""),
-        }
-        for c in cards
-    ]
+    data = []
+    for c in cards:
+        front = html.escape(c["front"])
+        cz = is_cloze(c["front"])
+        data.append(
+            {
+                "front": cloze_front(front) if cz else front,
+                "reveal": cloze_reveal(front) if cz else front,
+                "back": linkify(html.escape(c["back"]), linker),
+                "sources": linkify(html.escape(c["sources"]), linker),
+                "tags": c.get("tags", ""),
+                "cloze": cz,
+            }
+        )
     page = TEMPLATE.replace("__TITLE__", html.escape(args.csv.stem.replace("-", " ").title()))
     page = page.replace("__GUIDE__", guide_html or "<p>No study guide passed (use --guide).</p>")
     page = page.replace("__CARDS__", json.dumps(data))
-    site = args.csv.with_suffix(".html")
     site.write_text(page, encoding="utf-8")
-    print(f"{len(cards)} cards -> {anki} (Anki import)")
+
+    print(f"{len(basic)} basic cards -> {anki} (Anki: File > Import)")
+    if cloze:
+        print(f"{len(cloze)} cloze cards -> {cloze_file} (Anki: File > Import)")
     print(f"study site  -> {site}")
+    if linker:
+        for w in linker.warnings:
+            print(w)
+        if linker.rendered:
+            print(f"sources     -> {linker.out} ({len(linker.rendered)} files). {BANNER}")
     return 0
+
+
+SOURCE_TEMPLATE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1"><title>__TITLE__</title>
+<style>
+:root{--bg:#f7f6f2;--fg:#1d1d1b;--muted:#6b6a65;--line:#dedbd2;--hl:#fff3b0}
+@media (prefers-color-scheme:dark){:root{--bg:#161614;--fg:#ecebe6;--muted:#a3a19a;--line:#3a3934;--hl:#4a4320}}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.55 system-ui,sans-serif}
+main{max-width:860px;margin:0 auto;padding:16px 16px 80px}
+.banner{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:8px 0;font-size:13px;color:var(--muted)}
+.tag{font-size:12px;color:var(--muted)}:target{background:var(--hl);scroll-margin-top:48px}
+</style></head><body><main><div class="banner">__BANNER__</div><h1>__TITLE__</h1>
+__BODY__
+</main></body></html>"""
 
 
 TEMPLATE = """<!doctype html><html lang="en"><head><meta charset="utf-8">
@@ -91,6 +244,7 @@ table{border-collapse:collapse;width:100%;font-size:14px}td,th{border:1px solid 
 .cite{font-size:12px;color:var(--accent);white-space:nowrap}.cite.course{color:var(--muted)}
 #card{background:var(--card);border:1px solid var(--line);border-radius:12px;min-height:260px;padding:28px;cursor:pointer;display:flex;flex-direction:column;justify-content:center}
 #card .q{font-size:20px;font-weight:600}#card .a{margin-top:18px;display:none}#card.flipped .a{display:block}
+.cz{color:var(--accent)}mark{background:#fff3b0;color:inherit;padding:0 2px;border-radius:3px}
 .src{margin-top:14px;font-size:13px;color:var(--muted)}.row{display:flex;gap:8px;margin-top:12px;align-items:center}
 .row button{padding:8px 14px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--fg);font:inherit;cursor:pointer}
 .row span{margin-left:auto;color:var(--muted);font-size:14px}
@@ -106,7 +260,7 @@ const C=__CARDS__;let i=0;const card=document.getElementById('card');
 function show(){const c=C[i];card.classList.remove('flipped');card.querySelector('.q').innerHTML=c.front;
 card.querySelector('.b').innerHTML=c.back;card.querySelector('.src').innerHTML='Sources: '+c.sources+(c.tags?' · '+c.tags:'');
 document.getElementById('pos').textContent=(i+1)+' / '+C.length}
-const flip=()=>card.classList.toggle('flipped');card.onclick=e=>{if(e.target.tagName!=='A')flip()};
+const flip=()=>{card.classList.toggle('flipped');const c=C[i];if(c.cloze)card.querySelector('.q').innerHTML=card.classList.contains('flipped')?c.reveal:c.front};card.onclick=e=>{if(e.target.tagName!=='A')flip()};
 document.getElementById('flip').onclick=flip;document.getElementById('next').onclick=()=>{i=(i+1)%C.length;show()};
 document.getElementById('prev').onclick=()=>{i=(i-1+C.length)%C.length;show()};
 document.onkeydown=e=>{if(e.key===' '){e.preventDefault();flip()}if(e.key==='ArrowRight')document.getElementById('next').click();if(e.key==='ArrowLeft')document.getElementById('prev').click()};
