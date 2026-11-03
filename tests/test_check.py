@@ -78,6 +78,7 @@ def test_cloze_helpers(check):
 
 def test_hallucination_example_still_reports_three(check, monkeypatch, capsys):
     root = Path(__file__).resolve().parents[1]
+    monkeypatch.setattr(check, "pubmed_summaries", lambda pmids: {})  # deterministic: PMID "does not exist"
     code = run_main(
         check,
         [str(root / "examples/hallucination-test.csv"), "--notes", str(root / "sample/notes")],
@@ -252,3 +253,10 @@ def test_non_string_cite_fails_naming_id(check, tmp_path, monkeypatch, capsys):
 def test_missing_file_is_a_clean_failure(check, notes, tmp_path, monkeypatch, capsys):
     assert run_main(check, [str(tmp_path / "nope.md"), "--notes", str(notes)], monkeypatch) == 1
     assert "no such file" in capsys.readouterr().out
+
+
+def test_crlf_inside_pmid_citation_is_checked(check, notes, tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(check, "pubmed_summaries", lambda pmids: {})
+    deck = write_deck(tmp_path / "d.csv", [card("Q?", sources="[PMID:\r\n99999999]")])
+    assert run_main(check, [str(deck), "--notes", str(notes)], monkeypatch) == 1
+    assert "PMID:99999999 does not exist" in capsys.readouterr().out
