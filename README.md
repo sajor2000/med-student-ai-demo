@@ -31,8 +31,8 @@ node -v                                       # must print v24 or higher (PubMed
 git clone https://github.com/sajor2000/med-student-ai-demo && cd med-student-ai-demo
 uv run scripts/extract.py sample/curriculum --out sample/notes
 uv run scripts/check.py examples/flashcards.csv --notes sample/notes
-uv run scripts/export.py examples/flashcards.csv --guide examples/study-guide.md
-open examples/flashcards.html
+uv run scripts/export.py examples/flashcards.csv --guide examples/study-guide.md --notes sample/notes
+open examples/flashcards.html                 # click a slide citation to open the cited slide
 ```
 
 **Windows (PowerShell)**
@@ -43,7 +43,7 @@ node -v                                       # must print v24 or higher
 git clone https://github.com/sajor2000/med-student-ai-demo; cd med-student-ai-demo
 uv run scripts/extract.py sample/curriculum --out sample/notes
 uv run scripts/check.py examples/flashcards.csv --notes sample/notes
-uv run scripts/export.py examples/flashcards.csv --guide examples/study-guide.md
+uv run scripts/export.py examples/flashcards.csv --guide examples/study-guide.md --notes sample/notes
 start examples\flashcards.html
 ```
 On Windows, the PubMed connector must be launched through `cmd`. Run this once
@@ -64,11 +64,15 @@ Stuck? Open an issue: https://github.com/sajor2000/med-student-ai-demo/issues
 | Command | What you get |
 |---|---|
 | `/ingest <case-name>` | Notes with slide anchors, plus a map of the case's topics and cross-discipline threads |
-| `/flashcards <case-name> ["topic"] [n]` | `output/<case>/flashcards.csv` → verified → `.anki.txt` (deck `AI Study::<case>`) + `.html` flip cards |
+| `/flashcards <case-name> ["topic"] [n]` | `output/<case>/flashcards.csv` → verified → `.anki.txt` (basic) + `.cloze.anki.txt` (cloze) for deck `AI Study::<case>`, plus `.html` flip cards whose slide citations open the cited slide |
 | `/quiz <case-name> ["topic"] [n]` | One vignette at a time. Explanations quote the slide, and misses are saved to `weak-spots.md` |
 | `/flashcards <case-name>` again | New cards aimed at your weak spots. Re-importing updates cards instead of duplicating them |
 | `/study-guide <case-name> ["topic"]` | A cited reference to check yourself against **after** recall, with "beyond the slides" boxes from StatPearls/PubMed |
 | `/deepen "<concept>" [case-name]` | "How do we know?" explainer from StatPearls, reviews, and Paperclip full text |
+
+**Card types.** Basic cards are a question and an answer. Cloze cards hide part of a sentence
+in Anki markup, e.g. `Exfoliative toxin cleaves {{c1::desmoglein-1}}.` In Anki, import each
+file once (File → Import). Re-importing an edited deck updates cards instead of duplicating them.
 
 These cards **supplement** a premade deck (e.g. AnKing): they follow *your
 course's* cases and faculty emphasis, tagged by discipline.
@@ -79,11 +83,11 @@ course's* cases and faculty emphasis, tagged by discipline.
 - Literature citation: `[PMID:26016486]` = a real PubMed record
 
 AI models can invent realistic-looking PMIDs. `scripts/check.py`:
-- **catches:** PMIDs that don't exist, retracted papers, slides that don't exist, and cards or guide bullets with no citation
+- **catches:** PMIDs that don't exist, retracted papers, slides that don't exist, cards or guide bullets with no citation, and malformed cloze markup
 - **does not catch:** a real source that doesn't actually say what the card claims, or a medical error
 
 So **PASS means "the sources exist."** Before you study a deck, open 2–3 cited
-slides or papers and compare. See it fail on purpose:
+slides or papers and compare: on the study page, a slide citation opens that slide. See it fail on purpose:
 
 ```bash
 uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes
@@ -104,16 +108,19 @@ use the loop.
 
 ## Ground rules
 
-1. **Slides stay out of git and out of public places.** They belong to your
+1. **Never put patient information (PHI) into these tools.** Course slides
+   normally have none. If a deck includes real patient cases or images, leave it out.
+2. **Slides stay out of git and out of public places.** They belong to your
    school. The agent *does* send the text it reads to your AI provider (and
    Paperclip searches go to Paperclip), so follow your school's AI policy for
    course materials. For fully local use, see "private mode" in `docs/OPEN-RESOURCES.md`.
-2. **The course is the exam's ground truth.** When a source disagrees, the
+   The `<name>_sources/` folder next to a study page is a copy of slide text: keep it to yourself.
+3. **The course is the exam's ground truth.** When a source disagrees, the
    agent flags a ⚠️ discrepancy for you to ask faculty about. It never
    overwrites the slide, and it only checks the topics it researched.
-3. **Spot-check before you study.** PASS means the sources exist, not that they're right.
-4. **Study aid, not a shortcut.** Don't use it for graded work.
-5. **Do the reviews yourself.** The agent writes the cards, but the learning comes from recalling the answers.
+4. **Spot-check before you study.** PASS means the sources exist, not that they're right.
+5. **Study aid, not a shortcut.** Don't use it for graded work.
+6. **Do the reviews yourself.** The agent writes the cards, but the learning comes from recalling the answers.
 
 ## Repo map
 
@@ -124,9 +131,10 @@ CLAUDE.md                 rules the agent follows (citations, sources, style)
 .claude/settings.json     pre-approves only the 3 scripts + PubMed/Paperclip tools (edits still ask)
 scripts/extract.py        pptx/docx -> Markdown with [S#]/[P#]/[T#] anchors
 scripts/check.py          citation verifier (PubMed lookup, slide anchors, coverage)
-scripts/export.py         CSV -> Anki import file + flip-card study page
+scripts/export.py         CSV -> Anki import files (basic + cloze) + flip-card page with clickable sources
 sample/                   synthetic lecture to practice on
 examples/                 finished guide + deck built from the sample
 docs/OPEN-RESOURCES.md    open-source and trusted-source menu + ideas
 curriculum/               YOUR files go here (gitignored)
+tests/                    script tests: uv run --with pytest --with markdown pytest tests -q
 ```

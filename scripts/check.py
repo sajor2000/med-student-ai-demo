@@ -14,6 +14,9 @@ What it checks:
     human can eyeball that it is on topic
   - no PMID is flagged as a retracted publication
   - every flashcard row has at least one citation
+  - cloze cards (Anki markup `{{c1::answer}}` or `{{c1::answer::hint}}` in the
+    front) are well formed: closed, numbered, and not empty. A cloze card's
+    back is optional.
   - every study-guide bullet, numbered item, and table row has a citation,
     `[source needed]` (reported as a warning), or an `(AI mnemonic)` /
     `(AI analogy)` label. The Self-test section is exempt.
@@ -45,8 +48,29 @@ COURSE = re.compile(r"\[\[([^\]#]+)#([SPT]\d+)\]\]")
 FACT_LINE = re.compile(r"^\s*(?:[-*+]\s|\d+\.\s|\|)")
 TABLE_SEP = re.compile(r"^\s*\|[\s:|-]+\|\s*$")
 AI_LABEL = re.compile(r"\(AI (?:mnemonic|analogy)\)", re.I)
-PMID = re.compile(r"PMID:\s?(\d{4,9})")
-MALFORMED: list[str] = []
+PMID = re.compile(r"PMID:\s*(\d{4,9})")  # any whitespace, incl. a CRLF line break
+CLOZE_START = re.compile(r"\{\{c(?:\d|:)")  # a cloze prefix, not ordinary text like {{class}}
+CLOZE_BODY = re.compile(r"^c(\d+)::(.*?)(?:::(.*))?$", re.S)
+
+
+def cloze_problems(text: str) -> list[str]:
+    """Describe every malformed cloze deletion in `text` (empty list = well formed)."""
+    problems = []
+    pos = 0
+    while m := CLOZE_START.search(text, pos):
+        end = text.find("}}", m.start())
+        if end == -1:
+            problems.append("cloze deletion is not closed with }}")
+            break
+        body = CLOZE_BODY.match(text[m.start() + 2 : end])
+        if not body:
+            problems.append("cloze deletion needs a number, like {{c1::answer}}")
+        elif not body.group(2).strip():
+            problems.append("cloze deletion is empty")
+        pos = end + 2
+    return problems
+
+
 ESUMMARY = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi"
 
 
@@ -78,19 +102,22 @@ def anchor_exists(notes_dir: Path, rel: str, anchor: str) -> tuple[bool, str]:
     return True, ""
 
 
-def load_units(path: Path) -> list[tuple[str, str]]:
-    """Return (label, text) pairs: one per flashcard row, or one per guide line."""
+def load_units(path: Path) -> tuple[list[tuple[str, str]], list[str]]:
+    """Return ((label, text) pairs, structural problems): one pair per card row or guide line."""
     if path.suffix.lower() == ".csv":
         with path.open(newline="", encoding="utf-8") as fh:
             rows = list(csv.DictReader(fh))
-        units = []
+        units, problems = [], []
         for i, r in enumerate(rows, 2):
-            label = f"card {i}: {(r.get('front') or '')[:50]}"
+            front = r.get("front") or ""
+            label = f"card {i}: {front[:50]}"
             if None in r:  # more fields than headers: an unquoted comma
-                MALFORMED.append(f"{label}: extra columns (wrap text containing commas in double quotes)")
+                problems.append(f"{label}: extra columns (wrap text containing commas in double quotes)")
+            problems.extend(f"{label}: {p}" for p in cloze_problems(front))
             units.append((label, " ".join(v for v in r.values() if isinstance(v, str))))
-        return units
-    return [(f"line {i}", line) for i, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1)]
+        return units, problems
+    lines = path.read_text(encoding="utf-8").splitlines()
+    return [(f"line {i}", line) for i, line in enumerate(lines, 1)], []
 
 
 def uncited_guide_lines(path: Path) -> tuple[list[str], list[str]]:
@@ -127,9 +154,8 @@ def main() -> int:
     ap.add_argument("--notes", type=Path, required=True, help="folder made by extract.py")
     args = ap.parse_args()
 
-    units = load_units(args.file)
+    units, problems = load_units(args.file)
     is_deck = args.file.suffix.lower() == ".csv"
-    problems: list[str] = list(MALFORMED)
     course_refs = 0
     pmids: dict[str, str] = {}
     needed: list[str] = []
