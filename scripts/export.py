@@ -303,10 +303,15 @@ def main() -> int:
     if extras:
         buttons = "".join(f'<button id="{b}" aria-pressed="false">{label}</button>' for b, label, _, _ in extras)
         sections = "".join(f'<section id="{sid}" hidden>{inner}</section>\n' for _, _, sid, inner in extras)
-        page = page.replace("</nav>", buttons + "</nav>", 1)
-        page = page.replace("</main><script>", sections + "</main><script>", 1)
-        page = page.replace("</style>", EXTRA_CSS + "</style>", 1)
-        page = page.replace("</script></body></html>", "</script>" + EXTRA_JS + "</body></html>", 1)
+        for anchor, spliced in (
+            ("</nav>", buttons + "</nav>"),
+            ("</main><script>", sections + "</main><script>"),
+            ("</style>", EXTRA_CSS + "</style>"),
+            ("</script></body></html>", "</script>" + EXTRA_JS + "</body></html>"),
+        ):
+            if anchor not in page:
+                raise RuntimeError(f"export template is missing the anchor {anchor!r}; extra tabs cannot be added")
+            page = page.replace(anchor, spliced, 1)
     site.write_text(page, encoding="utf-8")
 
     print(f"{len(basic)} basic cards -> {anki} (Anki: File > Import)")

@@ -62,6 +62,10 @@ class Unreachable(AnkiError):
     pass
 
 
+class VersionMismatch(AnkiError):
+    pass
+
+
 def guid(front: str) -> str:
     return "msad-" + hashlib.sha1(front.strip().lower().encode()).hexdigest()[:12]
 
@@ -127,13 +131,13 @@ def diagram_notes(folder: Path) -> list[dict]:
     for f in sorted(folder.glob("*.occlusion.json")):
         data = json.loads(f.read_text(encoding="utf-8"))
         image = folder / data["image"]
-        if not image.is_file():
+        try:
+            png = image.read_bytes()
+        except FileNotFoundError:
             print(f"warning: {image} is missing; skipped {f.name}")
             continue
-        png = image.read_bytes()
-        sha = hashlib.sha256(png).hexdigest()[:8]
+        name = f"{data['slug']}-{hashlib.sha256(png).hexdigest()[:8]}.png"
         for lab in data["labels"]:
-            name = f"{lab['note_id']}-{sha}.png"
             back = f"{html.escape(lab['label'])}<br><small>{html.escape(lab['cite'])}</small>"
             notes.append({
                 "id": lab["note_id"], "model": IO_MODEL,
@@ -151,6 +155,7 @@ class Sync:
         self.deck = f"AI Study::{case}"
         self.counts = {"added": 0, "updated": 0, "adopted": 0, "skipped": 0}
         self._adopt: dict[tuple[str, str], int] | None = None
+        self._stored: set[str] = set()
 
     def call(self, action: str, **params):
         return request(self.url, action, params)
@@ -158,7 +163,7 @@ class Sync:
     def prepare(self) -> None:
         version = self.call("version")
         if version != API_VERSION:
-            raise AnkiError(f"AnkiConnect API version {version} found, version {API_VERSION} needed: update the add-on ({ADDON_CODE})")
+            raise VersionMismatch(f"AnkiConnect API version {version} found, version {API_VERSION} needed: update the add-on ({ADDON_CODE})")
         if self.deck not in self.call("deckNames"):
             self.call("createDeck", deck=self.deck)
 
@@ -182,6 +187,9 @@ class Sync:
 
     def store_media(self, note: dict) -> None:
         name, png = note["media"]
+        if name in self._stored:
+            return
+        self._stored.add(name)
         self.call("storeMediaFile", filename=name, data=base64.b64encode(png).decode(), deleteExisting=False)
 
     def upsert(self, note: dict) -> None:
@@ -224,7 +232,7 @@ class Sync:
             sid = next((t.split("::", 1)[1] for t in tags if t.startswith("msad-id::")), str(n["noteId"]))
             vals = {k: v["value"] for k, v in n["fields"].items()}
             if n["modelName"] == IO_MODEL:
-                topic, discipline = re.split(r"<br", vals.get("Back Extra", ""), maxsplit=1)[0], "diagram"
+                topic, discipline = vals.get("Back Extra", "").partition("<br")[0], "diagram"
             else:
                 topic = vals.get("Front") or vals.get("Text") or ""
                 plain = [t for t in tags if not t.startswith("msad")]
@@ -254,9 +262,12 @@ def first_cite(fields: dict[str, str]) -> str:
 def append_weak_spots(case_dir: Path, items: list[dict]) -> int:
     sidecar = case_dir / ".weak-spots-synced.json"
     done: list[str] = []
-    if sidecar.is_file():
+    try:
         done = json.loads(sidecar.read_text(encoding="utf-8")).get("synced", [])
-    new = [i for i in items if i["id"] not in done]
+    except FileNotFoundError:
+        pass
+    seen = set(done)
+    new = [i for i in items if i["id"] not in seen]
     if not new:
         return 0
     case_dir.mkdir(parents=True, exist_ok=True)
@@ -312,9 +323,12 @@ def main() -> int:
     except Unreachable:
         print(f"AnkiConnect not reachable at {args.url}: open Anki desktop and install add-on {ADDON_CODE}.")
         return 2
+    except VersionMismatch as e:
+        print(f"AnkiConnect error: {e}")
+        return 2
     except AnkiError as e:
         print(f"AnkiConnect error: {e}")
-        return 2 if "API version" in str(e) else 1
+        return 1
     c = s.counts
     print(f"added {c['added']}, updated {c['updated']}, adopted {c['adopted']}, "
           f"skipped {c['skipped']}, weak spots {weak}")

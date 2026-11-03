@@ -4,6 +4,8 @@ import csv
 import json
 import re
 import urllib.parse
+
+import pytest
 from pathlib import Path
 
 from conftest import run_main
@@ -284,3 +286,31 @@ def test_empty_or_missing_folders_add_no_tab(export, tmp_path, monkeypatch):
     run_main(export, [str(deck), "--diagrams", str(tmp_path / "empty"), "--art", str(tmp_path / "empty")], monkeypatch)
     page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
     assert 'id="td"' not in page and 'id="ta"' not in page
+
+
+def _bad_image_case(tmp_path, image, outside=False):
+    folder = tmp_path / "diagrams"
+    folder.mkdir()
+    make_png(tmp_path / "outside.png")  # exists, but outside the diagrams folder
+    make_png(folder / "x.txt")  # PNG bytes under a non-.png name
+    spec = {"case": "demo", "slug": "bad", "title": "Bad", "image": image,
+            "labels": [{"id": "n1", "kind": "node", "label": "L", "cite": S3}]}
+    (folder / "bad.occlusion.json").write_text(json.dumps(spec), encoding="utf-8")
+    return folder
+
+
+@pytest.mark.parametrize("image", ["../outside.png", "x.txt"])
+def test_bad_diagram_image_is_skipped_with_warning(export, tmp_path, monkeypatch, capsys, image):
+    deck = write_deck(tmp_path / "out", MIXED)
+    folder = _bad_image_case(tmp_path, image)
+    run_main(export, [str(deck), "--diagrams", str(folder)], monkeypatch)
+    assert "warning" in capsys.readouterr().out
+    assert not (tmp_path / "out/flashcards_media").exists()
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert 'id="td"' not in page and "Diagrams" not in page
+
+
+def test_nonexistent_diagrams_folder_exits(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    with pytest.raises(SystemExit):
+        run_main(export, [str(deck), "--diagrams", str(tmp_path / "nope")], monkeypatch)

@@ -20,14 +20,13 @@ What it checks:
   - every study-guide bullet, numbered item, and table row has a citation,
     `[source needed]` (reported as a warning), or an `(AI mnemonic)` /
     `(AI analogy)` label. The Self-test section is exempt.
-
-What PASS does NOT mean: that the source actually says what the card says.
-Open one or two cited slides/PMIDs and compare before you study a deck.
-
   - a diagram spec (.json: title, nodes, edges) has unique valid ids, edges that
     join existing nodes, and a citation on every node and every labeled edge
   - a citation into an output/ or art/ folder is always unresolved: AI
     illustrations are memory aids, not sources
+
+What PASS does NOT mean: that the source actually says what the card says.
+Open one or two cited slides/PMIDs and compare before you study a deck.
 
 Usage:
     uv run scripts/check.py output/study-guide.md --notes notes/rmd561-case1
@@ -40,8 +39,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import functools
 import json
 import os
+import posixpath
 import re
 import sys
 import time
@@ -101,19 +102,43 @@ ART_WHY = "AI illustrations are memory aids, not sources"
 ID_OK = re.compile(r"^[a-z0-9-]{1,40}$")
 
 
+def _norm_cite_path(rel: str) -> str:
+    return posixpath.normpath(rel.strip().replace("\\", "/"))
+
+
 def is_art_path(rel: str) -> bool:
     """True for a citation path inside an output or art folder (AI illustrations are never sources)."""
-    norm = rel.strip().replace("\\", "/")
-    return norm.startswith("output/") or "art" in norm.split("/")[:-1] or "/art/" in norm
+    parts = _norm_cite_path(rel).split("/")
+    return parts[0] == "output" or "art" in parts[:-1]
+
+
+def escapes_notes(rel: str) -> bool:
+    """True for a normalized citation path that climbs out of the notes folder or names output/art."""
+    norm = _norm_cite_path(rel)
+    parts = norm.split("/")
+    return norm.startswith("..") or posixpath.isabs(norm) or "output" in parts or "art" in parts
+
+
+@functools.lru_cache(maxsize=None)
+def read_notes(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None
 
 
 def anchor_exists(notes_dir: Path, rel: str, anchor: str) -> tuple[bool, str]:
     if is_art_path(rel):
         return False, ART_WHY
-    f = notes_dir / (rel.strip() + ".md")
-    if not f.exists():
+    outside = "points outside the notes folder"
+    if escapes_notes(rel):
+        return False, outside
+    f = notes_dir / (_norm_cite_path(rel) + ".md")
+    if not f.resolve().is_relative_to(notes_dir.resolve()):
+        return False, outside
+    text = read_notes(f)
+    if text is None:
         return False, f"no notes file {f}"
-    text = f.read_text(encoding="utf-8")
     if f"[{anchor}]" not in text:
         return False, f"{anchor} not found in {f.name}"
     return True, ""
@@ -165,6 +190,10 @@ def uncited_guide_lines(path: Path) -> tuple[list[str], list[str]]:
     return uncited, needed
 
 
+def has_citation(text: str) -> bool:
+    return bool(COURSE.search(text) or PMID.search(text))
+
+
 def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
     """Validate a diagram spec: ((label, cite text) pairs, structural problems, summary)."""
     try:
@@ -205,10 +234,15 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
         name = check_id("node", i, n)
         if isinstance(n.get("id"), str):
             node_ids.add(n["id"])
-        if not str(n.get("label") or "").strip():
+        if "label" in n and not isinstance(n["label"], str):
+            problems.append(f"{name}: label must be a string")
+        elif not str(n.get("label") or "").strip():
             problems.append(f"{name}: missing label")
-        cite = str(n.get("cite") or "")
-        if not (COURSE.search(cite) or PMID.search(cite)):
+        cite = n.get("cite") or ""
+        if not isinstance(cite, str):
+            problems.append(f"{name}: cite must be a string")
+            cite = ""
+        if not has_citation(cite):
             problems.append(f"{name}: no citation")
         units.append((name, cite))
     for i, e in enumerate(edges, 1):
@@ -219,8 +253,13 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
         for end in ("from", "to"):
             if e.get(end) not in node_ids:
                 problems.append(f"{name}: {end} {e.get(end)!r} is not a node id")
-        cite = str(e.get("cite") or "")
-        if str(e.get("label") or "").strip() and not (COURSE.search(cite) or PMID.search(cite)):
+        cite = e.get("cite") or ""
+        if not isinstance(cite, str):
+            problems.append(f"{name}: cite must be a string")
+            cite = ""
+        if "label" in e and not isinstance(e["label"], str):
+            problems.append(f"{name}: label must be a string")
+        elif str(e.get("label") or "").strip() and not has_citation(cite):
             problems.append(f"{name}: labeled edge has no citation")
         units.append((name, cite))
     return units, problems, f"{len(nodes)} nodes, {len(edges)} edges"

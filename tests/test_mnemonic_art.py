@@ -72,7 +72,8 @@ def test_success_saves_captioned_png_and_sidecar(art, net, monkeypatch, tmp_path
     lums = {sum(c) // 3 for _, c in band.getcolors(maxcolors=100000)}
     assert min(lums) < 100 and max(lums) > 200  # text pixels contrast with the band background
     side = json.loads(png.with_suffix(".json").read_text())
-    assert set(side) == {"prompt", "model", "created_at"}
+    assert set(side) == {"prompt", "caption", "model", "created_at"}
+    assert side["caption"] == "Staph scalded skin"
     assert "Staph scalded skin" in side["prompt"] and SCENE in side["prompt"]
     assert side["model"] == "google/gemini-2.5-flash-image"
     assert "staph-scalded-skin.png" in capsys.readouterr().out
@@ -209,3 +210,25 @@ def test_http_post_maps_urllib_error_without_key(art, monkeypatch):
 
 def test_plain_concepts_not_refused(art):
     assert art.phi_hit("Type 2 diabetes", "a vitamin 12 pill with a cape") is None
+
+
+@pytest.mark.parametrize("scene, rule", [
+    ("patient 1234567 smiling", "a number with 6 or more digits"),
+    ("2024-03-14", "a date"),
+    ("born in 1980", "a birth year"),
+])
+def test_each_phi_rule_refuses_in_isolation(art, net, monkeypatch, capsys, scene, rule):
+    # each scene trips exactly one rule: phi_hit names it, and the CLI refuses before any network call
+    assert art.phi_hit(scene) is not None and rule in art.phi_hit(scene)
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    assert run_main(art, args(**{"--scene": scene, "--yes": True}), monkeypatch) == 1
+    assert net.calls == []
+    assert "refus" in capsys.readouterr().err.lower()
+
+
+@pytest.mark.parametrize("scene", ["vitamin B12", "2 cm lesion", "Type 2 diabetes"])
+def test_clinical_text_not_refused(art, net, monkeypatch, scene):
+    assert art.phi_hit(scene) is None
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    assert run_main(art, args(**{"--scene": scene, "--yes": True}), monkeypatch) == 0
+    assert len(net.calls) == 1

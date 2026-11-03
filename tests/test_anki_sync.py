@@ -195,6 +195,10 @@ def write_csv(case: Path, rows=None) -> Path:
     return path
 
 
+def gid_of(front: str) -> str:
+    return "msad-" + hashlib.sha1(front.lower().encode()).hexdigest()[:12]
+
+
 def write_diagrams(case: Path) -> Path:
     d = case / "diagrams"
     d.mkdir()
@@ -265,7 +269,7 @@ def test_hand_imported_note_is_adopted(anki_mod, monkeypatch, fake_factory, work
     sync(anki_mod, monkeypatch, fake, workdir)
     s = summary(capsys.readouterr().out)
     assert s["adopted"] == 1 and s["added"] == 2 and len(fake.notes) == 3
-    gid = "msad-" + hashlib.sha1(front.lower().encode()).hexdigest()[:12]
+    gid = gid_of(front)
     assert {"msad", f"msad-id::{gid}"} <= set(fake.notes[nid]["tags"])
     assert fake.notes[nid]["fields"]["Back"] != "old"
 
@@ -273,7 +277,7 @@ def test_hand_imported_note_is_adopted(anki_mod, monkeypatch, fake_factory, work
 def test_tagged_note_in_foreign_deck_is_skipped(anki_mod, monkeypatch, fake_factory, workdir, capsys):
     fake = fake_factory()
     front = "What does exfoliative toxin cleave?"
-    gid = "msad-" + hashlib.sha1(front.lower().encode()).hexdigest()[:12]
+    gid = gid_of(front)
     nid = fake.put_note("Basic", {"Front": front, "Back": "mine"}, ["msad", f"msad-id::{gid}"], "Other deck")
     write_csv(workdir)
     sync(anki_mod, monkeypatch, fake, workdir)
@@ -287,7 +291,7 @@ def test_note_with_a_card_in_foreign_deck_is_skipped_by_recheck(anki_mod, monkey
     fake = fake_factory()
     fake.decks.add(DECK)
     front = "What does exfoliative toxin cleave?"
-    gid = "msad-" + hashlib.sha1(front.lower().encode()).hexdigest()[:12]
+    gid = gid_of(front)
     nid = fake.put_note("Basic", {"Front": front, "Back": "mine"}, ["msad", f"msad-id::{gid}"], DECK,
                         extra_decks=("Other deck",))
     write_csv(workdir)
@@ -337,12 +341,13 @@ def test_diagram_notes_use_hashed_media_and_never_overwrite(anki_mod, monkeypatc
     stores = fake.calls("storeMediaFile")
     assert stores and all(r["params"]["deleteExisting"] is False for r in stores)
     sha = hashlib.sha256(PNG).hexdigest()[:8]
+    assert len(stores) == 1  # one upload per diagram, not per label
     for r in stores:
-        assert re.fullmatch(rf"msad-[0-9a-f]{{12}}-{sha}\.png", r["params"]["filename"])
+        assert r["params"]["filename"] == f"staph-toxins-{sha}.png"
         assert base64.b64decode(r["params"]["data"]) == PNG
     io = next(n for n in fake.notes.values() if n["model"] == "Image Occlusion")
     assert io["fields"]["Occlusion"].startswith("{{c1::image-occlusion:rect:")
-    assert re.fullmatch(r'<img src="msad-[0-9a-f]{12}-' + sha + r'\.png">', io["fields"]["Image"])
+    assert io["fields"]["Image"] == f'<img src="staph-toxins-{sha}.png">'
     assert io["fields"]["Header"] == "S. aureus toxins"
     assert "Exfoliative toxin" in io["fields"]["Back Extra"] and "[[MICRO/Staph deck (sample)#S3]]" in html.unescape(io["fields"]["Back Extra"])
     assert f"msad-id::{IO_ID}" in io["tags"]

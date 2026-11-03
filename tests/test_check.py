@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
 
 from conftest import run_main
@@ -87,9 +88,6 @@ def test_hallucination_example_still_reports_three(check, monkeypatch, capsys):
 
 
 # ---- diagram specs (.json) and AI-art citations ----
-
-import json
-import shutil
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC_FIXTURE = ROOT / "tests/fixtures/diagram-spec.json"
@@ -201,3 +199,51 @@ def test_is_art_path_helper(check):
     assert check.is_art_path("MICRO/art/x")
     assert not check.is_art_path("MICRO/Staph deck (sample)")
     assert not check.is_art_path("MICRO/article/x")
+
+
+def _guide(tmp_path, cite):
+    g = tmp_path / "g.md"
+    g.write_text(f"# G\n\n- fact {cite}\n", encoding="utf-8")
+    return g
+
+
+def test_traversal_into_output_art_is_unresolved(check, notes, tmp_path, monkeypatch, capsys):
+    # [[../../output/case/generated#S1]] from notes/ resolves to <tmp>/output/case/generated.md
+    gen = tmp_path / "output" / "case"
+    gen.mkdir(parents=True)
+    (gen / "generated.md").write_text("## [S1] x\n", encoding="utf-8")
+    g = _guide(tmp_path, "[[../../output/case/generated#S1]]")
+    assert run_main(check, [str(g), "--notes", str(notes)], monkeypatch) == 1
+    assert "points outside the notes folder" in capsys.readouterr().out
+
+
+def test_traversal_outside_notes_is_unresolved(check, notes, tmp_path, monkeypatch, capsys):
+    (tmp_path / "secret.md").write_text("## [S1] x\n", encoding="utf-8")
+    g = _guide(tmp_path, "[[../secret#S1]]")
+    assert run_main(check, [str(g), "--notes", str(notes)], monkeypatch) == 1
+    assert "points outside the notes folder" in capsys.readouterr().out
+
+
+def test_dotted_art_paths_still_unresolved(check, notes, tmp_path, monkeypatch, capsys):
+    (notes / "MICRO" / "art").mkdir()
+    (notes / "MICRO" / "art" / "pic.md").write_text("## [S1] x\n", encoding="utf-8")
+    g = _guide(tmp_path, "[[MICRO/./art/pic#S1]] [[MICRO/x/../art/pic#S1]]")
+    assert run_main(check, [str(g), "--notes", str(notes)], monkeypatch) == 1
+    assert capsys.readouterr().out.count("AI illustrations are memory aids, not sources") == 2
+
+
+def test_normal_citation_with_dot_segment_passes(check, notes, tmp_path, monkeypatch):
+    g = _guide(tmp_path, "[[MICRO/./Staph deck (sample)#S3]]")
+    assert run_main(check, [str(g), "--notes", str(notes)], monkeypatch) == 0
+
+
+def test_numeric_label_fails_naming_id(check, tmp_path, monkeypatch, capsys):
+    path = spec_copy(tmp_path, lambda s: s["nodes"][1].update(label=123))
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "n2" in out and "label" in out and "string" in out
+
+
+def test_non_string_cite_fails_naming_id(check, tmp_path, monkeypatch, capsys):
+    path = spec_copy(tmp_path, lambda s: s["nodes"][1].update(cite=["x"]))
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "n2" in out and "cite" in out and "string" in out

@@ -26,6 +26,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import html
+import io
 import json
 import re
 import sys
@@ -93,7 +94,7 @@ def back_extra(label: str, cite: str) -> str:
     return f"{html.escape(label)}<br><small>{html.escape(cite)}</small>"
 
 
-def io_fields(slug: str, title: str, image: str, label: str, cite: str, box: dict) -> dict:
+def io_fields(title: str, image: str, label: str, cite: str, box: dict) -> dict:
     """Image Occlusion note fields in Anki's field order (rslib/src/image_occlusion)."""
     return {
         "Occlusion": occlusion_string(box),
@@ -108,11 +109,33 @@ def norm_ws(s: str) -> str:
     return re.sub(r"\s+", " ", s or "").strip()
 
 
+class ChromiumUnavailable(Exception):
+    """Both Chromium launch attempts failed."""
+
+
 def launch_chromium(p):
     try:
         return p.chromium.launch()
     except Exception:
-        return p.chromium.launch(channel="chromium")
+        try:
+            return p.chromium.launch(channel="chromium")
+        except Exception as e:
+            raise ChromiumUnavailable(str(e)) from e
+
+
+def spec_type_problems(spec: dict) -> list[str]:
+    """Labels and cites must be strings (checked before norm_ws touches them)."""
+    probs: list[str] = []
+    for kind, key in (("node", "nodes"), ("edge", "edges")):
+        for i, item in enumerate(spec.get(key) or [], 1):
+            if not isinstance(item, dict):
+                probs.append(f"{kind} #{i}: must be an object")
+                continue
+            ident = item.get("id", f"#{i}")
+            for field in ("label", "cite"):
+                if field in item and not isinstance(item[field], str):
+                    probs.append(f"{kind} {ident}: {field} must be a string")
+    return probs
 
 
 def validate(spec: dict, texts: list[dict]) -> tuple[list[str], dict]:
@@ -164,7 +187,7 @@ def measure(page_html: Path) -> dict:
 
 def render_variants(card_png: bytes, items: list[dict], outdir: Path, slug: str) -> None:
     from PIL import Image, ImageDraw
-    card = Image.open(__import__("io").BytesIO(card_png)).convert("RGB")
+    card = Image.open(io.BytesIO(card_png)).convert("RGB")
     W, H = card.size
     for it in items:
         b = it["box"]
@@ -190,17 +213,21 @@ def run_diagram(html_path: Path, spec_path: Path, case: str) -> int:
         return 1
     try:
         spec = json.loads(spec_path.read_text(encoding="utf-8"))
-        spec["nodes"]
-    except (ValueError, KeyError) as e:
+    except ValueError as e:
         print(f"FAIL: bad spec {spec_path.name}: {e!r}")
+        return 1
+    if not isinstance(spec, dict) or not isinstance(spec.get("nodes"), list):
+        print(f"FAIL: bad spec {spec_path.name}: 'nodes' must be a list")
+        return 1
+    bad = spec_type_problems(spec)
+    if bad:
+        print("FAIL:\n  - " + "\n  - ".join(bad))
         return 1
     try:
         res = measure(html_path)
-    except Exception as e:
-        if "Executable doesn't exist" in str(e) or "launch" in str(e).lower() or isinstance(e, RuntimeError):
-            print(INSTALL_HINT)
-            return 2
-        raise
+    except ChromiumUnavailable:
+        print(INSTALL_HINT)
+        return 2
     if "error" in res:
         print(f"FAIL: {res['error']}")
         return 1
@@ -263,8 +290,7 @@ def build_apkg(folder: Path, case: str) -> int:
                     print(f"FAIL: missing {folder / name}; rerun occlude.py on {data['slug']}")
                     return 1
                 media.append(str(folder / name))
-            back = (f'<img src="{lab["highlight"]}"><br>{html.escape(lab["label"])}'
-                    f'<br><small>{html.escape(lab["cite"])}</small>')
+            back = f'<img src="{lab["highlight"]}"><br>{back_extra(lab["label"], lab["cite"])}'
             deck.add_note(genanki.Note(model=model, fields=[f'<img src="{lab["masked"]}">', back],
                                        guid=lab["note_id"], tags=["msad", "diagram"]))
             count += 1
@@ -287,13 +313,7 @@ def main() -> int:
         return build_apkg(a.apkg, a.case)
     if not a.html or not a.spec:
         ap.error("pass the HTML and --spec, or --apkg <folder>")
-    try:
-        return run_diagram(a.html, a.spec, a.case)
-    except Exception as e:  # Chromium launch failures surface here
-        if "playwright" in str(e).lower() or "chromium" in str(e).lower():
-            print(INSTALL_HINT)
-            return 2
-        raise
+    return run_diagram(a.html, a.spec, a.case)
 
 
 if __name__ == "__main__":

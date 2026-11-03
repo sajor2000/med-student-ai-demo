@@ -67,7 +67,7 @@ def test_occlusion_string_matches_pinned_anki_format(occ):
     pin = json.loads((FIX / "io-note-fields.json").read_text(encoding="utf-8"))
     assert "rslib/src/cloze.rs" in pin["source"] and "imageocclusion.rs" in pin["source"]
     i = pin["input"]
-    fields = occ.io_fields(i["slug"], i["title"], i["image"], i["label"], i["cite"], i["box"])
+    fields = occ.io_fields(i["title"], i["image"], i["label"], i["cite"], i["box"])
     assert list(fields) == pin["field_order"]
     assert fields == pin["fields"]
 
@@ -217,10 +217,61 @@ def test_whitespace_normalized_label_passes(occ, monkeypatch, work, need_chromiu
     assert run(occ, monkeypatch, work) == 0
 
 
-def test_network_requests_blocked(occ, monkeypatch, work, need_chromium):
+def test_non_string_label_spec_fails_cleanly(occ, monkeypatch, work, capsys):
+    spec = json.loads((work / "staph-toxins.json").read_text())
+    spec["nodes"][0]["label"] = 123
+    (work / "staph-toxins.json").write_text(json.dumps(spec), encoding="utf-8")
+    assert run(occ, monkeypatch, work) == 1
+    out = capsys.readouterr()
+    assert "must be a string" in out.out and spec["nodes"][0]["id"] in out.out
+    assert "Traceback" not in out.out + out.err
+
+
+def test_spec_string_validation_unit(occ):
+    assert occ.spec_type_problems({"nodes": [{"id": "n1", "label": "ok", "cite": "c"}], "edges": []}) == []
+    probs = occ.spec_type_problems({"nodes": [{"id": "n1", "label": 5, "cite": "c"}],
+                                    "edges": [{"id": "e1", "label": "x", "cite": 7}]})
+    assert any("n1" in p and "label" in p for p in probs) and any("e1" in p and "cite" in p for p in probs)
+
+
+class _Counter:
+    hits = 0
+
+
+@pytest.fixture
+def counting_server():
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    import threading
+
+    class H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            _Counter.hits += 1
+            self.send_response(404)
+            self.end_headers()
+
+        def log_message(self, *a):
+            pass
+
+    _Counter.hits = 0
+    srv = HTTPServer(("127.0.0.1", 0), H)
+    t = threading.Thread(target=srv.serve_forever, daemon=True)
+    t.start()
+    yield srv.server_address[1], _Counter
+    srv.shutdown()
+    srv.server_close()
+
+
+def test_network_requests_blocked(occ, monkeypatch, work, need_chromium, counting_server):
+    port, counter = counting_server
+    base = f"http://127.0.0.1:{port}"
     p = work / "staph-toxins.html"
-    p.write_text(p.read_text().replace("</body>", '<img src="http://127.0.0.1:9/x.png"></body>'), encoding="utf-8")
+    html = p.read_text()
+    assert "<svg" in html and "</svg>" in html
+    html = html.replace("</svg>", f'<image href="{base}/svg.png"/><style>svg{{background:url({base}/bg.png)}}</style></svg>', 1)
+    html = html.replace("</body>", f'<img src="{base}/x.png"></body>')
+    p.write_text(html, encoding="utf-8")
     assert run(occ, monkeypatch, work) == 0
+    assert counter.hits == 0
 
 
 # ---- apkg ----
@@ -275,7 +326,7 @@ def test_adding_a_node_leaves_other_ids_unchanged(occ, monkeypatch, work, need_c
 
 def test_chromium_missing_exits_2(occ, monkeypatch, work, capsys):
     def boom(p):
-        raise RuntimeError("no chromium")
+        raise occ.ChromiumUnavailable("no chromium")
     monkeypatch.setattr(occ, "launch_chromium", boom)
     assert run(occ, monkeypatch, work) == 2
     assert "playwright install chromium" in capsys.readouterr().out

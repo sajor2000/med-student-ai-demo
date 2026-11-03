@@ -189,6 +189,7 @@ def main() -> int:
     img.save(path, "PNG")
     path.with_suffix(".json").write_text(json.dumps({
         "prompt": prompt,
+        "caption": a.concept,
         "model": a.model,
         "created_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
     }, indent=2), encoding="utf-8")
