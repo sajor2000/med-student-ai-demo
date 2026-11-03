@@ -1,5 +1,6 @@
 #separator:tab
 #html:true
+#notetype:Basic
 #deck:AI Study::examples
 #guid column:1
 #tags column:4
