@@ -264,7 +264,7 @@ def test_hand_imported_note_is_adopted(anki_mod, monkeypatch, fake_factory, work
     fake = fake_factory()
     fake.decks.add(DECK)
     front = "What does exfoliative toxin cleave?"
-    nid = fake.put_note("Basic", {"Front": html.escape(front), "Back": "old"}, [], DECK)
+    nid = fake.put_note("Basic", {"Front": html.escape(front), "Back": "old"}, ["msad", "micro"], DECK)
     write_csv(workdir)
     sync(anki_mod, monkeypatch, fake, workdir)
     s = summary(capsys.readouterr().out)
@@ -272,6 +272,22 @@ def test_hand_imported_note_is_adopted(anki_mod, monkeypatch, fake_factory, work
     gid = gid_of(front)
     assert {"msad", f"msad-id::{gid}"} <= set(fake.notes[nid]["tags"])
     assert fake.notes[nid]["fields"]["Back"] != "old"
+
+
+def test_untagged_same_front_note_is_left_alone_and_reported(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    fake.decks.add(DECK)
+    front = "What does exfoliative toxin cleave?"
+    nid = fake.put_note("Basic", {"Front": html.escape(front), "Back": "my own answer"}, [], DECK)
+    write_csv(workdir)
+    sync(anki_mod, monkeypatch, fake, workdir)
+    out = capsys.readouterr().out
+    s = summary(out)
+    assert s["adopted"] == 0 and s["skipped"] == 1 and s["added"] == 2 and len(fake.notes) == 3
+    assert "skip: same front as a generated card but not created by this repo (left untouched)" in out
+    assert fake.notes[nid]["fields"]["Back"] == "my own answer" and fake.notes[nid]["tags"] == []
+    assert all(r["params"]["note"]["id"] != nid for r in fake.calls("updateNoteFields"))
+    assert all(nid not in r["params"].get("notes", []) for r in fake.calls("addTags"))
 
 
 def test_tagged_note_in_foreign_deck_is_skipped(anki_mod, monkeypatch, fake_factory, workdir, capsys):

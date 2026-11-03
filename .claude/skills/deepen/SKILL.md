@@ -27,3 +27,5 @@ unavailable)" at the top, and go to step 6. Never write a PMID without a tool re
    Done when every bullet has a citation.
 6. Run `uv run scripts/check.py output/<case>/deepen/<slug>.md --notes notes/<case>`.
    Done when it prints PASS.
+
+To read the explainers on the study page, run `export.py ... --deepen output/<case>/deepen` (adds a "Deep dives" tab).

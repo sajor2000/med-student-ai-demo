@@ -161,6 +161,7 @@ class Sync:
         self.deck = f"AI Study::{case}"
         self.counts = {"added": 0, "updated": 0, "adopted": 0, "skipped": 0}
         self._adopt: dict[tuple[str, str], int] | None = None
+        self._foreign: set[tuple[str, str]] = set()
         self._stored: set[str] = set()
 
     def call(self, action: str, **params):
@@ -178,7 +179,8 @@ class Sync:
         return all(c["deckName"] == self.deck for c in self.call("cardsInfo", cards=cards))
 
     def adoptable(self) -> dict[tuple[str, str], int]:
-        """Untagged notes in the owned deck, keyed by (model, guid of their first field)."""
+        """Hand-imported notes (tag `msad`, no `msad-id::`) in the owned deck, keyed by (model, guid of
+        their first field). Notes without the `msad` tag are never adopted; their keys go to self._foreign."""
         if self._adopt is None:
             self._adopt = {}
             ids = self.call("findNotes", query=f'deck:"{self.deck}"')
@@ -188,7 +190,10 @@ class Sync:
                 first = {"Basic": "Front", "Cloze": "Text"}.get(n["modelName"])
                 if first and first in n["fields"]:
                     key = (n["modelName"], guid(html.unescape(n["fields"][first]["value"])))
-                    self._adopt.setdefault(key, n["noteId"])
+                    if "msad" in n["tags"]:
+                        self._adopt.setdefault(key, n["noteId"])
+                    else:
+                        self._foreign.add(key)
         return self._adopt
 
     def store_media(self, note: dict) -> None:
@@ -206,6 +211,10 @@ class Sync:
             nid = found[0]
         elif note["model"] != IO_MODEL and (nid := self.adoptable().get((note["model"], note["id"]))):
             adopted = True
+        elif note["model"] != IO_MODEL and (note["model"], note["id"]) in self._foreign:
+            self.counts["skipped"] += 1
+            print("skip: same front as a generated card but not created by this repo (left untouched)")
+            return
         elif self.call("findNotes", query=f"tag:{tag}"):
             self.counts["skipped"] += 1  # tagged note lives outside the owned deck
             print(f"skip {note['id']}: note sits outside {self.deck}")

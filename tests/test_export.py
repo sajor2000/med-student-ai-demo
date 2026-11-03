@@ -391,3 +391,76 @@ def test_media_rerun_replaces_own_file_and_adopts_identical(export, tmp_path, mo
     run_main(export, [str(deck), "--art", str(art)], monkeypatch)
     dest = tmp_path / "out/flashcards_media/art/foo.png"
     assert dest.read_bytes() == (art / "foo.png").read_bytes()
+
+
+def test_anki_rows_carry_msad_tag(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    run_main(export, [str(deck)], monkeypatch)
+    for name in ("flashcards.anki.txt", "flashcards.cloze.anki.txt"):
+        rows = [l for l in (tmp_path / "out" / name).read_text(encoding="utf-8").splitlines() if not l.startswith("#")]
+        assert rows
+        for row in rows:
+            assert "msad" in row.split("\t")[3].split()
+            assert "micro" in row.split("\t")[3].split()
+
+
+def test_anki_row_without_csv_tags_still_gets_msad(export, tmp_path, monkeypatch):
+    out = tmp_path / "out"
+    out.mkdir()
+    (out / "flashcards.csv").write_text("front,back,sources,tags\nQ?,A,,\n", encoding="utf-8")
+    run_main(export, [str(out / "flashcards.csv")], monkeypatch)
+    row = [l for l in (out / "flashcards.anki.txt").read_text(encoding="utf-8").splitlines() if not l.startswith("#")][0]
+    assert row.split("\t")[3] == "msad"
+
+
+def make_deepen(folder: Path, files: dict[str, str]) -> Path:
+    folder.mkdir(parents=True, exist_ok=True)
+    for name, text in files.items():
+        (folder / name).write_text(text, encoding="utf-8")
+    return folder
+
+
+def test_deepen_tab_renders_explainer_with_linked_citation(export, notes, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    deepen = make_deepen(tmp_path / "deepen", {
+        "scalded-skin.md": f"# Scalded skin\n\n- Exfoliative toxin cleaves desmoglein-1. {S3} [PMID: 123456]\n"})
+    run_main(export, [str(deck), "--notes", str(notes), "--deepen", str(deepen)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert 'id="te"' in page and "Deep dives" in page and 'id="deepen"' in page
+    section = page.split('id="deepen"')[1].split("</section>")[0]
+    assert "<h1>Scalded skin</h1>" in section and "<li>" in section
+    (href,) = re.findall(r'href="([^"]+_sources/[^"]+)"', section)
+    assert urllib.parse.unquote(href).endswith("#S3")
+    assert "pubmed.ncbi.nlm.nih.gov/123456/" in section
+
+
+def test_deepen_citations_stay_plain_without_notes(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    deepen = make_deepen(tmp_path / "deepen", {"a.md": f"- Fact. {S3}\n"})
+    run_main(export, [str(deck), "--deepen", str(deepen)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert 'id="te"' in page and hrefs(page) == []
+
+
+def test_no_deepen_flag_page_is_unchanged(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    run_main(export, [str(deck)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert "Deep dives" not in page and 'id="deepen"' not in page and page.count("<button") == 5
+
+
+def test_empty_deepen_folder_adds_no_tab(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    (tmp_path / "empty").mkdir()
+    run_main(export, [str(deck), "--deepen", str(tmp_path / "empty")], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert 'id="te"' not in page and "Deep dives" not in page
+
+
+def test_raw_html_in_deepen_file_is_escaped(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    deepen = make_deepen(tmp_path / "deepen", {"x.md": "<script>alert(1)</script>\n\n<img src=x onerror=alert(2)>\n"})
+    run_main(export, [str(deck), "--deepen", str(deepen)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert "<script>alert(1)" not in page and "<img src=x" not in page
+    assert "&lt;script&gt;alert(1)&lt;/script&gt;" in page
