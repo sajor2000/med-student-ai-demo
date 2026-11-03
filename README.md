@@ -23,7 +23,7 @@ here is tied to one school.
 ```bash
 # 1. Prereqs: uv (Python), Node 24+, and Claude Code (or Codex / OpenCode)
 brew install uv node        # macOS; see docs.astral.sh/uv for Windows/Linux
-git clone https://github.com/<you>/med-student-ai-demo && cd med-student-ai-demo
+git clone https://github.com/sajor2000/med-student-ai-demo && cd med-student-ai-demo
 
 # 2. Try it on the synthetic sample lecture (no course files needed)
 uv run scripts/extract.py sample/curriculum --out sample/notes
