@@ -29,3 +29,4 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
      folder is course material: keep it for yourself and don't share it.
    - These cards supplement a premade deck: they cover *this course's* framing and faculty emphasis.
    - Before studying, spot-check 3 random cards against their cited slide or paper.
+6. Suggest `/anki-sync <case>` to push these cards into Anki and pull back the ones the student keeps missing.

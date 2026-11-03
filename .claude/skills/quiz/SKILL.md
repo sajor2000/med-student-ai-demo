@@ -18,3 +18,4 @@ For each question:
    - Remind the student once per quiz that explanations are not run through `check.py`, so they should open the quoted slide when unsure.
 At the end, show the score, then append each missed topic to `output/<case>/weak-spots.md` as
 `- YYYY-MM-DD | discipline | topic | [[path#S#]]`. Tell the student `/flashcards <case>` will target these.
+Also suggest `/anki-sync <case>` to push cards into Anki and pull back the ones the student keeps missing.
