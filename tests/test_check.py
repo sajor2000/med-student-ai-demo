@@ -77,6 +77,7 @@ def test_cloze_helpers(check):
 
 def test_hallucination_example_still_reports_three(check, monkeypatch, capsys):
     root = Path(__file__).resolve().parents[1]
+    monkeypatch.setattr(check, "pubmed_summaries", lambda pmids: {})  # deterministic: PMID "does not exist"
     code = run_main(
         check,
         [str(root / "examples/hallucination-test.csv"), "--notes", str(root / "sample/notes")],

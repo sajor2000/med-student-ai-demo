@@ -117,7 +117,7 @@ class SourceLinker:
                 ids.add(aid)
                 parts.append(f'<p id="{aid}"><span class="tag">[{aid}]</span> {html.escape(rest)}</p>')
             else:
-                plain.append(line)
+                plain.append(re.sub(r"<(?=[A-Za-z/!?])", "&lt;", line))  # notes text is data, never markup
         flush()
         dest.parent.mkdir(parents=True, exist_ok=True)
         page = SOURCE_TEMPLATE.replace("__TITLE__", html.escape(rel)).replace("__BODY__", "\n".join(parts))
@@ -149,14 +149,16 @@ def cloze_reveal(text: str) -> str:
 
 
 def write_anki(path: Path, cards: list[dict], notetype: str, deck: str) -> None:
-    with path.open("w", encoding="utf-8") as out:
+    with path.open("w", newline="", encoding="utf-8") as out:
         out.write(f"#separator:tab\n#html:true\n#notetype:{notetype}\n#deck:{deck}\n#guid column:1\n#tags column:4\n")
+        writer = csv.writer(out, delimiter="\t", lineterminator="\n", quoting=csv.QUOTE_MINIMAL)
         for c in cards:
-            extra = linkify(html.escape(c["back"]))
-            sources = "<small>" + linkify(html.escape(c["sources"])) + "</small>"
+            extra = linkify(html.escape(c["back"], quote=False))
+            sources = "<small>" + linkify(html.escape(c["sources"], quote=False)) + "</small>"
             back = f"{extra}<br>{sources}" if extra else sources
             tags = " ".join(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())
-            out.write(f"{guid(c['front'])}\t{html.escape(c['front'])}\t{back}\t{tags}\n")
+            # csv quoting keeps a tab or newline inside a field from splitting the Anki record
+            writer.writerow([guid(c["front"]), html.escape(c["front"], quote=False), back, tags])
 
 
 def main() -> int:
@@ -200,8 +202,8 @@ def main() -> int:
         front = html.escape(c["front"])
         item = {
             "front": cloze_front(front) if cz else front,
-            "back": linkify(html.escape(c["back"]), linker),
-            "sources": linkify(html.escape(c["sources"]), linker),
+            "back": linkify(html.escape(c["back"], quote=False), linker),
+            "sources": linkify(html.escape(c["sources"], quote=False), linker),
             "tags": c.get("tags", ""),
             "cloze": cz,
         }

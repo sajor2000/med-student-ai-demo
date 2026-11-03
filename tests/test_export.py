@@ -184,3 +184,33 @@ def test_rerun_replaces_own_sources_folder(export, notes, tmp_path, monkeypatch)
     run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
     run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
     assert (tmp_path / "out/flashcards_sources/.generated-by-export").exists()
+
+
+def test_raw_html_in_notes_is_escaped_on_source_pages(export, notes, tmp_path, monkeypatch):
+    f = notes / "MICRO" / "Staph deck (sample).md"
+    f.write_text(f.read_text(encoding="utf-8") + "\nplain <script>alert(1)</script> and <img src=x onerror=alert(2)>\n", encoding="utf-8")
+    deck = write_deck(tmp_path / "out", [("Q?", "A", S3)])
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    body = next((tmp_path / "out/flashcards_sources").rglob("*.html")).read_text(encoding="utf-8")
+    assert "<script>alert(1)" not in body and "<img src=x" not in body
+    assert "&lt;script&gt;" in body or "&lt;script>" in body
+
+
+def test_apostrophes_not_double_escaped(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Q?", "Graves' disease", S2)])
+    run_main(export, [str(deck)], monkeypatch)
+    html_text = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    anki = (tmp_path / "out/flashcards.anki.txt").read_text(encoding="utf-8")
+    assert "&#x27;" not in html_text and "&amp;#x27;" not in html_text
+    assert "Graves' disease" in anki
+
+
+def test_tabs_and_newlines_stay_inside_one_anki_record(export, tmp_path, monkeypatch):
+    import io as _io
+    deck = write_deck(tmp_path / "out", [("Line one\nline two?", "has\ta tab", S2), ("Second card?", "B", S2)])
+    run_main(export, [str(deck)], monkeypatch)
+    text = (tmp_path / "out/flashcards.anki.txt").read_text(encoding="utf-8")
+    body = "".join(l for l in text.splitlines(keepends=True) if not l.startswith("#"))
+    rows = [r for r in csv.reader(_io.StringIO(body), delimiter="\t") if r]
+    assert len(rows) == 2 and all(len(r) == 4 for r in rows)
+    assert rows[0][1] == "Line one\nline two?"
