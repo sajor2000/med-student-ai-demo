@@ -221,3 +221,10 @@ def test_multiline_cloze_front_uses_html_breaks(export, tmp_path, monkeypatch):
     run_main(export, [str(deck)], monkeypatch)
     text = (tmp_path / "out/flashcards.cloze.anki.txt").read_text(encoding="utf-8")
     assert "{{c1::first<br>second}}" in text
+
+
+def test_citation_split_by_newline_still_links_in_anki(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Q?", "See [PMID:\n12345678] for details", S2)])
+    run_main(export, [str(deck)], monkeypatch)
+    text = (tmp_path / "out/flashcards.anki.txt").read_text(encoding="utf-8")
+    assert "pubmed.ncbi.nlm.nih.gov/12345678/" in text

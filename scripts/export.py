@@ -148,9 +148,14 @@ def cloze_reveal(text: str) -> str:
     return CLOZE.sub(lambda m: f"<mark>{m.group(2)}</mark>", text)
 
 
+def anki_breaks(field: str) -> str:
+    """Line breaks become <br> (Anki clozes break on raw newlines). Run after linkify, so citations split across lines still link."""
+    return field.replace("\r\n", "\n").replace("\n", "<br>")
+
+
 def anki_html(text: str) -> str:
-    """Escape card text for an HTML Anki field; line breaks become <br> (Anki clozes break on raw newlines)."""
-    return html.escape(text, quote=False).replace("\r\n", "\n").replace("\n", "<br>")
+    """Escape plain card text for an HTML Anki field."""
+    return anki_breaks(html.escape(text, quote=False))
 
 
 def write_anki(path: Path, cards: list[dict], notetype: str, deck: str) -> None:
@@ -158,8 +163,8 @@ def write_anki(path: Path, cards: list[dict], notetype: str, deck: str) -> None:
         out.write(f"#separator:tab\n#html:true\n#notetype:{notetype}\n#deck:{deck}\n#guid column:1\n#tags column:4\n")
         writer = csv.writer(out, delimiter="\t", lineterminator="\n", quoting=csv.QUOTE_MINIMAL)
         for c in cards:
-            extra = linkify(anki_html(c["back"]))
-            sources = "<small>" + linkify(html.escape(c["sources"], quote=False)) + "</small>"
+            extra = anki_breaks(linkify(html.escape(c["back"], quote=False)))
+            sources = "<small>" + anki_breaks(linkify(html.escape(c["sources"], quote=False))) + "</small>"
             back = f"{extra}<br>{sources}" if extra else sources
             tags = " ".join(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())
             # csv quoting keeps a tab or newline inside a field from splitting the Anki record
