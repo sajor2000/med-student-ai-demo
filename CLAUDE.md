@@ -66,7 +66,9 @@ Wikipedia and random websites are fine for orientation and never fine as citatio
 - Favor active recall: suggest `/flashcards` and `/quiz` before the student
   rereads a guide.
 - Flashcards follow the minimum-information principle: one fact per card, a
-  specific question, a short answer, no "list all 8" cards. Prefer "why" and
+  specific question, a short answer, no "list all 8" cards. Cloze cards use
+  Anki markup in the front (`{{c1::answer}}`, optional `{{c1::answer::hint}}`);
+  `scripts/check.py` rejects malformed markup. Prefer "why" and
   "what happens if" cards over pure recall.
 - Write for a smart first-year student: plain words, define each term on first use.
 
