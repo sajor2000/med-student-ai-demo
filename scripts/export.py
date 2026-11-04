@@ -149,9 +149,9 @@ def linkify(text: str, linker: SourceLinker | None = None) -> str:
     text = PMID.sub(r'<a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/\1/">PMID \1</a>', text)
 
     def course(m: re.Match) -> str:
-        rel, anchor = m.group(1), m.group(2)
+        rel, anchor = html.unescape(m.group(1)), m.group(2)  # callers already escaped the text: escape once, here
         label = f"{html.escape(rel)} · {anchor}"
-        href = linker.href(html.unescape(rel), anchor) if linker else None
+        href = linker.href(rel, anchor) if linker else None
         if href:
             return f'<a class="cite course" href="{html.escape(href)}" target="_blank" title="Open the cited source">{label}</a>'
         return f'<span class="cite course" title="{html.escape(rel)}">{label}</span>'

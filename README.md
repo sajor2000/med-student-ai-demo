@@ -107,10 +107,16 @@ Other agent harnesses can follow [`AGENTS.md`](AGENTS.md) and read `.claude/skil
 ## Use it on your own course
 
 1. Check your school's AI policy for course materials (see [Ground rules](#ground-rules)).
-2. Copy one case's slides and guides into `curriculum/<case-name>/`. The folder is gitignored.
-3. Run the skills in this order.
+2. Copy one case's slides, guides, and lecture transcripts (`.vtt`, `.srt`) into `curriculum/<case-name>/`. The folder is gitignored.
+3. Type `/ingest <case-name>` in your agent, then follow the map and the table below.
 
 ## Skills
+
+<p align="center">
+  <img src="docs/img/skill-map.svg" alt="Skill map: ingest, then practice from memory with quiz, vignette, or teach-back, then flashcards, the check.py gate, and export plus anki-sync. Misses and Anki lapses feed back into flashcards and quizzes. A side lane holds study-guide, deepen, visualize, and mnemonic-art for use after you try to recall." width="100%">
+</p>
+
+Dashed blue boxes run only when you type their name. Everything else the agent may suggest. The commands, in order:
 
 | Command | What you get |
 |---|---|
@@ -140,6 +146,24 @@ To include your AI illustrations too, add `--art output/<case>/art` to the end o
 The page gets a Diagrams tab (the picture plus each label with its citation) and, with `--art`, a Memory aids
 tab under the heading "AI illustrations — memory aids, not references". `--deepen output/<case>/deepen` adds a Deep dives tab with your `/deepen` explainers. A finished example, with no art, is in
 `examples/diagrams/` and `examples/flashcards.html`.
+
+## Which skill when
+
+`<case>` is your folder name. Add a quoted topic to narrow any command.
+
+| You want to... | Type |
+|---|---|
+| Start a new case week | `/ingest <case>`, then `/quiz <case>`, then `/flashcards <case>` |
+| Use a lecture transcript | Put the `.vtt` or `.srt` in the case folder, `/ingest <case>`, then `/flashcards <case> "topic"` |
+| Prepare the night before an exam | `/quiz <case> 10`, then `/flashcards <case>` (it targets your misses), then `/study-guide <case>` to check yourself |
+| Check you really understand a mechanism | `/teach-back <case> "mechanism"` |
+| Fix a weak topic | `/quiz <case> "topic"`, then `/flashcards <case> "topic"`, then `/deepen "concept" <case>` if the slides leave you asking why |
+| Build a diagram to memorize | `/visualize <case> "topic"`, then `/anki-sync <case>` for Image Occlusion cards |
+| Add a memory hook | `/mnemonic-art <case> "concept"`. It is an aid, never a source |
+| Practice harder, board style | `/vignette <case> 5`. You type an answer before you see any options |
+| Review daily in Anki | `/anki-sync <case>`. Review in Anki, and cards you keep missing come back as weak spots |
+
+Try to recall before you read. Use `/study-guide` and `/deepen` as the answer key afterward, not as a first read.
 
 ## How it fits together
 
@@ -196,9 +220,11 @@ CLAUDE.md                 imports AGENTS.md, plus Claude Code notes
 .mcp.json                 PubMed + Paperclip for Claude Code
 .codex/config.toml        the same connectors for Codex
 .claude/settings.json     pre-approves the scripts and PubMed/Paperclip tools
-scripts/                  extract, check, export, occlude, anki_sync, mnemonic_art, coverage
+scripts/                  extract, check, export, occlude, anki_sync, mnemonic_art, coverage, doctor,
+                          make_case_guide (builds the sample PDF), make_sample, pubmed-mcp.sh
 sample/  examples/        synthetic lecture, and finished outputs built from it
-docs/                     REQUIREMENTS, OPEN-RESOURCES, diagram teaching profile, images
+docs/                     DEMO-WALKTHROUGH, RESPONSIBLE-USE, LEARNING-SCIENCE, FOR-EDUCATORS, REQUIREMENTS,
+                          OPEN-RESOURCES, case-audit, diagram teaching profile, sample-case/ (Word case guide), img/
 curriculum/               YOUR files go here (gitignored)
 tests/                    script tests: uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q
 ```
