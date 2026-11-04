@@ -104,3 +104,11 @@ def test_unsupported_file_is_skipped(extract, tmp_path):
     (src / "clip.mp4").write_bytes(b"x")
     m = run(extract, src, tmp_path / "out")
     assert m["files"] == [] and m["skipped"] == ["clip.mp4"]
+
+
+def test_prints_policy_reminder(extract, tmp_path, capsys):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "a.txt").write_text("x")
+    run(extract, src, tmp_path / "out")
+    assert "Follow your school's AI policy" in capsys.readouterr().out

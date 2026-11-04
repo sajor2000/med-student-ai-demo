@@ -228,6 +228,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"skipped {len(skipped)} (video, legacy .ppt/.doc, or unreadable):")
         for s in skipped:
             print(f"  - {s}")
+    print("Course files stay in curriculum/ (gitignored). Follow your school's AI policy before sharing content with any AI tool.")
     return 0
 
 
