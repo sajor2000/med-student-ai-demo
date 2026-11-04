@@ -41,7 +41,7 @@ The doc review of 2026-11-03 left three items open. Students who live in Anki ex
 
 ### Key Decisions
 
-- **No school course files in the public repo.** `curriculum/`, `notes/`, `output/`, and `DEMO.md` stay gitignored, and `sample/` and `examples/` stay synthetic. Governs R5, R7. (session-settled: user-directed — chosen over a private repo including one Rush case: course material belongs to the school)
+- **No school course files in the public repo.** `curriculum/`, `notes/`, `output/`, and `DEMO.md` stay gitignored, and `sample/` and `examples/` stay synthetic. Governs R5, R7. (session-settled: user-directed — chosen over a private repo including one school case: course material belongs to the school)
 - **Citation syntax is unchanged:** `[[path#S#|P#|T#]]` and `[PMID:n]`. Governs R2, R5. (session-settled: user-approved — chosen over footnote or BibTeX citations: one greppable format shared by guides, cards, and checker)
 
 ### Scope Boundaries

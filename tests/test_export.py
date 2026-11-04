@@ -776,3 +776,20 @@ def test_course_label_ampersand_on_study_page(export, tmp_path, monkeypatch):
 
 def test_vignette_stem_keeps_line_breaks(export):
     assert ".vstem{white-space:pre-wrap}" in export.VIGNETTE_CSS
+
+
+@pytest.mark.parametrize("url", [
+    "javascript:alert(1)", "JaVaScRiPt:alert(1)", " javascript:alert(1)", "java\tscript:alert(1)",
+    "data:text/html;base64,PHNjcmlwdD4=", "DATA:text/html,x", "vbscript:msgbox(1)", "\x01javascript:alert(1)",
+])
+def test_source_pages_drop_unsafe_link_schemes(export, notes, tmp_path, monkeypatch, url):
+    src = notes / "MICRO" / "Staph deck (sample).md"
+    src.write_text(src.read_text(encoding="utf-8") + f"\nLink [x]({url}) and ![i]({url})\n"
+                   f"\n[good](https://example.org/a) [rel](#S1) [mail](mailto:a@b.org)\n", encoding="utf-8")
+    deck = write_deck(tmp_path / "out", [("Q?", "A", S3)])
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    page = next((tmp_path / "out/flashcards_sources").rglob("Staph deck (sample).html")).read_text(encoding="utf-8")
+    low = page.lower()
+    assert "javascript:" not in low.replace("\t", "") and "vbscript:" not in low and 'href="data:' not in low
+    assert 'src="data:' not in low
+    assert 'href="https://example.org/a"' in page and 'href="#S1"' in page and 'href="mailto:a@b.org"' in page

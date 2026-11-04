@@ -139,7 +139,8 @@ class SourceLinker:
                 plain.append(re.sub(r"<(?=[A-Za-z/!?])", "&lt;", line))  # notes text is data, never markup
         flush()
         dest.parent.mkdir(parents=True, exist_ok=True)
-        page = SOURCE_TEMPLATE.replace("__TITLE__", html.escape(rel)).replace("__BODY__", "\n".join(parts))
+        body = strip_unsafe_urls("\n".join(parts))  # markdown links like [x](javascript:...) must not survive
+        page = SOURCE_TEMPLATE.replace("__TITLE__", html.escape(rel)).replace("__BODY__", body)
         dest.write_text(page, encoding="utf-8")
         return ids
 

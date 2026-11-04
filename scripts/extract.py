@@ -229,7 +229,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"not a folder: {src}", file=sys.stderr)
         return 2
 
-    out = args.out.expanduser().resolve()
+    args.out = args.out.expanduser()  # every later use (dest, mkdir, manifest) sees the expanded path
+    out = args.out.resolve()
     fold = lambda p: [q.casefold() for q in p.parts]  # case-insensitive filesystems
     if fold(out)[: len(src.parts)] == fold(src):
         print(f"--out must not be the input folder or inside it (would overwrite sources): {out}", file=sys.stderr)
