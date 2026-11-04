@@ -20,9 +20,17 @@ The times are what the machine took, not what you will say; talk over the waitin
 | `/study-guide sample` | 3 to 4 min (196 s and 243 s on two runs) |
 | `check.py` on the guide, then on the cards | under 1 s each (PubMed lookups included) |
 | `/flashcards sample 14` | 97 to 152 s on two clean runs, then `export.py` in under 1 s |
+| `/study-guide sample "MRSA resistance and treatment"` | about 4 to 4.5 min on 3 runs; 1 of 3 stopped once and recovered, all 3 guides `PASS` |
+| `/flashcards sample "MRSA resistance and treatment" 10` | about 2.5 min on 3 runs, no stops, all `PASS` (10 cards) |
+| `/quiz sample "MRSA resistance and treatment" 1`, question and explanation | under 2 min on 3 runs, no stops |
+| `anki_sync.py` push into Anki desktop | about 4 s for 16 cards |
 | `/quiz sample 3`, first question | 33 s |
 | `/vignette sample 2`, first question | 87 s, then 7 to 40 s per turn |
 | Asking the discrepancy question | 32 s |
+
+The screenshots come from the full-case rehearsal (`/study-guide sample`, `/flashcards sample 14`). The live run of show
+below scopes Acts 3 to 5 to MRSA resistance, so your guide is shorter, you get about 10 cards, and the topics differ
+from the pictures. The commands, file names, and check output look the same.
 
 Paperclip (the second search connector) needs a browser sign-in and was not used in the rehearsal; everything here ran on PubMed alone, which is the documented fallback.
 
@@ -38,6 +46,8 @@ Paperclip (the second search connector) needs a browser sign-in and was not used
 4. Open `examples/case2/flashcards.html` in a browser tab now. It is your fallback (see the last section).
 5. Close anything with real patient or course data. Use a clean screen share.
 6. Open Anki desktop with the AnkiConnect add-on (code `2055492159`). The Anki line in `doctor.py` should be green.
+7. Start from a clean slate, so the counts on screen match the script: move any earlier `output/sample/` folder out of
+   the repo, and in Anki delete the deck `AI Study::sample` if a rehearsal created it.
 
 **Check you are ready:** `uv run scripts/doctor.py` ends with every line green (the Anki, Playwright, and OpenRouter lines are optional),
 and `uv run scripts/check.py examples/case2/study-guide.md --notes sample/notes` prints `PASS`.
@@ -198,9 +208,11 @@ Say: "Attempt first is the whole point. If you ask for the answer, you learn not
   ```bash
   uv run scripts/anki_sync.py --case sample --csv output/sample/flashcards.csv
   ```
-  **Expected:** `added 10, updated 0, adopted 0, skipped 0, weak spots 0` in a few seconds (16 cards took 4 s in rehearsal).
+  **Expected** on a clean slate (setup step 7): one line like `added 10, updated 0, adopted 0, skipped 0, weak spots 0`
+  in a few seconds (16 cards took 4 s in rehearsal). The numbers are the real counts, so they follow your card count
+  and whatever the deck already holds.
   Switch to Anki: the deck `AI Study::sample` holds the basic and cloze cards, each with its source citation on the back.
-  Run the same line again: `added 0, updated 10`. Re-syncing updates cards, it never duplicates them, and it touches
+  Run the same line again: `added` drops to 0 and `updated` equals the card count. Re-syncing updates cards, it never duplicates them, and it touches
   only notes tagged `msad` in `AI Study::<case>`, never the student's own or premade decks.
 - Say: "After a week of reviews, the cards you lapse 3 or more times come back into `weak-spots.md`, and the next
   `/flashcards` run targets them." (`/anki-sync sample` does the same sync and explains the result in plain words.)
@@ -255,3 +267,4 @@ The agent steps and the PubMed lookups need the network. Everything you need to 
 - [ ] `docs/RESPONSIBLE-USE.md` open in another tab
 - [ ] A volunteer lined up for the quiz
 - [ ] Anki desktop open, AnkiConnect answering (doctor's Anki line green)
+- [ ] No earlier `output/sample/` folder and no `AI Study::sample` deck
