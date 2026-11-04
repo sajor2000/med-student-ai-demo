@@ -493,3 +493,30 @@ def test_apostrophe_course_path_still_links(anki_mod, tmp_path):
     assert 'class="cite course"' in back and "[[" not in back
     assert 'title="o&#x27;brien' in back or "title=\"o'brien" in back
     assert back.count('title="') == 1 and 'title=""' not in back
+
+
+@pytest.mark.parametrize("raw", [b"not json", b"[1, 2]", b"null"])
+def test_malformed_ankiconnect_reply_is_ankierror(anki_mod, raw):
+    class H(BaseHTTPRequestHandler):
+        def do_POST(self):
+            self.rfile.read(int(self.headers["Content-Length"]))
+            self.send_response(200)
+            self.send_header("Content-Length", str(len(raw)))
+            self.end_headers()
+            self.wfile.write(raw)
+
+        def log_message(self, *a):
+            pass
+
+    srv = HTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    try:
+        with pytest.raises(anki_mod.AnkiError):
+            anki_mod.request(f"http://127.0.0.1:{srv.server_port}", "version")
+    finally:
+        srv.shutdown()
+        srv.server_close()
+
+
+def test_uncited_weak_spot_uses_source_needed_marker(anki_mod):
+    assert anki_mod.first_cite({"Back": "no citation here"}) == "[source needed]"

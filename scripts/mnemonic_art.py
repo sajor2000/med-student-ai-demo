@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pillow>=10"]
+# dependencies = ["pillow>=10.1"]
 # ///
 """Generate one captioned memory-aid illustration through OpenRouter.
 

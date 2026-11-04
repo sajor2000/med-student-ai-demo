@@ -86,6 +86,10 @@ def request(url: str, action: str, params: dict | None = None):
             out = json.loads(resp.read())
     except (urllib.error.URLError, OSError) as e:
         raise Unreachable(str(e)) from e
+    except ValueError as e:
+        raise AnkiError(f"AnkiConnect returned a reply that is not JSON: {e}") from e
+    if not isinstance(out, dict):
+        raise AnkiError("AnkiConnect returned an unexpected reply (not a JSON object)")
     if out.get("error"):
         raise AnkiError(str(out["error"]))
     return out.get("result")
@@ -259,7 +263,7 @@ def first_cite(fields: dict[str, str]) -> str:
         return f"[[{html.unescape(m.group(1))}#{m.group(2)}]]"
     if m := LABEL_PMID.search(blob):
         return f"[PMID:{m.group(1)}]"
-    return "(no citation)"
+    return "[source needed]"
 
 
 def append_weak_spots(case_dir: Path, items: list[dict]) -> int:

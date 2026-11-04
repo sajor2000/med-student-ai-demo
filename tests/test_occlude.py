@@ -83,7 +83,8 @@ def test_norm_number_format(occ):
 
 def test_note_id_scheme(occ):
     import hashlib
-    assert occ.note_id("staph-toxins", "n1") == "msad-" + hashlib.sha1(b"staph-toxins:n1").hexdigest()[:12]
+    assert occ.note_id("case-1", "staph-toxins", "n1") == "msad-" + hashlib.sha1(b"case-1:staph-toxins:n1").hexdigest()[:12]
+    assert occ.note_id("case-1", "s", "n1") != occ.note_id("case-2", "s", "n1")
 
 
 @pytest.mark.parametrize("bad", ["../x", "a/b", "Up", "a b", "x.y"])
@@ -122,7 +123,7 @@ def test_boxes_for_nodes_and_edge(occ, monkeypatch, work, need_chromium):
         b = l["box"]
         assert 0 <= b["left"] and 0 <= b["top"] and b["width"] > 0 and b["height"] > 0
         assert b["left"] + b["width"] <= 1 and b["top"] + b["height"] <= 1
-        assert l["note_id"] == occ.note_id("staph-toxins", l["id"])
+        assert l["note_id"] == occ.note_id("case-a", "staph-toxins", l["id"])
         assert l["cite"]
     assert labs["n1"]["label"] == "Exfoliative toxin"
     # group transform (translate 10,10) is applied: n1 text starts at x=20+10 of 600

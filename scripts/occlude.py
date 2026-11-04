@@ -73,8 +73,8 @@ async () => {
 """
 
 
-def note_id(slug: str, label_id: str) -> str:
-    return "msad-" + hashlib.sha1(f"{slug}:{label_id}".encode()).hexdigest()[:12]
+def note_id(case: str, slug: str, label_id: str) -> str:
+    return "msad-" + hashlib.sha1(f"{case}:{slug}:{label_id}".encode()).hexdigest()[:12]
 
 
 def fmt_norm(v: float) -> str:
@@ -249,7 +249,7 @@ def run_diagram(html_path: Path, spec_path: Path, case: str) -> int:
             fails.append(f"{tid}: label box falls outside the SVG viewBox")
         labels.append({
             "id": tid, "kind": w["kind"], "label": w["label"], "cite": w["cite"], "box": box,
-            "note_id": note_id(slug, tid), "occlusion": occlusion_string(box),
+            "note_id": note_id(case, slug, tid), "occlusion": occlusion_string(box),
             "masked": f"{slug}.{tid}.masked.png", "highlight": f"{slug}.{tid}.highlight.png",
         })
     if fails:
