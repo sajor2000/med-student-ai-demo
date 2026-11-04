@@ -354,10 +354,10 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             problems.append(f"{name}: labeled edge has no citation")
         units.append((name, cite))
     # De-identification gate: every free-text string (title, labels, notes, any other field), fail closed.
-    # Skipped: ids, edge endpoints, and citations (a citation is checked by has_citation, and may hold a PMID).
+    # Only citations are skipped (checked by has_citation, and may hold a PMID); ids and edge endpoints are scanned too.
     def free_text(value: object, key: str = "") -> list[str]:
         if isinstance(value, str):
-            return [] if key in {"id", "from", "to", "cite", "type"} else [value]
+            return [] if key == "cite" else [value]
         if isinstance(value, dict):
             return [t for k, v in value.items() for t in free_text(v, str(k))]
         if isinstance(value, list):

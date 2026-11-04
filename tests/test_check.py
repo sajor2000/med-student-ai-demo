@@ -538,3 +538,12 @@ def test_diagram_clinical_terms_and_vitals_do_not_false_positive(check, tmp_path
         s["edges"][0]["label"] = "cleaves in 24 hours"
     code, out = run_spec(check, spec_copy(tmp_path, ok), monkeypatch, capsys)
     assert code == 0, out
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda s: (s["nodes"][0].update(id="patient-123456"), s["edges"][0].update({"from": "patient-123456"})),
+    lambda s: s["edges"][0].update(id="mrn-98765432"),
+])
+def test_diagram_ids_with_phi_fail_closed(check, tmp_path, monkeypatch, capsys, mutate):
+    code, out = run_spec(check, spec_copy(tmp_path, mutate), monkeypatch, capsys)
+    assert code == 1 and "PHI" in out, out
