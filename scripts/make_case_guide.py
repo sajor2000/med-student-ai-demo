@@ -14,8 +14,8 @@ here is copied from any real course.
 
 The demo input is a PDF (a fictional M1 class handout). The .docx is built in a temp folder and converted
 with LibreOffice (`soffice --headless --convert-to pdf`), so the PDF keeps the fictional footer on every page.
---pdf is on by default when `soffice` is on PATH (or in the macOS app bundle); --docx DIR also keeps the
-editable .docx there. Without a PDF, the .docx goes into --out instead.
+--pdf is the default and needs `soffice` (PATH or the macOS app bundle); --docx DIR also keeps the editable
+.docx there. --no-pdf builds only the .docx, into --docx DIR (or --out when no --docx is given).
 """
 
 from __future__ import annotations
@@ -119,13 +119,29 @@ def grid(doc, header: list[str], rows: list[list[str]], fill="1F3A5F") -> None:
         for cell in row.cells:
             for p in cell.paragraphs:
                 p.paragraph_format.keep_with_next = True
-    # Column widths follow the longest cell so labelled values do not wrap mid-number.
+    # Column widths follow the longest cell, but never narrower than the longest word (10 pt body text is about
+    # 0.1 inch per character, plus cell padding), so no word breaks mid-word in the extracted text.
     labelled = [[row[0]] + [f"{header[c]}: {row[c] or 'none'}" for c in range(1, len(row))] for row in rows]
-    longest = [max(len(r[c]) for r in [header, *labelled] if c < len(r)) for c in range(len(header))]
+    cells_by_col = [[r[c] for r in [header, *labelled] if c < len(r)] for c in range(len(header))]
+    longest = [max(max(len(t) for t in col), 8) for col in cells_by_col]
+    need = [max(len(w) for t in col for w in t.split()) * 0.11 + 0.3 for col in cells_by_col]
     total = 7.3  # usable page width in inches
+    widths = [total * n / sum(longest) for n in longest]
+    for _ in range(len(widths)):
+        short = [c for c, w in enumerate(widths) if w < need[c]]
+        if not short:
+            break
+        for c in short:
+            widths[c] = need[c]
+        spare = [c for c in range(len(widths)) if c not in short and widths[c] > need[c]]
+        excess = sum(widths) - total
+        room = sum(widths[c] - need[c] for c in spare)
+        if excess > 0 and room > 0:
+            for c in spare:
+                widths[c] -= excess * (widths[c] - need[c]) / room
     table.autofit = False
     for c, col in enumerate(table.columns):
-        col.width = Inches(total * max(longest[c], 8) / sum(max(n, 8) for n in longest))
+        col.width = Inches(widths[c])
         for cell in col.cells:
             cell.width = col.width
     doc.add_paragraph()
@@ -492,16 +508,16 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=Path("sample/curriculum/GUIDE"))
     ap.add_argument("--pdf", action=argparse.BooleanOptionalAction, default=None,
-                    help="write the demo input as a PDF (default: on when soffice is available)")
+                    help="write the demo input as a PDF (default; needs soffice). --no-pdf builds the .docx only")
     ap.add_argument("--docx", type=Path, metavar="DIR", help="also keep the editable .docx in DIR")
     args = ap.parse_args()
     soffice = find_soffice()
-    want_pdf = soffice is not None if args.pdf is None else args.pdf
-    if want_pdf and not soffice:
-        raise SystemExit("--pdf needs LibreOffice: install it (brew install --cask libreoffice) or pass --no-pdf")
-    if not want_pdf:
+    if args.pdf is False:  # explicit --no-pdf: the .docx goes to --docx if given, else --out
         print(f"Saved {build(args.docx or args.out)}")
         return 0
+    if not soffice:  # never fall back to a .docx beside the PDF fixture (the demo input is PDF only)
+        raise SystemExit("PDF output needs LibreOffice: install it (brew install --cask libreoffice), "
+                         "or pass --no-pdf --docx DIR to build only the editable .docx")
     with tempfile.TemporaryDirectory() as tmp:
         docx = build(Path(tmp))
         print(f"Saved {to_pdf(docx, args.out, soffice)}")

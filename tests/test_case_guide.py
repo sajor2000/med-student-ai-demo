@@ -61,3 +61,30 @@ def test_pdf_flag_converts_with_soffice(tmp_path):
         pytest.skip("python-docx is not installed in this interpreter")
     assert out.returncode == 0, out.stderr
     assert [p.suffix for p in tmp_path.iterdir()] == [".pdf"]
+
+
+def test_no_table_word_is_split_mid_word_in_the_notes():
+    notes = (ROOT / "sample" / "notes" / "GUIDE" / (PDF.stem + ".md")).read_text(encoding="utf-8")
+    lines = notes.splitlines()
+    assert any(ln.endswith("Transmigration") or "Transmigration" in ln for ln in lines)
+    assert not any(ln.strip("- ") in ("n", "ion", "tion") for ln in lines)
+    # every long word in the source script's table cells survives extraction intact
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("mcg", ROOT / "scripts" / "make_case_guide.py")
+    text = (ROOT / "scripts" / "make_case_guide.py").read_text(encoding="utf-8")
+    words = {w for row in re.findall(r'^\s+\["([^\]]*)\]', text, re.M) for w in re.findall(r"[A-Za-z][A-Za-z-]{11,}", row)}
+    flat = re.sub(r"\s+", " ", notes)
+    assert words and all(w in flat for w in words), sorted(w for w in words if w not in flat)
+
+
+def test_default_run_without_soffice_never_writes_a_docx_into_the_input_folder(tmp_path, monkeypatch):
+    import importlib.util
+    pytest.importorskip("docx")
+    spec = importlib.util.spec_from_file_location("mcg2", ROOT / "scripts" / "make_case_guide.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    monkeypatch.setattr(mod, "find_soffice", lambda: None)
+    monkeypatch.setattr(sys, "argv", ["make_case_guide.py", "--out", str(tmp_path)])
+    with pytest.raises(SystemExit) as e:
+        mod.main()
+    assert "LibreOffice" in str(e.value) and not list(tmp_path.iterdir())

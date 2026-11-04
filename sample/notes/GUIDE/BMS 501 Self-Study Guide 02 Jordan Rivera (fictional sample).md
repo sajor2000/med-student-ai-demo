@@ -141,7 +141,8 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Interpretation: S. aureus
 - Cefoxitin disk screen
 - Result: Resistant
-- Interpretation: mecA / PBP2a likely (MRSA)
+- Interpretation: mecA / PBP2a
+- likely (MRSA)
 - Trimethoprim-sulfamethoxazole
 - Result: Susceptible
 - Interpretation: none
@@ -149,7 +150,8 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Result: Susceptible
 - Interpretation: none
 - Clindamycin (D-test)
-- Result: Negative D-test; susceptible
+- Result: Negative D-test;
+- susceptible
 - Interpretation: none
 - Review the results above. Before reading on, write down: (1) the organism, (2) the host cells doing most of the work, and (3) what
 - you would treat with and why.
@@ -200,8 +202,7 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Tight adhesion
 - Endothelial molecule: ICAM-1
 - Neutrophil molecule: Integrins (LFA-1, Mac-1)
-- Transmigratio
-- n
+- Transmigration
 - Endothelial molecule: PECAM-1 (CD31)
 - Neutrophil molecule: PECAM-1 (CD31)
 - Killing
@@ -222,11 +223,11 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - 1. A neutrophil rolling along the endothelium near Jordan’s abscess is slowed by which endothelial molecule?
 - 
 - A. ICAM-1
+- 
+- B. E-selectin
 
 ## [S5] FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
-- 
-- B. E-selectin
 - 
 - C. PECAM-1
 - 
@@ -309,41 +310,42 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Type: Surface
 - Action: Binds Fc of IgG;
 - blocks opsonization
-- Disease link: Immune evasion
+- Disease link: Immune
+- evasion
 - Coagulase
 - Type: Enzyme
 - Action: Activates
-- prothrombin, forming
-- fibrin
-- Disease link: Fibrin wall around the abscess
-- Panton-
-- Valentine
-- leukocidin
+- prothrombin, forming fibrin
+- Disease link: Fibrin wall
+- around the abscess
+- Panton-Valentine leukocidin
 - Type: Toxin
 - Action: Pore-forming; kills
 - leukocytes
-- Disease link: Associated with CA-MRSA skin infection and
-- necrotizing pneumonia (causal role debated)
+- Disease link: Associated with
+- CA-MRSA skin infection and
+- necrotizing pneumonia
+- (causal role debated)
 - TSST-1
-- Type:
-- Superantigen
+- Type: Superantigen
 - Action: Cross-links MHC II
 - and TCR
-- Disease link: Toxic shock syndrome
-- Exfoliative
-- toxin
+- Disease link: Toxic shock
+- syndrome
+- Exfoliative toxin
 - Type: Protease
 - Action: Cleaves
 - desmoglein-1
-- Disease link: Scalded skin syndrome
+- Disease link: Scalded skin
+- syndrome
 - Enterotoxin
-- Type:
-- Superantigen;
-- heat-stable
-- Action: Preformed toxin
-- in food
-- Disease link: Vomiting 30 min-8 h after eating (mean about 3
-- h)
+- Type: Superantigen; heat-
+- stable
+- Action: Preformed toxin in
+- food
+- Disease link: Vomiting 30
+- min-8 h after eating (mean
+- about 3 h)
 - Methicillin resistance
 - 
 - mecA (on SCCmec) encodes PBP2a, a penicillin-binding protein with low affinity for beta-lactams.
@@ -456,14 +458,13 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Covers
 - MRSA?
 - Key adverse effects
-- Nafcillin /
-- oxacillin
+- Nafcillin / oxacillin
 - Target: PBPs (beta-lactamase
 - resistant)
 - Covers
 - MRSA?: No
-- Key adverse effects: Neutropenia; interstitial nephritis
-- (rare)
+- Key adverse effects: Neutropenia; interstitial
+- nephritis (rare)
 - Cefazolin
 - Target: PBPs
 - Covers
@@ -473,21 +474,21 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Target: Binds D-Ala-D-Ala
 - Covers
 - MRSA?: Yes
-- Key adverse effects: Nephrotoxicity; infusion reaction
-- (flushing)
+- Key adverse effects: Nephrotoxicity; infusion
+- reaction (flushing)
 - TMP-SMX
 - Target: DHFR +
 - dihydropteroate synthase
 - Covers
 - MRSA?: Yes
-- Key adverse effects: Hyperkalemia, rash, bone marrow
-- suppression
+- Key adverse effects: Hyperkalemia, rash, bone
+- marrow suppression
 - Doxycycline
 - Target: 30S ribosome
 - Covers
 - MRSA?: Yes
-- Key adverse effects: Photosensitivity, esophagitis; avoid in
-- pregnancy
+- Key adverse effects: Photosensitivity,
+- esophagitis; avoid in pregnancy
 - Pharmacology: Self-Study Questions
 - 1. After drainage, Jordan is sent home on an oral antibiotic. Which is most appropriate given the susceptibilities?
 - 
