@@ -7,6 +7,14 @@
       "kind": "slides",
       "units": 6,
       "words": 253
+    },
+    {
+      "source": "PHYS/Renal clearance.pdf",
+      "notes": "sample/notes/PHYS/Renal clearance.md",
+      "kind": "slides",
+      "units": 4,
+      "words": 156,
+      "image_only_pages": 0
     }
   ],
   "skipped": []

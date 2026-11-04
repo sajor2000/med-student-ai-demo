@@ -58,3 +58,8 @@ def notes(tmp_path: Path) -> Path:
 def run_main(mod, argv: list[str], monkeypatch) -> int:
     monkeypatch.setattr(sys, "argv", ["prog", *argv])
     return mod.main()
+
+
+@pytest.fixture
+def extract():
+    return load_script("extract")

@@ -1,0 +1,106 @@
+"""extract.py: PDFs, plain text, and lecture transcripts become citable Markdown."""
+from __future__ import annotations
+
+import json
+import re
+
+import pytest
+
+fitz = pytest.importorskip("pymupdf")  # pymupdf builds the PDF fixtures
+
+ANCHOR = re.compile(r"^(?:## )?\[([SPT]\d+)\]", re.M)
+
+
+def make_pdf(path, pages):
+    """pages: list of text (str) or None for an image-only page."""
+    doc = fitz.open()
+    for text in pages:
+        page = doc.new_page()
+        if text is None:
+            pix = fitz.Pixmap(fitz.csRGB, fitz.IRect(0, 0, 40, 40), False)
+            pix.clear_with(200)
+            page.insert_image(fitz.Rect(50, 50, 200, 200), pixmap=pix)
+        else:
+            page.insert_text((72, 72), text)
+    doc.save(str(path))
+    doc.close()
+
+
+def run(extract, src, out):
+    assert extract.main([str(src), "--out", str(out)]) == 0
+    return json.loads((out / "manifest.json").read_text())
+
+
+def test_pdf_one_slide_anchor_per_page(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    make_pdf(src / "Renal clearance.pdf", ["Clearance equals U times V over P", "GFR is about 125 mL/min"])
+    m = run(extract, src, tmp_path / "out")
+    md = (tmp_path / "out" / "Renal clearance.md").read_text()
+    assert re.findall(r"^## \[(S\d+)\]", md, re.M) == ["S1", "S2"]
+    assert "Clearance equals U times V over P" in md
+    assert m["files"][0]["kind"] == "slides"
+    assert m["files"][0]["units"] == 2
+
+
+def test_pdf_image_only_page_is_flagged_and_counted(extract, tmp_path, capsys):
+    src = tmp_path / "in"
+    src.mkdir()
+    make_pdf(src / "scan.pdf", ["Text page", None])
+    m = run(extract, src, tmp_path / "out")
+    md = (tmp_path / "out" / "scan.md").read_text()
+    assert "[no text on this page — scanned slide]" in md
+    assert m["files"][0]["image_only_pages"] == 1
+    assert "1 image-only" in capsys.readouterr().out
+
+
+def test_txt_and_md_get_paragraph_anchors(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "notes.txt").write_text("First paragraph.\n\nSecond\nwrapped paragraph.\n\n\nThird.")
+    (src / "guide.md").write_text("# Guide\n\nBody text here.")
+    m = run(extract, src, tmp_path / "out")
+    txt = (tmp_path / "out" / "notes.md").read_text()
+    assert re.findall(r"^\[(P\d+)\]", txt, re.M) == ["P1", "P2", "P3"]
+    assert "Second wrapped paragraph." in txt
+    assert {f["kind"] for f in m["files"]} == {"text"}
+    assert (tmp_path / "out" / "guide.md").exists()
+
+
+def test_vtt_chunks_by_minute_with_timestamp(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "lec.vtt").write_text(
+        "WEBVTT\n\n00:00:01.000 --> 00:00:05.000\nWelcome to renal physiology.\n\n"
+        "00:00:30.000 --> 00:00:40.000\n<v Dr Lee>Nephron basics.</v>\n\n"
+        "00:01:10.000 --> 00:01:20.000\nFiltration next.\n"
+    )
+    (src / "talk.srt").write_text(
+        "1\n00:00:02,000 --> 00:00:04,000\nHello class.\n\n2\n00:02:05,000 --> 00:02:09,000\nLater point.\n"
+    )
+    m = run(extract, src, tmp_path / "out")
+    vtt = (tmp_path / "out" / "lec.md").read_text()
+    assert re.findall(r"^\[(P\d+)\] \[(\d\d:\d\d)\]", vtt, re.M) == [("P1", "00:01"), ("P2", "01:10")]
+    assert "Welcome to renal physiology. Nephron basics." in vtt
+    assert "<v" not in vtt
+    srt = (tmp_path / "out" / "talk.md").read_text()
+    assert re.findall(r"^\[(P\d+)\] \[(\d\d:\d\d)\]", srt, re.M) == [("P1", "00:02"), ("P2", "02:05")]
+    assert {f["kind"] for f in m["files"]} == {"transcript"}
+
+
+def test_anchors_match_check_py_regex(extract, check, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    make_pdf(src / "d.pdf", ["x"])
+    run(extract, src, tmp_path / "out")
+    md = (tmp_path / "out" / "d.md").read_text()
+    assert check.COURSE.search("[[d#S1]]")
+    assert "[S1]" in md
+
+
+def test_unsupported_file_is_skipped(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "clip.mp4").write_bytes(b"x")
+    m = run(extract, src, tmp_path / "out")
+    assert m["files"] == [] and m["skipped"] == ["clip.mp4"]
