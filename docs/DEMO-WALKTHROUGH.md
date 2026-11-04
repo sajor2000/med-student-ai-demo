@@ -10,7 +10,7 @@ abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/
 
 **Total time:** 25 minutes plus 5 of buffer (a 20-minute version is marked below).
 
-Every screenshot below comes from a timed dress rehearsal on a fresh clone (Claude Code headless, PubMed connector, Node 24).
+Every screenshot below comes from a timed dress rehearsal on a fresh clone (Claude Code headless, PubMed connector, Node 24 or newer).
 The times are what the machine took, not what you will say; talk over the waiting.
 
 | Step | Measured |
@@ -167,7 +167,6 @@ Say: "This is how you verify an AI-written card in 5 seconds." Then show one `{{
 
 ![A clicked citation opens the case-guide page it cites, with the anchored heading highlighted](img/demo/17-citation-landing.png)
 
-![The Vignettes tab: write an answer first, then reveal the options](img/demo/18-vignettes-tab.png)
 
 
 *20-minute version: skip generating live. Open `examples/case2/flashcards.html` and do only the click-a-citation beat.*
@@ -193,8 +192,11 @@ Say: "Attempt first is the whole point. If you ask for the answer, you learn not
   Cards land in the deck `AI Study::sample`. Re-importing updates cards instead of duplicating them.
 - Optional extras: `/visualize` (diagrams), `/vignette`, `/teach-back`, `/anki-sync` (pull your misses back from Anki).
   Mention each in one line. `/vignette` is the safest to show: you write an answer before any options appear, and a miss becomes a cited cloze card.
+  After it, re-run the export with `--vignettes output/sample/vignettes.json` added, and the study page gets a **Vignettes** tab.
 
 ![/vignette: the question appears first, and options only after the student's own answer](img/demo/20-vignette-session.png)
+
+![The Vignettes tab after re-exporting with --vignettes: write an answer first, then reveal the options](img/demo/18-vignettes-tab.png)
 
 - Close with the section below.
 
