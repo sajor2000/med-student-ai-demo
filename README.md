@@ -9,6 +9,10 @@
 Every fact links to a **slide number** in your deck or a **PubMed record**, and a checker
 fails the output when a citation is fake, retracted, or missing.
 
+> **Educational demo: AI should power your learning, not replace it.** Your course materials belong to your
+> institution; anything you upload to an AI tool must follow your school's AI policy.
+> Read [`docs/RESPONSIBLE-USE.md`](docs/RESPONSIBLE-USE.md).
+
 [Quick start](#quick-start) · [Requirements](docs/REQUIREMENTS.md) · [Skills](#skills) · [Ground rules](#ground-rules) · [Report an issue](https://github.com/sajor2000/med-student-ai-demo/issues)
 
 For M1/M2 students in case-based basic-science curricula, and the instructors who teach them.
@@ -151,6 +155,17 @@ AI models invent realistic-looking PMIDs. `scripts/check.py` **catches** PMIDs t
 ```bash
 uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes
 ```
+
+## Responsible use
+
+Full text: [`docs/RESPONSIBLE-USE.md`](docs/RESPONSIBLE-USE.md).
+
+- **Use AI to learn, not to skip learning.** Try each question first; the agent checks you, it does not do your work.
+- **Your course materials belong to your institution.** Keep them out of git and public places.
+- **Follow your institution's AI policy.** Confirm it allows uploading course content before you start.
+- **Never** put patient information in, or use these tools on graded work.
+
+A 20-30 minute demo uses the fictional case in `sample/curriculum/GUIDE` (BMS 501 Case 2: Jordan Rivera). Start with [`docs/DEMO-WALKTHROUGH.md`](docs/DEMO-WALKTHROUGH.md).
 
 ## Ground rules
 

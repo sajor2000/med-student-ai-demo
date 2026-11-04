@@ -6,6 +6,7 @@ study guides with checked citations. **Optional** features switch on one command
 | | Component | Needed for | macOS | Windows |
 |---|---|---|---|---|
 | Required | Agent harness: [Claude Code](https://claude.com/claude-code) **or** [Codex](https://github.com/openai/codex) | running the skills | `curl -fsSL https://claude.ai/install.sh \| bash` (Codex: `npm i -g @openai/codex`) | `irm https://claude.ai/install.ps1 \| iex` (Codex: `npm i -g @openai/codex`) |
+| Required | Your institution's AI policy permits the tools you use | uploading course material to an AI provider | read your school's policy; see [`RESPONSIBLE-USE.md`](RESPONSIBLE-USE.md) | same |
 | Required | `git` | cloning the repo | `brew install git` | `winget install Git.Git` |
 | Required | [`uv`](https://docs.astral.sh/uv/) | every `scripts/*.py` (installs its own Python) | `brew install uv` | `winget install astral-sh.uv` |
 | Required | Node 24+ | the PubMed connector (`npx`) | `brew install node` | `winget install OpenJS.NodeJS` |
