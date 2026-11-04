@@ -443,7 +443,7 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).docx` (doc
 | Platelets | 268 |  | 150-400 | ×10³/µL |
 | C-reactive protein | 48 | H | <10 | mg/L |
 | Creatinine | 0.9 |  | 0.7-1.3 | mg/dL |
-| Glucose | 94 |  | 70-99 | mg/dL |
+| Glucose (random) | 94 |  | 70-125 | mg/dL |
 
 ## [T4] Table 4
 | Test | Result | Interpretation |

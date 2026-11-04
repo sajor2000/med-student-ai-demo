@@ -8,7 +8,7 @@ only the medicine is checked against real sources.
 (`tavily_search`, `tavily_extract`; it was rate limited for part of the run). Every PMID below came from a tool call in this run and is
 verified by `scripts/check.py`. Paperclip identifiers beginning `PMC` are open-access papers it returned.
 
-**Verdict counts (45 rows):** supported 29, corrected 11, removed 0, not independently verified 3, not a factual claim 2.
+**Verdict counts (45 rows):** supported 29, corrected 12, removed 0, not independently verified 2, not a factual claim 2.
 
 **Rule applied:** a source has to state the claim. Where it states something narrower, the guide text was narrowed. The "uncertain" list is at the bottom.
 
@@ -21,12 +21,12 @@ verified by `scripts/check.py`. Paperclip identifiers beginning `PMC` are open-a
 | 5 | Labs: WBC 4.0-11.0, platelets 150-400, Hb 13.5-17.5 (male) | supported (NBME lists WBC 4.5-11.0; ranges are lab-dependent, note added) | NBME Laboratory Reference Values (2026) | Tavily MCP |
 | 6 | Labs: neutrophils 40-70%, bands 0-5%, lymphocytes 20-40% | supported as typical clinical-lab ranges (NBME lists mean-type ranges: segs 54-62, bands 3-5, lymphs 25-33); note added | NBME Laboratory Reference Values | Tavily MCP |
 | 7 | Labs: creatinine 0.7-1.3 mg/dL (male) | supported | MedlinePlus range quoted by HealthMatters; kidneyhypertension.net | Tavily MCP |
-| 8 | Labs: CRP <10 mg/L, glucose 70-99 mg/dL | not independently verified (conventional cutoffs; labs vary); left unchanged | none returned | Tavily MCP (rate limited) |
+| 8 | Labs: CRP <10 mg/L; glucose reference | supported / corrected: CRP cutoffs vary by lab (8-10 mg/L upper limit common; healthy adults usually <3 mg/L), so <10 mg/L stands and 48 mg/L is clearly elevated. Glucose relabelled "random" with 70-125 mg/dL, because 70-99 mg/dL is the fasting range and a clinic visit is non-fasting | https://medlineplus.gov/ency/article/003356.htm ; https://www.testing.com/tests/c-reactive-protein-crp ; https://medlineplus.gov/ency/article/003482.htm | Tavily MCP |
 | 9 | Lab interpretation: bandemia and left shift, lymphopenia as stress response in bacterial infection | not independently verified (descriptive; no numeric claim) | none | none (reasoning only) |
 | 10 | Procedure: I&D, 6 mL pus, Gram stain cocci in clusters, golden beta-hemolytic colonies | supported (standard S. aureus identification) | Foster, Medical Microbiology (NCBI Bookshelf NBK8448) | Tavily MCP |
 | 11 | Catalase + / coagulase + identify S. aureus; coagulase separates S. aureus from coagulase-negative staph | supported; Q explanation corrected: 'only S. aureus' became 'among human isolates' (S. intermedius group is also coagulase positive) | NBK8448 | Tavily MCP |
 | 12 | Cefoxitin-resistant means mecA/PBP2a (MRSA) | supported | PMID 9164468 (mechanisms of methicillin resistance); Brakstad and Maeland | PubMed MCP |
-| 13 | mecA on SCCmec encodes PBP2a with low beta-lactam affinity | supported | PMID 9164468; PMID 37982596 | PubMed MCP |
+| 13 | mecA on SCCmec encodes PBP2a with low beta-lactam affinity | supported (abstract read: PBP2a, low beta-lactam affinity, encoded by mecA in the mec region) | PMID 9164468 | PubMed MCP |
 | 14 | MRSA resistant to nearly all beta-lactams (exception ceftaroline) | corrected: 'anti-MRSA cephalosporins such as ceftaroline' | FDA ceftaroline (Teflaro) review, NDA 200327 | Tavily MCP |
 | 15 | Clindamycin D-test negative and susceptible; TMP-SMX and doxycycline susceptible | n/a (fictional susceptibility data; internally consistent) | none; fictional susceptibility data | none (reasoning only) |
 | 16 | Skin is a physical, chemical, and microbial barrier | not independently verified (textbook statement) | none | none (reasoning only) |
@@ -74,8 +74,8 @@ verified by `scripts/check.py`. Paperclip identifiers beginning `PMC` are open-a
 ## Uncertain or left alone
 
 - Wrestling-specific CA-MRSA data: PMID 22759601 is a general CA-MRSA and athletes review; it supports the setting, not any single number.
-- CRP <10 mg/L and glucose 70-99 mg/dL were not confirmed by a tool (Tavily rate limit); they are conventional cutoffs.
+- CRP and glucose ranges were confirmed afterwards with Tavily (MedlinePlus); glucose was relabelled as a random value.
 - The sample lecture (`MICRO/Staphylococcus aureus (sample lecture)`) says enterotoxin onset 1-6 h; the guide now says 30 min-8 h (CDC). Both stay in the repo on purpose as a demo "Discrepancy". The lecture is shared with other branches and was not edited here.
 - The TLR2 statement keeps "debated": one review (PMID 18406368) says only lipoproteins are sensed at physiologic concentrations, an older review says LTA signals through TLR2.
 - The Paperclip "refute" hits on protein A, the superantigen mechanism, and selectin/integrin rolling were about mouse strains, structural detail, and LFA-1's role in rolling, and do not contradict the teaching-level statements.
-- PMIDs 9164468 and 37982596 were confirmed to exist and match their topic by title from search results; I did not read their full abstracts. Claims resting on them (mecA/PBP2a, beta-lactam resistance) are standard and are also stated in the lecture deck.
+- PMID 9164468's abstract was read afterwards and supports rows 12, 13, 35, and 43. PMID 37982596 (a virulence review) did not directly support row 13 and was dropped as its source.

@@ -236,7 +236,7 @@ def build(out_dir: Path) -> Path:
         ["Platelets", "268", "", "150-400", "×10³/µL"],
         ["C-reactive protein", "48", "H", "<10", "mg/L"],
         ["Creatinine", "0.9", "", "0.7-1.3", "mg/dL"],
-        ["Glucose", "94", "", "70-99", "mg/dL"],
+        ["Glucose (random)", "94", "", "70-125", "mg/dL"],
     ])
     para(doc, "Reference ranges are typical adult values (hemoglobin and creatinine shown for an adult male); they vary by laboratory.", italic=True, size=9)
     para(doc, "Procedure and microbiology", bold=True)
