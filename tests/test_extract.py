@@ -265,7 +265,22 @@ def test_pdf_heading_unchanged_for_short_documents(extract, tmp_path):
     assert re.findall(r"^## \[S\d+\] (.*)$", md, re.M) == ["FICTIONAL SAMPLE banner for every page"] * 2
 
 
-def test_pdf_private_use_bullet_glyph_lines_are_dropped(extract):
+def test_pdf_leading_bullet_glyphs_are_dropped(extract):
     """Word bullets (U+F0B7, Symbol font) extract as lone private-use characters, not text."""
     raw = "\uf0b7\n\uf0b7 Bullet text kept\n  \uf0a7  \nReal fact"
     assert extract.pdf_page_lines(raw) == ["Bullet text kept", "Real fact"]
+
+
+def test_pdf_symbol_font_letters_are_kept(extract):
+    """Symbol-font Greek letters also live in the private-use area: only bullet markers may go."""
+    raw = "\uf062-lactams bind PBP\nthe \uf061 chain and \uf0b7 inline"
+    assert extract.pdf_page_lines(raw) == ["\uf062-lactams bind PBP", "the \uf061 chain and \uf0b7 inline"]
+
+
+def test_running_lines_only_come_from_page_edges(extract):
+    """A line repeated mid-page (a table heading) is content; only top/bottom lines can be a banner."""
+    body = ["a", "b", "c", "d", "e", "Table of results", "f", "g", "h", "i", "j"]
+    pages = [[f"p{n}-{x}" if x != "Table of results" else x for x in body] for n in range(3)]
+    banner = [["BANNER"] + p + ["FOOTER"] for p in pages]
+    assert extract.running_lines(pages) == set()
+    assert extract.running_lines(banner) == {"BANNER", "FOOTER"}

@@ -20,3 +20,7 @@ def test_flashcards_skill_runs_coverage_before_writing_cards():
     write_step = text.index("Write `output/<case>/flashcards.csv`")
     assert "scripts/coverage.py" in text[:write_step]
     assert "UNCOVERED" in text[:write_step]
+
+
+def test_flashcards_skill_stays_within_the_forty_line_cap():
+    assert len((SKILLS / "flashcards" / "SKILL.md").read_text().splitlines()) <= 40

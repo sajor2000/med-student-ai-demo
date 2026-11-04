@@ -114,22 +114,25 @@ def docx_to_md(path: Path) -> tuple[str, int]:
     return "\n".join(lines), n
 
 
-PRIVATE_USE = re.compile("[\ue000-\uf8ff]")  # Word bullets in Symbol/Wingdings extract here, not as text
+# Word bullets (Symbol/Wingdings) extract as these private-use characters. The same area holds Symbol-font
+# letters (beta, alpha...), so only a marker that starts a line is a bullet; one inside a line is kept.
+BULLET = re.compile("^[\uf0b7\uf0a7\uf0a8\uf0d8\uf0fc]+\\s*")
 RUNNING_MIN_PAGES = 3  # fewer pages cannot establish a running header or footer
+EDGE_LINES = 4  # a banner or footer sits within this many lines of the top or bottom of the page
 
 
 def pdf_page_lines(raw: str) -> list[str]:
     """One page's text as clean lines: private-use bullet glyphs dropped, blank lines removed."""
-    return [t for t in (slug(PRIVATE_USE.sub("", ln)) for ln in raw.splitlines()) if t]
+    return [t for t in (slug(BULLET.sub("", slug(ln))) for ln in raw.splitlines()) if t]
 
 
 def running_lines(pages: list[list[str]]) -> set[str]:
-    """Lines on at least half of the pages of a 3+ page PDF: a banner or footer, not page content."""
+    """Edge lines repeated on at least half the pages of a 3+ page PDF: a banner or footer, not page content."""
     if len(pages) < RUNNING_MIN_PAGES:
         return set()
     counts: dict[str, int] = {}
     for page in pages:
-        for line in set(page):
+        for line in set(page[:EDGE_LINES] + page[-EDGE_LINES:]):
             counts[line] = counts.get(line, 0) + 1
     return {line for line, n in counts.items() if n * 2 >= len(pages)}
 

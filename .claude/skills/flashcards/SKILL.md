@@ -9,9 +9,8 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
 
 1. Read the notes for the topic. **If `output/<case>/weak-spots.md` exists, read it too**: cover those topics first,
    and use them as the topic when none was given.
-   When no topic was given, also run `uv run scripts/coverage.py --notes notes/<case> --csv output/<case>/flashcards.csv`
-   (add `--vignettes output/<case>/vignettes.json` when it exists). Spend the cards on objectives it reports
-   `UNCOVERED` first (weak spots still come first), and tag each with `<slug>-objN` as the script's header describes.
+   With no topic, run `uv run scripts/coverage.py --notes notes/<case> --csv output/<case>/flashcards.csv` and spend
+   cards on objectives it reports `UNCOVERED` (weak spots still first); tag them with the `<slug>-objN` form it expects.
 2. Write `output/<case>/flashcards.csv` with columns `front,back,sources,tags`. Quote any field that contains a comma.
    When the file already exists, merge: keep every existing row, add the new rows, and dedupe by `front`.
    Done when the row count is at least the old count and no `front` appears twice.
@@ -23,11 +22,12 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
      or put one line of extra context there.
    - `sources`: one or more `[[path#S#]]` / `[[path#P#]]` and/or `[PMID:…]`. Every card needs one.
    - `tags`: `case;discipline;topic` separated by `;` (discipline = micro, immuno, path, pharm, histo, biochem, genetics, …).
-     Add `objN` when a card covers learning objective N (`scripts/coverage.py` reads it), and `miss` for a card made from a missed question (`/anki-sync` files it under `AI Study::<case>::misses`).
+     Add `<slug>-objN` when a card covers learning objective N (plain `objN` only if one lecture defines N; `scripts/coverage.py` reads it), and `miss` for a card made from a missed question (`/anki-sync` files it under `AI Study::<case>::misses`).
    - Up to 20% of cards may extend beyond the slides from StatPearls/PubMed; get those PMIDs from a tool call this session.
 3. Run `uv run scripts/check.py output/<case>/flashcards.csv --notes notes/<case>`. Fix and rerun until PASS.
-4. Run `uv run scripts/export.py output/<case>/flashcards.csv --notes notes/<case>` (add `--guide output/<case>/study-guide.md`,
-   `--diagrams output/<case>/diagrams`, `--art output/<case>/art` and `--vignettes output/<case>/vignettes.json` for each that already exists). `--notes` makes every slide citation on the study page open the exact slide.
+4. Run `uv run scripts/export.py output/<case>/flashcards.csv --notes notes/<case>`, adding `--guide output/<case>/study-guide.md`,
+   `--diagrams output/<case>/diagrams`, `--art output/<case>/art`, `--deepen output/<case>/deepen` and
+   `--vignettes output/<case>/vignettes.json` for each that already exists (`--notes` makes every slide citation open its slide).
 5. Report the card count by discipline and the two output paths. Tell the student:
    - Anki: **File → Import →** `flashcards.anki.txt` (basic cards), and again for `flashcards.cloze.anki.txt` if it exists
      (cloze cards). Both land in the deck `AI Study::<case>`, and re-importing updates existing cards instead of duplicating them.
@@ -35,9 +35,5 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
      folder is course material: keep it for yourself and don't share it.
    - These cards supplement a premade deck: they cover *this course's* framing and faculty emphasis.
    - Before studying, spot-check 3 random cards against their cited slide or paper.
-   - Pass every export flag that applies on the first run, including `--diagrams`, `--art`, `--deepen`, and `--vignettes`
-     when output from `/visualize`, `/mnemonic-art`, `/deepen`, or `/vignette` already exists. After a later `/study-guide`,
-     `/visualize`, `/mnemonic-art`, `/deepen`, or `/vignette`, re-run export with all applicable flags (`--guide`, `--notes`,
-     `--diagrams output/<case>/diagrams`, `--art output/<case>/art`, `--deepen output/<case>/deepen`,
-     `--vignettes output/<case>/vignettes.json`) so the study page keeps every tab and picks up the new files.
+   - After a later `/study-guide`, `/visualize`, `/mnemonic-art`, `/deepen`, or `/vignette`, re-run export with every flag above that applies.
 6. Suggest `/anki-sync <case>` to push these cards into Anki and pull back the ones the student keeps missing.
