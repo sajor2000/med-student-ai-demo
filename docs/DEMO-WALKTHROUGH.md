@@ -63,7 +63,7 @@ and `uv run scripts/check.py examples/case2/study-guide.md --notes sample/notes`
 | 3-8 | `/ingest sample` | Turn a case guide and a deck into citable notes |
 | 8-15 | `/study-guide sample "MRSA resistance and treatment"` | Build a cited guide, then check it live |
 | 15-21 | `/flashcards sample "MRSA resistance and treatment" 10` + export | Open the page, click a citation |
-| 21-26 | `/quiz sample "MRSA resistance and treatment" 3` | Attempt first, then explain |
+| 21-26 | `/quiz sample "MRSA resistance and treatment" 2` | Attempt first, then explain |
 | 26-30 | Live Anki sync, your own course | Push the cards into Anki, then hand off |
 
 ### Act 1 (0-3 min): why, and what responsible use means
@@ -190,7 +190,7 @@ Say: "This is how you verify an AI-written card in 5 seconds." Then show one `{{
 ### Act 5 (21-26 min): quiz, attempt first
 
 ```
-/quiz sample "MRSA resistance and treatment" 3
+/quiz sample "MRSA resistance and treatment" 2
 ```
 
 **Expected:** one vignette at a time, no answers shown. **Rule for the presenter:** ask a volunteer to answer
@@ -214,8 +214,9 @@ Say: "Attempt first is the whole point. If you ask for the answer, you learn not
   Switch to Anki: the deck `AI Study::sample` holds the basic and cloze cards, each with its source citation on the back.
   Run the same line again: `added` drops to 0 and `updated` equals the card count. Re-syncing updates cards, it never duplicates them, and it touches
   only notes tagged `msad` in `AI Study::<case>`, never the student's own or premade decks.
-- Say: "After a week of reviews, the cards you lapse 3 or more times come back into `weak-spots.md`, and the next
-  `/flashcards` run targets them." (`/anki-sync sample` does the same sync and explains the result in plain words.)
+- Say: "After a week of reviews, run the sync again (`/anki-sync sample`). Cards you lapsed 3 or more times are
+  pulled into `weak-spots.md`, and the next `/flashcards` run targets them." Nothing updates in the background: the
+  weak spots arrive only when you re-run the sync.
 - **If Anki will not connect** (`exit 2`, "not reachable"): use **File, Import** with `output/sample/flashcards.anki.txt`,
   then again with `flashcards.cloze.anki.txt`. Cards land in the same deck.
 - Optional extras: `/visualize` (diagrams), `/vignette`, `/teach-back`.
