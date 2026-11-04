@@ -104,7 +104,10 @@ def git_ignored(path: str) -> bool | None:
     # -v prints "<source>:<line>:<pattern>\t<path>"; only the repo's own .gitignore counts,
     # not a global ignore file or .git/info/exclude.
     source = done.stdout.decode(errors="replace").split(":", 1)[0]
-    return Path(source).name == ".gitignore"
+    src = Path(source)
+    if not src.is_absolute():
+        src = ROOT / src  # git prints repo-relative paths for the repo's own files
+    return src.name == ".gitignore" and ROOT.resolve() in src.resolve().parents
 
 
 def parse_major(text: str) -> int | None:

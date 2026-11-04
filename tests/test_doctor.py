@@ -200,3 +200,15 @@ def test_git_ignored_requires_repo_gitignore(doctor, monkeypatch, stdout, expect
     Done.stdout = stdout
     monkeypatch.setattr(doctor.subprocess, "run", lambda *a, **k: Done)
     assert doctor.git_ignored("notes/") is expected
+
+
+def test_global_ignore_named_gitignore_does_not_count(doctor, monkeypatch):
+    """A global excludesFile that happens to be called .gitignore is not this repo's .gitignore."""
+    monkeypatch.setattr(doctor.shutil, "which", lambda name: "/bin/git")
+    class Done:
+        returncode = 0
+        stdout = b"/home/u/.gitignore:2:notes/\tnotes/x\n"
+    monkeypatch.setattr(doctor.subprocess, "run", lambda *a, **k: Done)
+    assert doctor.git_ignored("notes/") is False
+    Done.stdout = f"{doctor.ROOT}/.gitignore:2:notes/\tnotes/x\n".encode()
+    assert doctor.git_ignored("notes/") is True
