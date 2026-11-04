@@ -4,7 +4,10 @@
 
 A note is owned when all of these hold:
 - it carries the tags `msad` and `msad-id::<id>`;
-- every one of its cards sits in the deck `AI Study::<case>`.
+- every one of its cards sits in the deck `AI Study::<case>` or its subdeck `AI Study::<case>::misses`.
+
+Cards whose `tags` include `miss` (made from missed vignette, teach-back or quiz questions) go to `AI Study::<case>::misses`;
+all other cards go to `AI Study::<case>`. Re-syncing updates notes in place and never moves them.
 
 `<id>` is `msad-<sha1[:12]>` of the card front (flashcards, same as `export.py`) or of `slug:label-id` (diagram labels).
 The script writes and updates only owned notes. A tagged note with a card in another deck is skipped and counted.

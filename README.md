@@ -71,6 +71,8 @@ Stuck? Open an issue: https://github.com/sajor2000/med-student-ai-demo/issues
 | `/deepen "<concept>" [case-name]` | "How do we know?" explainer from StatPearls, reviews, and Paperclip full text |
 | `/visualize <case-name> "topic"` | A cited diagram spec, a rendered diagram, and Anki Image Occlusion cards (see "See it, drill it, sync it") |
 | `/mnemonic-art <case-name> ["concept"]` | One captioned AI illustration as a memory hook. An aid, never a reference |
+| `/vignette <case-name> [n]` | About 5 synthetic board-style vignettes. You type an answer first, then see 5 look-alike options. Misses become cited cards |
+| `/teach-back <case-name> "mechanism"` | Explain a mechanism in four steps plus a what-if, get marked against the slides, then compare with a cited expert model |
 | `/anki-sync <case-name>` | Pushes your cards and diagram cards into Anki desktop, and pulls cards you keep missing back into `weak-spots.md` |
 
 **Card types.** Basic cards are a question and an answer. Cloze cards hide part of a sentence
@@ -173,13 +175,14 @@ use the loop.
 
 ```
 CLAUDE.md                 rules the agent follows (citations, sources, style)
-.claude/skills/           /ingest /flashcards /quiz /study-guide /deepen /visualize /mnemonic-art /anki-sync
+.claude/skills/           /ingest /flashcards /quiz /study-guide /deepen /visualize /mnemonic-art /anki-sync /vignette /teach-back
 .mcp.json                 PubMed + Paperclip connectors
 .claude/settings.json     pre-approves only the 3 scripts + PubMed/Paperclip tools (edits still ask)
 scripts/extract.py        pptx/docx -> Markdown with [S#]/[P#]/[T#] anchors
 scripts/check.py          citation verifier (PubMed lookup, slide anchors, coverage)
 scripts/export.py         CSV -> Anki import files (basic + cloze) + flip-card page with clickable sources, diagrams, and memory aids
 scripts/occlude.py        diagram HTML -> occlusion boxes, masked cards, diagrams.apkg (needs Chromium)
+scripts/coverage.py       lists learning objectives with no card or vignette (cards tagged objN)
 scripts/anki_sync.py      pushes cards and diagram cards into Anki desktop through AnkiConnect
 scripts/mnemonic_art.py   one captioned AI illustration through your OpenRouter key
 sample/                   synthetic lecture to practice on
@@ -188,3 +191,5 @@ docs/OPEN-RESOURCES.md    open-source and trusted-source menu + ideas
 curriculum/               YOUR files go here (gitignored)
 tests/                    script tests: uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q
 ```
+
+What each skill is based on, and how strong that evidence is: [docs/LEARNING-SCIENCE.md](docs/LEARNING-SCIENCE.md).

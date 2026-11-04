@@ -51,8 +51,12 @@ source the student can open.
 - AI illustrations (`/mnemonic-art`) are memory aids. Always keep their "AI illustration - not a reference"
   label. Never cite one, never put one in a guide as evidence, and never put patient details in the prompt.
   Show the prompt and get a yes before it goes to OpenRouter.
-- `/anki-sync` only touches notes tagged `msad` in the deck `AI Study::<case>`. Never edit or delete other
-  notes or decks.
+- `/anki-sync` only touches notes tagged `msad` in the deck `AI Study::<case>` (and its `::misses` subdeck for cards tagged
+  `miss`). Never edit or delete other notes or decks.
+- Practice skills are **attempt-first**: `/vignette` and `/teach-back` wait for the student's own written answer before
+  showing options or the expert model. A vignette is a cited spec (`output/<case>/vignettes.json`): five options, one correct,
+  every explanation cited. Run `check.py` on it like any deck. Synthetic patients only. Evidence for each skill:
+  `docs/LEARNING-SCIENCE.md`.
 
 ## Trusted source ladder (use the highest rung that answers the question)
 

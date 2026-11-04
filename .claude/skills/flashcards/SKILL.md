@@ -20,10 +20,11 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
      or put one line of extra context there.
    - `sources`: one or more `[[path#S#]]` / `[[path#P#]]` and/or `[PMID:…]`. Every card needs one.
    - `tags`: `case;discipline;topic` separated by `;` (discipline = micro, immuno, path, pharm, histo, biochem, genetics, …).
+     Add `objN` when a card covers learning objective N (`scripts/coverage.py` reads it), and `miss` for a card made from a missed question (`/anki-sync` files it under `AI Study::<case>::misses`).
    - Up to 20% of cards may extend beyond the slides from StatPearls/PubMed; get those PMIDs from a tool call this session.
 3. Run `uv run scripts/check.py output/<case>/flashcards.csv --notes notes/<case>`. Fix and rerun until PASS.
 4. Run `uv run scripts/export.py output/<case>/flashcards.csv --notes notes/<case>` (add `--guide output/<case>/study-guide.md`,
-   `--diagrams output/<case>/diagrams` and `--art output/<case>/art` for each that already exists). `--notes` makes every slide citation on the study page open the exact slide.
+   `--diagrams output/<case>/diagrams`, `--art output/<case>/art` and `--vignettes output/<case>/vignettes.json` for each that already exists). `--notes` makes every slide citation on the study page open the exact slide.
 5. Report the card count by discipline and the two output paths. Tell the student:
    - Anki: **File → Import →** `flashcards.anki.txt` (basic cards), and again for `flashcards.cloze.anki.txt` if it exists
      (cloze cards). Both land in the deck `AI Study::<case>`, and re-importing updates existing cards instead of duplicating them.
