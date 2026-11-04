@@ -186,5 +186,5 @@ sample/                   synthetic lecture to practice on
 examples/                 finished guide + deck + one cited diagram built from the sample
 docs/OPEN-RESOURCES.md    open-source and trusted-source menu + ideas
 curriculum/               YOUR files go here (gitignored)
-tests/                    script tests: uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q
+tests/                    script tests: uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q
 ```

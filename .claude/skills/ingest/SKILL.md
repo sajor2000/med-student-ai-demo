@@ -10,7 +10,7 @@ If it is missing, list the folders in `curriculum/` and ask which one.
 Supported: `.pptx`, `.pdf` (slides, `[S#]` per page), `.docx`, `.txt`, `.md` (`[P#]` per paragraph), `.vtt`, `.srt` (transcripts, `[P#]` per ~60 s with a `[mm:ss]` stamp).
 Keynote or Google Slides: the student exports to PDF or PPTX first. Say so if they have those.
 
-1. Remind the student: course files belong to their institution; confirm their school's AI policy allows sending course content to an AI tool before ingesting (see [docs/RESPONSIBLE-USE.md](../../../docs/RESPONSIBLE-USE.md)).
+1. Remind the student: course files belong to their institution; confirm their school's AI policy allows sending course content to an AI tool before ingesting (see Ground rules in [README.md](../../../README.md)).
 2. Run `uv run scripts/extract.py curriculum/<case> --out notes/<case>`.
 3. Read `notes/<case>/manifest.json`, then skim each notes file (headings first).
 4. Reply with:

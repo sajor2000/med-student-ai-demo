@@ -142,3 +142,36 @@ def test_literal_comparisons_survive_but_subtitle_tags_go(extract, tmp_path):
     assert "Hello there bold" in a
     assert "<" not in a.split("Source:")[1].replace("< 60", "").replace("<br", "")
     assert "Na < 135 is low" in (tmp_path / "out" / "b.md").read_text()
+
+
+def test_utf16_bom_text_and_transcript_are_decoded(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "notes.txt").write_bytes("First paragraph.\n\nSecond.".encode("utf-16"))
+    (src / "talk.vtt").write_bytes(
+        "WEBVTT\n\n00:00:01.000 --> 00:00:04.000\nHello class.\n".encode("utf-16")
+    )
+    (src / "bom8.txt").write_bytes(b"\xef\xbb\xbfAlpha.\n\nBeta.")
+    run(extract, src, tmp_path / "out")
+    txt = (tmp_path / "out" / "notes.md").read_text()
+    assert "\x00" not in txt and "�" not in txt
+    assert "[P2] Second." in txt
+    assert "Hello class." in (tmp_path / "out" / "talk.md").read_text()
+    assert "﻿" not in (tmp_path / "out" / "bom8.md").read_text()
+
+
+def test_undecodable_file_fails_loudly(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "bad.txt").write_bytes(b"ok \xff\xfe\xfa bad bytes \x80")
+    m = run(extract, src, tmp_path / "out")
+    assert m["files"] == [] and "UnicodeDecodeError" in m["skipped"][0]
+
+
+def test_ingest_skill_links_resolve():
+    from pathlib import Path
+
+    skill = Path(__file__).resolve().parent.parent / ".claude/skills/ingest/SKILL.md"
+    for target in re.findall(r"\]\(([^)#]+)(?:#[^)]*)?\)", skill.read_text()):
+        if "://" not in target:
+            assert (skill.parent / target).resolve().exists(), target

@@ -23,6 +23,7 @@ Source files are never modified.
 from __future__ import annotations
 
 import argparse
+import codecs
 import json
 import re
 import sys
@@ -133,8 +134,18 @@ def pdf_to_md(path: Path) -> tuple[str, int, int]:
     return "\n".join(lines), n, blanks
 
 
+def read_text(path: Path) -> str:
+    """Decode by BOM (UTF-8/16/32). No BOM means strict UTF-8, so bad bytes fail loudly."""
+    data = path.read_bytes()
+    for bom, enc in ((codecs.BOM_UTF32_LE, "utf-32"), (codecs.BOM_UTF32_BE, "utf-32"),
+                     (codecs.BOM_UTF16_LE, "utf-16"), (codecs.BOM_UTF16_BE, "utf-16")):
+        if data.startswith(bom):
+            return data.decode(enc)
+    return data.decode("utf-8-sig")
+
+
 def text_to_md(path: Path) -> tuple[str, int]:
-    raw = path.read_text(encoding="utf-8", errors="replace")
+    raw = read_text(path)
     lines = [f"# {path.stem}", "", f"Source: `{path.name}` (document)", ""]
     n = 0
     for block in re.split(r"\n\s*\n", raw):
@@ -147,7 +158,7 @@ def text_to_md(path: Path) -> tuple[str, int]:
 
 def transcript_to_md(path: Path) -> tuple[str, int]:
     """Group cues into ~60 s chunks, each a [P#] block starting with its [mm:ss]."""
-    raw = path.read_text(encoding="utf-8", errors="replace").replace("\r\n", "\n")
+    raw = read_text(path).replace("\r\n", "\n")
     chunks: list[tuple[int, list[str]]] = []
     for cue in re.split(r"\n\s*\n", raw):
         cl = cue.strip().splitlines()
