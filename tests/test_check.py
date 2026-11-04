@@ -269,3 +269,14 @@ def test_non_string_edge_endpoint_is_readable_failure(check, tmp_path, monkeypat
     path = spec_copy(tmp_path, lambda s: s["edges"][0].__setitem__("from", bad))
     code, out = run_spec(check, path, monkeypatch, capsys)
     assert code == 1 and "not a node id" in out and "Traceback" not in out
+
+
+def test_case2_guide_has_five_cited_recall_questions_and_no_uncited_attribution():
+    import re
+    from pathlib import Path
+    text = (Path(__file__).resolve().parent.parent / "examples" / "case2" / "study-guide.md").read_text(encoding="utf-8")
+    recall = text.split("## Recall questions", 1)[1].split("<details>", 1)[0]
+    qs = re.findall(r"^\d+\. .+$", recall, re.M)
+    assert len(qs) == 5 and all("[[" in q for q in qs)
+    discrepancy = text.split("## Discrepancies", 1)[1].split("## Recall questions", 1)[0]
+    assert "CDC" not in discrepancy
