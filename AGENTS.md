@@ -3,6 +3,14 @@
 Turn a student's own course materials into cited flashcards, quizzes, and
 study guides. Every claim traces to a source the student can open.
 
+## Who this is for
+
+- The users are medical students in an accredited curriculum, studying their own course material.
+- The content is board-level (USMLE Step 1) pathophysiology, microbiology, and pharmacology, as taught in standard textbooks and StatPearls.
+- Teach at the clinical level: mechanism of disease, presentation, diagnosis, treatment, prevention, infection control.
+- Cover toxins and pathogens the way a clinician needs them: what the toxin does in the body, how the patient presents, how it is treated. Superantigens, enterotoxins, and leukocidins fit this frame.
+- Keep the focus on the clinical picture. Lab methods for culturing, producing, purifying, or enhancing an agent appear in no course objective, so they stay out.
+
 ## Privacy
 
 - This is an educational demo: AI powers the student's learning and does not replace it. Course materials belong to the institution, and anything uploaded must follow the institution's AI policy.

@@ -6,6 +6,7 @@ argument-hint: <case-name> ["topic"] [number of questions, default 5]
 
 Arguments: `$ARGUMENTS`. The first word is `<case>` (a folder under `notes/`), then an optional quoted topic and an
 optional question count (default 5). Do NOT show answers in advance.
+Frame toxin and pathogen content clinically, as AGENTS.md "Who this is for" sets out: action in the host, then presentation, then treatment.
 If `output/<case>/weak-spots.md` exists, read it and bias the questions toward those topics.
 
 For each question:

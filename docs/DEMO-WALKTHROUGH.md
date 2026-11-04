@@ -203,7 +203,7 @@ Say: "Attempt first is the whole point. If you ask for the answer, you learn not
 ## If the agent stops mid-answer
 
 Toxin chapters (the superantigen, enterotoxin, and leukocidin material in the *S. aureus* lecture) can trip the model's
-safety filter. In rehearsal it happened three times: once in `/study-guide`, once in a `/quiz` explanation,
+safety filter. `AGENTS.md` "Who this is for" tells the agent this is clinical-level medical-student material; it may still stop. In rehearsal it happened three times: once in `/study-guide`, once in a `/quiz` explanation,
 and once at the end of `/teach-back`. The `/study-guide` retry passed. The agent says so plainly
 ("stopped by a safety classifier", "I'll stop that explanation"). Do not argue with it:
 

@@ -58,3 +58,21 @@ def test_skill_frontmatter_loads_with_a_real_yaml_parser():
         meta = yaml.safe_load("\n".join(_frontmatter(d)))
         assert meta["name"] == d.name
         assert isinstance(meta["description"], str) and meta["description"]
+
+
+def test_agents_md_states_who_the_tool_is_for_before_the_rules():
+    text = (ROOT / "AGENTS.md").read_text()
+    assert "## Who this is for" in text
+    section = text.split("## Who this is for", 1)[1].split("\n## ", 1)[0]
+    for needle in ["medical students", "accredited", "USMLE Step 1", "StatPearls", "clinical level",
+                   "toxins", "presentation", "treated", "culturing, producing, purifying, or enhancing"]:
+        assert needle in section, needle
+    assert text.index("## Who this is for") < text.index("## Privacy")
+    assert len(text.splitlines()) <= 75
+
+
+def test_toxin_heavy_skills_point_to_the_scope_section():
+    for name in ["study-guide", "quiz", "teach-back", "vignette"]:
+        body = (ROOT / ".claude" / "skills" / name / "SKILL.md").read_text()
+        assert 'AGENTS.md "Who this is for"' in body, name
+        assert len(body.splitlines()) <= 40, name

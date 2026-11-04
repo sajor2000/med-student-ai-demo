@@ -8,6 +8,7 @@ disable-model-invocation: true
 Arguments: `$ARGUMENTS`. The first word is `<case>` (a folder under `notes/`), then a quoted mechanism, e.g. "S. aureus toxin-mediated disease".
 If `notes/<case>` is missing, tell the student to run `/ingest <case>`. Study aid only: synthetic patients, no graded work.
 Record template, mark rules, and the miss-card recipe live in `reference.md`.
+Frame toxin and pathogen content clinically, as AGENTS.md "Who this is for" sets out: action in the host, then presentation, then treatment.
 
 1. **Pick** one mechanism chain from the notes and a `<slug>` (`[a-z0-9-]`). Name the slides that carry it.
    Done when the chain has four links, each tied to a slide, and the notes cover them.

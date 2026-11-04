@@ -8,6 +8,7 @@ disable-model-invocation: true
 Arguments: `$ARGUMENTS`. The first word is `<case>` (a folder under `notes/`), then an optional count `n` (default 5).
 If `notes/<case>` is missing, tell the student to run `/ingest <case>`. Study aid only: synthetic patients, no graded work.
 Schema, distractor design, and the miss-card recipe live in `reference.md`.
+Frame toxin and pathogen content clinically, as AGENTS.md "Who this is for" sets out: action in the host, then presentation, then treatment.
 
 1. **Read** `notes/<case>`, the case objectives, and `output/<case>/weak-spots.md` when it exists.
    Done when you can name `n` mechanisms to test, each with a slide, weighted toward the weak spots.

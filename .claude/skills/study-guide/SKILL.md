@@ -6,6 +6,7 @@ argument-hint: <case-name> ["focus topic"]
 
 Arguments: `$ARGUMENTS`. The first word is `<case>` (a folder under `notes/`). Anything after it is the
 optional focus topic. If `notes/<case>` does not exist, tell the student to run `/ingest <case>` first.
+Frame toxin and pathogen content clinically, as AGENTS.md "Who this is for" sets out: action in the host, then presentation, then treatment.
 
 Goal: `output/<case>/study-guide.md`, a reference to check yourself against **after** you try to recall the material.
 Tool names, query forms, and the section list live in `reference.md`.
