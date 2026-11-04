@@ -490,3 +490,10 @@ def test_deepen_safe_links_survive(export, tmp_path, monkeypatch):
     section = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8").split('id="deepen"')[1].split("</section>")[0]
     for h in ("https://example.org/p", "mailto:a@b.co", "#top", "other.md"):
         assert f'href="{h}"' in section
+
+
+def test_committed_example_imports_carry_ownership_tag():
+    root = Path(__file__).resolve().parent.parent / "examples"
+    for name in ("flashcards.anki.txt", "flashcards.cloze.anki.txt"):
+        rows = [ln for ln in (root / name).read_text(encoding="utf-8").splitlines() if ln.startswith("msad-")]
+        assert rows and all("msad" in ln.rsplit("\t", 1)[-1].split() for ln in rows), name

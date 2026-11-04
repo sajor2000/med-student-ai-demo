@@ -57,7 +57,7 @@ BANNER = "Course material from your school — for your own study, do not share.
 
 
 def guid(front: str) -> str:
-    return "msad-" + hashlib.sha1(front.replace("\r\n", "\n").strip().lower().encode()).hexdigest()[:12]
+    return "msad-" + hashlib.sha1(front.strip().lower().encode()).hexdigest()[:12]
 
 
 def is_cloze(front: str) -> bool:

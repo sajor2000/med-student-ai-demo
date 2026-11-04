@@ -67,7 +67,7 @@ class VersionMismatch(AnkiError):
 
 
 def guid(front: str) -> str:
-    return "msad-" + hashlib.sha1(front.replace("\r\n", "\n").strip().lower().encode()).hexdigest()[:12]
+    return "msad-" + hashlib.sha1(front.strip().lower().encode()).hexdigest()[:12]
 
 
 def is_cloze(front: str) -> bool:
@@ -189,11 +189,15 @@ class Sync:
                     continue
                 first = {"Basic": "Front", "Cloze": "Text"}.get(n["modelName"])
                 if first and first in n["fields"]:
-                    key = (n["modelName"], guid(html.unescape(re.sub(r"<br\s*/?>", "\n", n["fields"][first]["value"]))))
-                    if "msad" in n["tags"]:
-                        self._adopt.setdefault(key, n["noteId"])
-                    else:
-                        self._foreign.add(key)
+                    text = html.unescape(re.sub(r"<br\s*/?>", "\n", n["fields"][first]["value"]))
+                    # export turns CRLF into <br>, but a CSV front hashes with its raw line endings, so
+                    # register both spellings; legacy IDs stay unchanged.
+                    for variant in {text, text.replace("\n", "\r\n")}:
+                        key = (n["modelName"], guid(variant))
+                        if "msad" in n["tags"]:
+                            self._adopt.setdefault(key, n["noteId"])
+                        else:
+                            self._foreign.add(key)
         return self._adopt
 
     def store_media(self, note: dict) -> None:

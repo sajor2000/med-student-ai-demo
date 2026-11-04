@@ -577,4 +577,6 @@ def test_hand_imported_crlf_front_is_adopted_not_duplicated(anki_mod, monkeypatc
     sync(anki_mod, monkeypatch, fake, workdir)
     s = summary(capsys.readouterr().out)
     assert s["adopted"] == 1 and s["added"] == 0 and len(fake.notes) == 1
-    assert anki_mod.guid(front) == anki_mod.guid(front.replace("\r\n", "\n"))
+    # legacy IDs are preserved: the CRLF front keeps its raw-hash id
+    assert f"msad-id::{gid_of(front)}" in fake.notes[nid]["tags"]
+    assert anki_mod.guid(front) != anki_mod.guid(front.replace("\r\n", "\n"))
