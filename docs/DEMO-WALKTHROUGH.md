@@ -20,9 +20,17 @@ The times are what the machine took, not what you will say; talk over the waitin
 | `/study-guide sample` | 3 to 4 min (196 s and 243 s on two runs) |
 | `check.py` on the guide, then on the cards | under 1 s each (PubMed lookups included) |
 | `/flashcards sample 14` | 97 to 152 s on two clean runs, then `export.py` in under 1 s |
+| `/study-guide sample "MRSA resistance and treatment"` | about 4 to 4.5 min on 3 runs; 1 of 3 stopped once and recovered, all 3 guides `PASS` |
+| `/flashcards sample "MRSA resistance and treatment" 10` | about 2.5 min on 3 runs, no stops, all `PASS` (10 cards) |
+| `/quiz sample "MRSA resistance and treatment" 1`, question and explanation | under 2 min on 3 runs, no stops |
+| `anki_sync.py` push into Anki desktop | about 4 s for 16 cards |
 | `/quiz sample 3`, first question | 33 s |
 | `/vignette sample 2`, first question | 87 s, then 7 to 40 s per turn |
 | Asking the discrepancy question | 32 s |
+
+The screenshots come from the full-case rehearsal (`/study-guide sample`, `/flashcards sample 14`). The live run of show
+below scopes Acts 3 to 5 to MRSA resistance, so your guide is shorter, you get about 10 cards, and the topics differ
+from the pictures. The commands, file names, and check output look the same.
 
 Paperclip (the second search connector) needs a browser sign-in and was not used in the rehearsal; everything here ran on PubMed alone, which is the documented fallback.
 
@@ -37,6 +45,10 @@ Paperclip (the second search connector) needs a browser sign-in and was not used
 3. Open a terminal in the repo and start `claude`. Approve the project MCP servers when asked.
 4. Open `examples/case2/flashcards.html` in a browser tab now. It is your fallback (see the last section).
 5. Close anything with real patient or course data. Use a clean screen share.
+6. Open Anki desktop with the AnkiConnect add-on (code `2055492159`). The Anki line in `doctor.py` should be green.
+7. Start from a clean slate, so the counts on screen are easy to read: move any earlier `output/sample/` folder out of
+   the repo, and present from a separate Anki profile (**File, Switch Profile, Add**, for example `Demo`) so the demo
+   deck starts empty and your own decks stay off screen and untouched.
 
 **Check you are ready:** `uv run scripts/doctor.py` ends with every line green (the Anki, Playwright, and OpenRouter lines are optional),
 and `uv run scripts/check.py examples/case2/study-guide.md --notes sample/notes` prints `PASS`.
@@ -50,10 +62,10 @@ and `uv run scripts/check.py examples/case2/study-guide.md --notes sample/notes`
 |---|---|---|
 | 0-3 | Why, and responsible use | Slide-free talk, then show `docs/RESPONSIBLE-USE.md` |
 | 3-8 | `/ingest sample` | Turn a case guide and a deck into citable notes |
-| 8-15 | `/study-guide sample` | Build a cited guide, then check it live |
-| 15-21 | `/flashcards sample` + export | Open the page, click a citation |
-| 21-26 | `/quiz sample` | Attempt first, then explain |
-| 26-30 | Anki import, your own course | Hand off to the audience |
+| 8-15 | `/study-guide sample "MRSA resistance and treatment"` | Build a cited guide, then check it live |
+| 15-21 | `/flashcards sample "MRSA resistance and treatment" 10` + export | Open the page, click a citation |
+| 21-26 | `/quiz sample "MRSA resistance and treatment" 2` | Attempt first, then explain |
+| 26-30 | Live Anki sync, your own course | Push the cards into Anki, then hand off |
 
 ### Act 1 (0-3 min): why, and what responsible use means
 
@@ -91,8 +103,12 @@ Open `notes/sample/GUIDE/` and show the `## [S#]` page headings in the Markdown,
 ### Act 3 (8-15 min): study guide with a live citation check
 
 ```
-/study-guide sample
+/study-guide sample "MRSA resistance and treatment"
 ```
+
+**Why this topic:** the live steps stay on resistance (mecA, PBP2a), drug choice, and drainage. The toxin chapters
+(superantigen, enterotoxin, leukocidin) tripped the model's safety filter in rehearsal, so show those from the committed
+`examples/case2/` files instead of generating them live. See "If the agent stops mid-answer".
 
 **Expected:** `output/sample/study-guide.md` with objectives, a one-page summary, a mechanism chain
 (exposure, recognition, recruitment, evasion, killing, lab identity, treatment), a "Beyond the slides" section with
@@ -116,7 +132,8 @@ Open one citation together. Suggested: the TMP-SMX line, `[PMID:26962903]`. Read
 "80.5% vs 73.6%". Then ask the room: "What did the check not catch?" (Answer: whether the claim matches the paper.)
 
 Optional beat: show `examples/case2/study-guide.md`, which has a **Discrepancies** section. The lecture says
-enterotoxin vomiting starts 1-6 h after eating, and the case guide says 30 min-8 h. Real decks disagree; the agent should say so. To see it live, ask in the same session:
+enterotoxin vomiting starts 1-6 h after eating, and the case guide says 30 min-8 h. Real decks disagree; the agent should say so. Show it from the committed file (it is toxin material, so asking live can trip the safety filter).
+If you have time and want it live, ask in the same session:
 `When does vomiting start in staphylococcal food poisoning? Use the sample notes.` The agent answers with both windows,
 cites both, and adds a `> ⚠️ Discrepancy:` callout instead of silently picking one.
 
@@ -134,10 +151,10 @@ uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes
 ### Act 4 (15-21 min): flashcards, export, click a citation
 
 ```
-/flashcards sample 14
+/flashcards sample "MRSA resistance and treatment" 10
 ```
 
-**Expected:** `output/sample/flashcards.csv` with about 14 cards (basic and cloze), each with a source. Then:
+**Expected:** `output/sample/flashcards.csv` with about 10 cards (basic and cloze), each with a source. Then:
 
 ```bash
 uv run scripts/check.py output/sample/flashcards.csv --notes notes/sample
@@ -174,7 +191,7 @@ Say: "This is how you verify an AI-written card in 5 seconds." Then show one `{{
 ### Act 5 (21-26 min): quiz, attempt first
 
 ```
-/quiz sample 3
+/quiz sample "MRSA resistance and treatment" 2
 ```
 
 **Expected:** one vignette at a time, no answers shown. **Rule for the presenter:** ask a volunteer to answer
@@ -188,9 +205,22 @@ Say: "Attempt first is the whole point. If you ask for the answer, you learn not
 
 ### Act 6 (26-30 min): Anki, and your own course
 
-- Anki: **File, Import,** pick `output/sample/flashcards.anki.txt`, and again for `flashcards.cloze.anki.txt`.
-  Cards land in the deck `AI Study::sample`. Re-importing updates cards instead of duplicating them.
-- Optional extras: `/visualize` (diagrams), `/vignette`, `/teach-back`, `/anki-sync` (pull your misses back from Anki).
+- **Live Anki sync.** With Anki desktop open (AnkiConnect installed), push the verified cards straight in:
+  ```bash
+  uv run scripts/anki_sync.py --case sample --csv output/sample/flashcards.csv
+  ```
+  **Expected** on a clean slate (setup step 7): one line like `added 10, updated 0, adopted 0, skipped 0, weak spots 0`
+  in a few seconds (16 notes took 4 s in rehearsal). The counts are notes, not cards: a cloze note with `c1` and `c2`
+  makes two cards but counts once. They are the real counts, so they follow your CSV and whatever the deck already holds.
+  Switch to Anki: the deck `AI Study::sample` holds the basic and cloze cards, each with its source citation on the back.
+  Run the same line again: `added` drops to 0 and `updated` equals the note count (one per CSV row). Re-syncing updates cards, it never duplicates them, and it touches
+  only notes tagged `msad` in `AI Study::<case>`, never the student's own or premade decks.
+- Say: "After a week of reviews, run the sync again (`/anki-sync sample`). Cards you lapsed 3 or more times are
+  pulled into `weak-spots.md`, and the next `/flashcards` run targets them." Nothing updates in the background: the
+  weak spots arrive only when you re-run the sync.
+- **If Anki will not connect** (`exit 2`, "not reachable"): use **File, Import** with `output/sample/flashcards.anki.txt`,
+  then again with `flashcards.cloze.anki.txt`. Cards land in the same deck.
+- Optional extras: `/visualize` (diagrams), `/vignette`, `/teach-back`.
   Mention each in one line. `/vignette` is the safest to show: you write an answer before any options appear, and a miss becomes a cited cloze card.
   After it, re-run the export with `--vignettes output/sample/vignettes.json` added, and the study page gets a **Vignettes** tab.
 
@@ -209,7 +239,8 @@ and once at the end of `/teach-back`. The `/study-guide` retry passed. The agent
 
 1. Run the same command once more. A file the agent wrote before the stop still passes `check.py`.
 2. If it stops twice, say so, and open the committed `examples/case2/` files below. Showing a failure and the fallback is a fine demo.
-3. For the quiz, pick a topic away from toxins, for example `/quiz sample "renal clearance"`.
+3. Keep the live steps on a non-toxin topic, as the run of show does (`"MRSA resistance and treatment"`), or `"renal clearance"`.
+4. Skip `/teach-back` on toxin topics live: it stopped in every rehearsal run.
 
 ## If the network fails
 
@@ -237,3 +268,5 @@ The agent steps and the PubMed lookups need the network. Everything you need to 
 - [ ] `examples/case2/flashcards.html` open in a tab
 - [ ] `docs/RESPONSIBLE-USE.md` open in another tab
 - [ ] A volunteer lined up for the quiz
+- [ ] Anki desktop open, AnkiConnect answering (doctor's Anki line green)
+- [ ] No earlier `output/sample/` folder; Anki on a separate demo profile
