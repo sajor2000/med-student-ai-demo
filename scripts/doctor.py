@@ -95,11 +95,16 @@ def git_ignored(path: str) -> bool | None:
     if not git:
         return None
     try:
-        done = subprocess.run([git, "-C", str(ROOT), "check-ignore", "-q", path + "x"],
+        done = subprocess.run([git, "-C", str(ROOT), "check-ignore", "-v", path + "x"],
                               capture_output=True, timeout=15)
     except (OSError, subprocess.SubprocessError):
         return None
-    return done.returncode == 0
+    if done.returncode != 0:
+        return False
+    # -v prints "<source>:<line>:<pattern>\t<path>"; only the repo's own .gitignore counts,
+    # not a global ignore file or .git/info/exclude.
+    source = done.stdout.decode(errors="replace").split(":", 1)[0]
+    return Path(source).name == ".gitignore"
 
 
 def parse_major(text: str) -> int | None:

@@ -184,3 +184,19 @@ def test_anki_probe_bypasses_proxies(doctor, monkeypatch):
     assert seen.get("opener")
     assert any(isinstance(h, doctor.urllib.request.ProxyHandler) and h.proxies == {}
                for h in seen["handlers"])
+
+
+@pytest.mark.parametrize("stdout,expected", [
+    (b".gitignore:5:notes/\tnotes/x\n", True),
+    (b"sub/.gitignore:1:notes/\tnotes/x\n", True),
+    (b".git/info/exclude:3:notes/\tnotes/x\n", False),
+    (b"/home/u/.config/git/ignore:2:notes/\tnotes/x\n", False),
+])
+def test_git_ignored_requires_repo_gitignore(doctor, monkeypatch, stdout, expected):
+    """A global ignore or .git/info/exclude must not count as the repo protecting the path."""
+    monkeypatch.setattr(doctor.shutil, "which", lambda name: "/bin/git")
+    class Done:
+        returncode = 0
+    Done.stdout = stdout
+    monkeypatch.setattr(doctor.subprocess, "run", lambda *a, **k: Done)
+    assert doctor.git_ignored("notes/") is expected

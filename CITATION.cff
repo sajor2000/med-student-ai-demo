@@ -8,7 +8,6 @@ authors:
 repository-code: "https://github.com/sajor2000/med-student-ai-demo"
 license: MIT
 version: 0.2.0
-date-released: "2026-11-03"
 abstract: "Educational demonstration of AI that augments, not replaces, medical student learning. Licenses cover only this repository's code and fictional samples; see NOTICE.md."
 keywords:
   - medical education

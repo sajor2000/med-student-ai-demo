@@ -2,10 +2,9 @@
 from __future__ import annotations
 
 import re
-import subprocess
 import sys
 
-from conftest import ROOT
+from conftest import ROOT, load_script
 
 # only the docs this repo ships for onboarding; docs/diagram-teaching-profile.md predates the PR
 DOCS = [ROOT / "README.md", ROOT / "NOTICE.md", ROOT / "docs" / "FOR-EDUCATORS.md"]
@@ -29,11 +28,30 @@ def test_doctor_policy_reminder_points_at_existing_file():
         assert (ROOT / path).exists(), path
 
 
-def test_pr_template_check_command_runs():
+def test_pr_template_check_command_runs(monkeypatch, capsys):
+    """Run the template's check.py command in-process with the PubMed lookup mocked (offline)."""
     tpl = (ROOT / ".github" / "pull_request_template.md").read_text()
     m = re.search(r"`uv run (scripts/check\.py[^`]*)`", tpl)
     assert m, "no check.py command in PR template"
     args = m.group(1).split()[1:]
-    proc = subprocess.run([sys.executable, str(ROOT / "scripts" / "check.py"), *args],
-                          cwd=ROOT, capture_output=True, text=True)
-    assert proc.returncode != 2, proc.stderr  # 2 = argparse usage error
+    check = load_script("check")
+    monkeypatch.setattr(check, "pubmed_summaries",
+                        lambda pmids: {p: {"pubdate": "2000", "title": "t", "pubtype": []} for p in pmids})
+    monkeypatch.setattr(sys, "argv", ["check.py", *args])
+    monkeypatch.chdir(ROOT)
+    assert check.main() == 0, capsys.readouterr().out
+
+
+def test_educator_data_flow_is_accurate():
+    text = (ROOT / "docs" / "FOR-EDUCATORS.md").read_text()
+    assert "No course text is sent" not in text
+    assert "course-derived" in text  # /mnemonic-art prompt may carry course concepts
+    assert "EMBL-EBI" in text  # Europe PMC is not NCBI
+
+
+def test_citation_has_no_unverifiable_release_date():
+    """CHANGELOG entries carry no dates and no release tag exists, so CITATION.cff must not invent one."""
+    cff = (ROOT / "CITATION.cff").read_text()
+    assert "date-released" not in cff
+    version = re.search(r"^version:\s*(\S+)", cff, re.M).group(1)
+    assert re.search(rf"^## \[{re.escape(version)}\]", (ROOT / "CHANGELOG.md").read_text(), re.M)
