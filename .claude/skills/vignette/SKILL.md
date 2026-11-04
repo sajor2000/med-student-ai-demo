@@ -18,11 +18,11 @@ Schema, distractor design, and the miss-card recipe live in `reference.md`.
 4. **Run the attempt**, one vignette at a time: show the stem only and wait for the student's free-text answer.
    Then show options A-E and wait for the pick. Then give the explanation for every option, quoting the slide line.
    Done when each vignette has a recorded free-text answer, a pick, and a shown explanation.
-5. **Log misses.** Append each miss to `output/<case>/weak-spots.md` as `- YYYY-MM-DD | discipline | topic | [[path#S#]]`.
+5. **Log misses.** If the student missed any vignette, append each miss to `output/<case>/weak-spots.md` as `- YYYY-MM-DD | discipline | topic | [[path#S#]]`.
    Turn each miss into a cited cloze card merged into `output/<case>/flashcards.csv` (`reference.md`).
-   Done when `check.py` prints PASS on `weak-spots.md` and on `flashcards.csv`.
+   Done when `check.py` prints PASS on each of those two files that was written, or the student had no misses and nothing was written.
 6. **Coverage.** Run `uv run scripts/coverage.py --notes notes/<case> --csv output/<case>/flashcards.csv --vignettes output/<case>/vignettes.json` and relay the objectives report.
-   Done when the report is shown and the score is stated.
+   Done when the report is shown and the score is stated. (A missing flashcards.csv counts as 0 cards.)
 7. **Next.** Suggest `/anki-sync <case>`; miss cards land in `AI Study::<case>::misses`.
    Done when the student has the command.
 

@@ -79,7 +79,7 @@ def test_csv_and_vignettes_optional(cov, tmp_path, monkeypatch, capsys):
     assert "3 objective(s) uncovered" in capsys.readouterr().out
 
 
-@pytest.mark.parametrize("flag", ["--csv", "--vignettes", "--notes"])
+@pytest.mark.parametrize("flag", ["--vignettes", "--notes"])
 def test_nonexistent_path_is_argument_error(cov, tmp_path, monkeypatch, flag, capsys):
     notes = make_notes(tmp_path)
     argv = ["--notes", str(notes)]
@@ -117,27 +117,27 @@ def test_same_numbers_in_two_files_stay_separate(cov, tmp_path, monkeypatch, cap
     assert run_main(cov, ["--notes", str(notes)], monkeypatch) == 0
     out = capsys.readouterr().out
     assert "6 objective(s) uncovered" in out.splitlines()[-1]
-    assert "[deck] (1) identify it" in out and "[other-lecture] (1) second one" in out
+    assert "[micro-deck] (1) identify it" in out and "[micro-other-lecture] (1) second one" in out
 
 
 def test_qualified_card_tag_covers_only_its_lecture(cov, tmp_path, monkeypatch, capsys):
     notes = make_two_lectures(tmp_path)
-    csv_path = make_csv(tmp_path, ["x;other-lecture-obj2"])
+    csv_path = make_csv(tmp_path, ["x;micro-other-lecture-obj2"])
     assert run_main(cov, ["--notes", str(notes), "--csv", str(csv_path)], monkeypatch) == 0
     out = capsys.readouterr().out
-    assert "[other-lecture] (2) second two: covered (1 card)" in out
-    assert "[deck] (2) link factors: UNCOVERED" in out
+    assert "[micro-other-lecture] (2) second two: covered (1 card)" in out
+    assert "[micro-deck] (2) link factors: UNCOVERED" in out
     assert "5 objective(s) uncovered" in out.splitlines()[-1]
 
 
 def test_qualified_vignette_lecture_field(cov, tmp_path, monkeypatch, capsys):
     notes = make_two_lectures(tmp_path)
     p = tmp_path / "v.json"
-    p.write_text(json.dumps({"vignettes": [{"id": "a", "objective": 3, "lecture": "deck"}]}), encoding="utf-8")
+    p.write_text(json.dumps({"vignettes": [{"id": "a", "objective": 3, "lecture": "micro-deck"}]}), encoding="utf-8")
     assert run_main(cov, ["--notes", str(notes), "--vignettes", str(p)], monkeypatch) == 0
     out = capsys.readouterr().out
-    assert "[deck] (3) explain resistance: covered (1 vignette)" in out
-    assert "[other-lecture] (3) second three: UNCOVERED" in out
+    assert "[micro-deck] (3) explain resistance: covered (1 vignette)" in out
+    assert "[micro-other-lecture] (3) second three: UNCOVERED" in out
 
 
 def test_unqualified_tag_on_ambiguous_number_warns_and_covers_nothing(cov, tmp_path, monkeypatch, capsys):
@@ -145,5 +145,23 @@ def test_unqualified_tag_on_ambiguous_number_warns_and_covers_nothing(cov, tmp_p
     csv_path = make_csv(tmp_path, ["x;obj1"])
     assert run_main(cov, ["--notes", str(notes), "--csv", str(csv_path)], monkeypatch) == 0
     out = capsys.readouterr().out
-    assert "obj1 is ambiguous" in out and "deck-obj1" in out and "other-lecture-obj1" in out
+    assert "obj1 is ambiguous" in out and "micro-deck-obj1" in out and "micro-other-lecture-obj1" in out
     assert "6 objective(s) uncovered" in out.splitlines()[-1]
+
+
+def test_same_basename_in_two_folders_stays_separate(cov, tmp_path, monkeypatch, capsys):
+    notes = tmp_path / "notes"
+    for folder, line in (("MICRO", "(1) micro one; (2) micro two"), ("PHARM", "(1) pharm one; (2) pharm two")):
+        (notes / folder).mkdir(parents=True)
+        (notes / folder / "Lecture 1.md").write_text(f"- Learning objectives: {line}\n", encoding="utf-8")
+    assert run_main(cov, ["--notes", str(notes)], monkeypatch) == 0
+    out = capsys.readouterr().out
+    assert "4 objective(s) uncovered" in out.splitlines()[-1]
+    assert "[micro-lecture-1] (1) micro one" in out and "[pharm-lecture-1] (1) pharm one" in out
+
+
+def test_missing_csv_counts_zero_cards_with_a_note(cov, tmp_path, monkeypatch, capsys):
+    notes = make_notes(tmp_path)
+    assert run_main(cov, ["--notes", str(notes), "--csv", str(tmp_path / "none.csv")], monkeypatch) == 0
+    out = capsys.readouterr().out
+    assert "none.csv" in out and "0 cards" in out and "3 objective(s) uncovered" in out.splitlines()[-1]

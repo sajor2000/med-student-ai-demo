@@ -303,6 +303,30 @@ def mutated(fn, vid="v1"):
     return v
 
 
+def test_pmid_digits_in_a_citation_are_not_phi(check, notes, tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(check, "pubmed_summaries", lambda pmids: {p: {"title": "T", "pubdate": "2024"} for p in pmids})
+    v = mutated(lambda v: v["options"][0].update(explanation=v["options"][0]["explanation"] + " [PMID:38247655]"))
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
+    assert code == 0 and "PMID:38247655" in out
+
+
+def test_bad_citation_in_stem_fails(check, notes, tmp_path, monkeypatch, capsys):
+    v = mutated(lambda v: v.update(stem=v["stem"] + " See [[MICRO/does-not-exist#S99]]."), "vx")
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
+    assert code == 1 and "vx stem" in out and "does-not-exist" in out
+
+
+def test_bad_citation_in_option_text_fails(check, notes, tmp_path, monkeypatch, capsys):
+    v = mutated(lambda v: v["options"][1].update(text=v["options"][1]["text"] + " [[MICRO/does-not-exist#S99]]"), "vx")
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
+    assert code == 1 and "does-not-exist" in out
+
+
+def test_stem_without_citation_still_passes(check, notes, tmp_path, monkeypatch, capsys):
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [make_vignette("v1")]), monkeypatch, capsys)
+    assert code == 0
+
+
 def test_valid_vignette_file_passes(check, notes, tmp_path, monkeypatch, capsys):
     p = write_vignettes(tmp_path, [make_vignette("v1"), make_vignette("v2", objective=1)])
     code, out = run_vig(check, notes, p, monkeypatch, capsys)

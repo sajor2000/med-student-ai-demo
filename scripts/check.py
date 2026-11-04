@@ -120,6 +120,7 @@ PHI_PATTERNS = [
 
 def phi_hit(*texts: str) -> str | None:
     for text in texts:
+        text = PMID.sub(" ", COURSE.sub(" ", text))  # citation tokens are not patient identifiers
         for rx, what in PHI_PATTERNS:
             if rx.search(text):
                 return what
@@ -328,6 +329,7 @@ def vignette_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             stem = ""
         if what := phi_hit(stem):
             problems.append(f"{name}: stem contains {what}")
+        units.append((f"{name} stem", stem))
         if what := phi_hit(str(v.get("discipline") or "")):
             problems.append(f"{name}: discipline contains {what}")
         opts = v.get("options")
@@ -356,6 +358,7 @@ def vignette_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             for part, t in (("text", text), ("explanation", expl)):
                 if what := phi_hit(t):
                     problems.append(f"{oname}: {part} contains {what}")
+            units.append((f"{oname} text", text))
             units.append((f"{oname} explanation", expl))
     return units, problems, f"{len(items)} vignettes"
 

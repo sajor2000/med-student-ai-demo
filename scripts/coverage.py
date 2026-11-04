@@ -8,7 +8,8 @@ Objectives come from `Learning objectives: (1) ...; (2) ...` lines in any *.md u
 --notes. A card covers objective N when its `tags` column (`;`-separated) holds the
 exact tag `objN`; a vignette covers it through an integer `objective` field. Objectives are kept
 per notes file: when two lectures both number (1)-(3), tag cards `<lecture-slug>-objN` (slug = the
-notes file name lowercased, non-alphanumerics as `-`, e.g. `staphylococcus-aureus-sample-lecture-obj2`)
+notes path under --notes without `.md`, lowercased, non-alphanumerics as `-`, e.g.
+`micro-staphylococcus-aureus-sample-lecture-obj2`)
 and add `"lecture": "<slug>"` to vignettes. A plain `objN` only counts when one lecture defines N.
 
 Usage:
@@ -31,21 +32,27 @@ TAG_RE = re.compile(r"(?:([a-z0-9-]+)-)?obj(\d+)")
 Key = tuple[str, int]  # (lecture slug, objective number); slug "" means unqualified
 
 
-def lecture_slug(md: Path) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", md.stem.lower()).strip("-")
+def lecture_slug(md: Path, notes: Path) -> str:
+    """Slug of the notes path without `.md` (so MICRO/Lecture 1 and PHARM/Lecture 1 differ)."""
+    rel = md.relative_to(notes).with_suffix("").as_posix()
+    return re.sub(r"[^a-z0-9]+", "-", rel.lower()).strip("-")
 
 
 def parse_objectives(notes: Path) -> dict[Key, str]:
     """Objectives keyed by (notes file slug, number), so two lectures can each number (1)-(3)."""
     found: dict[Key, str] = {}
+    owner: dict[str, Path] = {}
     for md in sorted(notes.rglob("*.md")):
+        slug = lecture_slug(md, notes)
+        if owner.setdefault(slug, md) != md:
+            raise ValueError(f"{md} and {owner[slug]} give the same lecture slug {slug!r}; rename one")
         for line in md.read_text(encoding="utf-8").splitlines():
             m = LINE_RE.search(line)
             if not m:
                 continue
             parts = MARK_RE.split(m.group(1))
             for num, text in zip(parts[1::2], parts[2::2]):
-                found.setdefault((lecture_slug(md), int(num)), text.strip().rstrip(";").strip())
+                found.setdefault((slug, int(num)), text.strip().rstrip(";").strip())
     return dict(sorted(found.items(), key=lambda kv: (kv[0][0], kv[0][1])))
 
 
@@ -94,16 +101,22 @@ def existing(value: str) -> Path:
 def main() -> int:
     ap = argparse.ArgumentParser(description="Report learning objectives with no card or vignette.")
     ap.add_argument("--notes", type=existing, required=True, help="notes folder, e.g. notes/<case>")
-    ap.add_argument("--csv", type=existing, help="flashcards.csv with objN tags")
+    ap.add_argument("--csv", type=Path, help="flashcards.csv with objN tags (a missing file counts as 0 cards)")
     ap.add_argument("--vignettes", type=existing, help="vignettes.json with objective fields")
     args = ap.parse_args()
 
-    objectives = parse_objectives(args.notes)
+    try:
+        objectives = parse_objectives(args.notes)
+    except ValueError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
     if not objectives:
         print("no objectives found")
         return 0
     try:
-        cards = card_counts(args.csv) if args.csv else {}
+        if args.csv and not args.csv.exists():
+            print(f"note: {args.csv} does not exist yet; counting 0 cards")
+        cards = card_counts(args.csv) if args.csv and args.csv.exists() else {}
         vigs = vignette_counts(args.vignettes) if args.vignettes else {}
     except ValueError as exc:
         print(f"error: {exc}", file=sys.stderr)

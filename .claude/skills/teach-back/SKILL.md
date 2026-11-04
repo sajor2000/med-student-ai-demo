@@ -20,8 +20,8 @@ Record template, mark rules, and the miss-card recipe live in `reference.md`.
    Done when it prints PASS.
 5. **Show** the expert model next to the marks.
    Done when the student has seen the marks and the model.
-6. **Close gaps.** Turn each `missing` or `wrong` row into a cited cloze card in `output/<case>/flashcards.csv` and a line in `output/<case>/weak-spots.md` (`reference.md`).
-   Done when `check.py` prints PASS on both files.
+6. **Close gaps.** If any row is `missing` or `wrong`, turn each into a cited cloze card in `output/<case>/flashcards.csv` and a line in `output/<case>/weak-spots.md` (`reference.md`).
+   Done when `check.py` prints PASS on each file written, or every row was `correct` and nothing was written.
 7. **Optional evidence step.** Offer to open one cited PMID with a PubMed tool and judge whether it supports the claim.
    Done when the student declines, or the verdict (supports, partly, does not) is stated with the reminder that existence is not support.
 8. **Next.** Suggest `/anki-sync <case>`; cards land in `AI Study::<case>::misses`.
