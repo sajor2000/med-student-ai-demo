@@ -95,7 +95,7 @@ def linkify_plain(text: str) -> str:
     """Citations as plain labels, as export.py writes them to the Anki files."""
     text = PMID.sub(r'<a class="cite" href="https://pubmed.ncbi.nlm.nih.gov/\1/">PMID \1</a>', text)
     return COURSE.sub(
-        lambda m: f'<span class="cite course" title="{m.group(1)}">{m.group(1)} · {m.group(2)}</span>', text
+        lambda m: f'<span class="cite course" title="{html.escape(html.unescape(m.group(1)), quote=True)}">{m.group(1)} · {m.group(2)}</span>', text
     )
 
 
@@ -114,8 +114,8 @@ def csv_notes(path: Path) -> list[dict]:
             if nid in seen:
                 continue
             seen.add(nid)
-            extra = linkify_plain(html.escape(row.get("back") or ""))
-            sources = "<small>" + linkify_plain(html.escape(row.get("sources") or "")) + "</small>"
+            extra = linkify_plain(html.escape(row.get("back") or "", quote=False))
+            sources = "<small>" + linkify_plain(html.escape(row.get("sources") or "", quote=False)) + "</small>"
             back = f"{extra}<br>{sources}" if extra else sources
             if is_cloze(front):
                 model, fields = "Cloze", {"Text": html.escape(front), "Back Extra": back}

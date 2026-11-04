@@ -22,8 +22,8 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
    - `tags`: `case;discipline;topic` separated by `;` (discipline = micro, immuno, path, pharm, histo, biochem, genetics, …).
    - Up to 20% of cards may extend beyond the slides from StatPearls/PubMed; get those PMIDs from a tool call this session.
 3. Run `uv run scripts/check.py output/<case>/flashcards.csv --notes notes/<case>`. Fix and rerun until PASS.
-4. Run `uv run scripts/export.py output/<case>/flashcards.csv --notes notes/<case>` (add `--guide output/<case>/study-guide.md`
-   if that file exists). `--notes` makes every slide citation on the study page open the exact slide.
+4. Run `uv run scripts/export.py output/<case>/flashcards.csv --notes notes/<case>` (add `--guide output/<case>/study-guide.md`,
+   `--diagrams output/<case>/diagrams` and `--art output/<case>/art` for each that already exists). `--notes` makes every slide citation on the study page open the exact slide.
 5. Report the card count by discipline and the two output paths. Tell the student:
    - Anki: **File → Import →** `flashcards.anki.txt` (basic cards), and again for `flashcards.cloze.anki.txt` if it exists
      (cloze cards). Both land in the deck `AI Study::<case>`, and re-importing updates existing cards instead of duplicating them.
@@ -31,6 +31,7 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
      folder is course material: keep it for yourself and don't share it.
    - These cards supplement a premade deck: they cover *this course's* framing and faculty emphasis.
    - Before studying, spot-check 3 random cards against their cited slide or paper.
-   - After `/study-guide`, `/visualize` or `/mnemonic-art`, re-run export with every flag that applies
-     (`--guide`, `--notes`, `--diagrams`, `--art`) so the study page picks up the new files.
+   - Pass every export flag that applies on the first run, including `--diagrams` and `--art` when output from
+     `/visualize` or `/mnemonic-art` already exists. After a later `/study-guide`, `/visualize` or `/mnemonic-art`, re-run
+     export with all applicable flags (`--guide`, `--notes`, `--diagrams`, `--art`) so the study page picks up the new files.
 6. Suggest `/anki-sync <case>` to push these cards into Anki and pull back the ones the student keeps missing.

@@ -13,7 +13,7 @@ Tool names, query forms, and the section list live in `reference.md`.
 1. Read the notes under `notes/<case>`: all of them, or only the files relevant to the focus topic.
    Done when you can name each topic with its slide numbers.
 2. Draft the sections listed in `reference.md`. Every bullet, numbered item, and table row carries a citation
-   (`[[path#S#]]`, `[[path#P#]]`, `[[path#T#]]`, or `[PMID:…]`), or is marked `[source needed]` or `(AI mnemonic)`.
+   (`[[path#S#]]`, `[[path#P#]]`, `[[path#T#]]`, or `[PMID:…]`), or is marked `[source needed]`. `(AI mnemonic)` is for mnemonic wording only, never for a factual mechanism or treatment claim: those need a citation or `[source needed]`.
    `check.py` verifies this for bullets, numbered items, and table rows outside Self-test. It does not check
    plain prose lines or the Self-test answers, so read those yourself: each Self-test answer needs a citation.
    Done when every such line has a citation or a mark and `check.py` agrees.

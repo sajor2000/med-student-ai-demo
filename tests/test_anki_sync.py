@@ -484,3 +484,12 @@ def test_discipline_survives_alphabetical_tag_order(anki_mod, monkeypatch, fake_
     sync(anki_mod, monkeypatch, fake, workdir)
     text = (workdir / "weak-spots.md").read_text(encoding="utf-8")
     assert "| micro | Catalase" in text and "| lab |" not in text
+
+
+def test_apostrophe_course_path_still_links(anki_mod, tmp_path):
+    f = tmp_path / "c.csv"
+    f.write_text("front,back,sources,tags\nQ?,A,\"[[o'brien/notes.md#S3]]\",x\n", encoding="utf-8")
+    back = anki_mod.csv_notes(f)[0]["fields"]["Back"]
+    assert 'class="cite course"' in back and "[[" not in back
+    assert 'title="o&#x27;brien' in back or "title=\"o'brien" in back
+    assert back.count('title="') == 1 and 'title=""' not in back

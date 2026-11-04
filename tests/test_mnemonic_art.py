@@ -214,6 +214,7 @@ def test_plain_concepts_not_refused(art):
 @pytest.mark.parametrize("scene, rule", [
     ("patient 1234567 smiling", "a number with 6 or more digits"),
     ("2024-03-14", "a date"),
+    ("seen on March 4, 1980", "a date"),
     ("born in 1980", "a birth year"),
 ])
 def test_each_phi_rule_refuses_in_isolation(art, net, monkeypatch, capsys, scene, rule):

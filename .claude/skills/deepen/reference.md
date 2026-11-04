@@ -10,7 +10,7 @@
 ## Paperclip
 
 - `evidence` tests one claim per call; make one call per claim.
-- Paperclip ids are not citations. Convert each cited paper to a PMID (`pubmed_convert_ids` for PMC ids).
+- Paperclip ids are not citations. Convert each cited paper to a PMID (`pubmed_convert_ids` for PMC ids and DOIs), then cite it as `[PMID:<id>]`.
 
 ## Output
 

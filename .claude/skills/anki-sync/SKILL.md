@@ -6,13 +6,13 @@ disable-model-invocation: true
 ---
 
 Arguments: `$ARGUMENTS`. The first word is `<case>` (lowercase letters, digits, hyphens; a folder under `output/`).
-If `output/<case>/flashcards.csv` does not exist, tell the student to run `/flashcards <case>` first.
+If neither `output/<case>/flashcards.csv` nor any `output/<case>/diagrams/*.occlusion.json` exists, tell the student to run `/flashcards <case>` (or `/visualize <case>`) first.
 
 Sync touches only *owned* notes: tagged `msad`, living in the deck `AI Study::<case>`. See `reference.md` for the full rule.
 
 1. **Sync.** Run:
-   `uv run scripts/anki_sync.py --case <case> --csv output/<case>/flashcards.csv`
-   and add `--diagrams output/<case>/diagrams` when that folder holds `*.occlusion.json` files.
+   `uv run scripts/anki_sync.py --case <case>` plus `--csv output/<case>/flashcards.csv` when that file exists,
+   and `--diagrams output/<case>/diagrams` when that folder holds `*.occlusion.json` files (either or both).
    Done when the last line reads `added N, updated N, adopted N, skipped N, weak spots N`.
    Exit code 2 means Anki is closed or AnkiConnect is missing: relay the script's one-line fix
    (open Anki desktop, install add-on `2055492159`; steps in `reference.md`) and stop.

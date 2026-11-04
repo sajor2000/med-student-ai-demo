@@ -131,7 +131,11 @@ def spec_type_problems(spec: dict) -> list[str]:
             if not isinstance(item, dict):
                 probs.append(f"{kind} #{i}: must be an object")
                 continue
-            ident = item.get("id", f"#{i}")
+            if not isinstance(item.get("id"), str):
+                probs.append(f"{kind} #{i}: id is missing or not a string")
+            if kind == "node" and "label" not in item:
+                probs.append(f"{kind} {item['id'] if isinstance(item.get('id'), str) else '#' + str(i)}: label is missing")
+            ident = item.get("id") if isinstance(item.get("id"), str) else f"#{i}"
             for field in ("label", "cite"):
                 if field in item and not isinstance(item[field], str):
                     probs.append(f"{kind} {ident}: {field} must be a string")

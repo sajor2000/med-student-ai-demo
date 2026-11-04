@@ -360,3 +360,13 @@ def test_summary_lines_separate_id_and_kind(occ):
     assert lines[1].startswith("  hypothalamus   node  ")
     assert "hypothalamusnode" not in "".join(lines)
     assert lines[-1] == "data-node labels: 2 (nodes + labeled edges)"
+
+
+def test_spec_missing_id_or_label_collected_not_keyerror(occ):
+    probs = occ.spec_type_problems({"nodes": [{"label": "x"}, {"id": "n2"}, {"id": 5, "label": "y"}],
+                                    "edges": [{"label": "z"}, {"id": ["e"], "label": "q"}]})
+    text = " ".join(probs)
+    assert "node #1" in text and "id" in text
+    assert "n2" in text and "label" in text
+    assert "node #3" in text or "5" in text
+    assert "edge #1" in text and "edge #2" in text

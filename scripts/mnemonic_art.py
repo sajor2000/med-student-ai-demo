@@ -54,6 +54,8 @@ PHI_PATTERNS = [
     (re.compile(r"\d{6,}"), "a number with 6 or more digits (MRN-like)"),
     (re.compile(r"\b(?:MRN|DOB)\b|date\s+of\s+birth|medical\s+record", re.I), "MRN or date-of-birth wording"),
     (re.compile(r"\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b"), "a date"),
+    (re.compile(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}\b"
+                r"|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?,?\s+\d{4}\b"), "a date"),
     (re.compile(r"\b(?:born|dob)\b[^.]{0,20}\b(?:19|20)\d{2}\b", re.I), "a birth year"),
     (re.compile(r"\b[A-Z][a-z]+(?:,\s*|\s+aged?\s+)\d{1,3}\b"), "a name with an age"),
     (re.compile(r"\b\d{1,3}[- ]years?[- ]old\s+(?:named|called)\b", re.I), "a name with an age"),
