@@ -7,6 +7,7 @@
       "Bash(uv run scripts/occlude.py:*)",
       "Bash(uv run scripts/anki_sync.py:*)",
       "Bash(uv run scripts/doctor.py:*)",
+      "Bash(uv run scripts/coverage.py:*)",
       "mcp__pubmed",
       "mcp__paperclip"
     ]
