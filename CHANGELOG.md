@@ -6,6 +6,10 @@ All notable changes are documented here. Format follows
 
 ## [Unreleased]
 
+### Changed
+- The fictional case-guide PDF now looks like a real case-guide handout: a cover page, a table of contents with page numbers, an "N of M - Self Study Guide" footer, and green headings. It is 10 pages; `examples/case2` citations moved to the new page numbers.
+- `scripts/extract.py` treats a footer that differs only by its page number ("3 of 10 - ...") as a running footer.
+
 ## [0.4.0] - 2026-11-04
 
 ### Changed

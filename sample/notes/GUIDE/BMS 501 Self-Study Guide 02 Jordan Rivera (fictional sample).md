@@ -2,47 +2,125 @@
 
 Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slides)
 
-## [S1] Meridian College of Medicine (fictional)
+## [S1] Course Director:
+- 1 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
 - FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- Dr. Morgan Hale (fictional)
+- morgan.hale@meridian.example
 - BMS 501
 - Foundations of Infection and Immunity
 - Case 2: Jordan Rivera
-- Self-Study Guide · Week 2
-- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical
-- school.
-- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before
-- uploading anything.
-- TABLE OF CONTENTS
-- 1.
-- Course Director Notes
-- 2.
-- Case Presentation
-- 3.
-- Immunology
-- 4.
-- Microbiology
-- 5.
-- Pharmacology
+- Meridian College of Medicine (fictional)
 
-## [S2] Course Director Notes
+## [S2] Table of Contents
+- 2 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
+- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
+- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- Course Director Notes
+- 3
+- Case Presentation
+- 3
+- Immunology
+- 4
+- Self-Study Topics:
+- 5
+- Innate Defenses Against Skin Infection (TO-2101):
+- 5
+- Videos:
+- 5
+- Barriers and Pattern Recognition (TO-2101) (14:20)
+- 5
+- Neutrophil Recruitment and Extravasation (TO-2101) (12:05)
+- 5
+- Phagocytosis and Oxidative Killing (TO-2101) (10:42)
+- 5
+- Slides:
+- 5
+- Innate Immunity: Barriers, Recognition, and Neutrophils (TO-2101)
+- 5
+- Notes: See Below
+- 5
+- Learning Objectives:
+- 5
+- Immunology: Self-Study Questions
+- 6
+- Immunology: Self-Study Questions + Answers
+- 6
+- Microbiology
+- 6
+- Self-Study Topics:
+- 7
+- Staphylococci and Methicillin Resistance (TO-2205):
+- 7
+- Videos:
+- 7
+- Staphylococci: Identification (TO-2205) (9:40)
+- 7
+- S. aureus Virulence Factors and Toxins (TO-2205) (16:15)
+- 7
+- MRSA: Mechanism and Epidemiology (TO-2205) (8:30)
+- 7
+- Slides:
+- 7
+- Staphylococcus aureus (TO-2205)
+- 7
+- Notes: See Below
+- 7
+- Learning Objectives:
+- 7
+- Microbiology: Self-Study Questions
+- 7
+- Microbiology: Self-Study Questions + Answers
+- 8
+- Pharmacology
+- 8
+- Self-Study Topics:
+- 9
+- Antibiotics for Gram-Positive Infections (TO-2312):
+- 9
+- Videos:
+- 9
+- Cell Wall Inhibitors I: Beta-lactams (TO-2312) (13:10)
+- 9
+- Cell Wall Inhibitors II: Vancomycin (TO-2312) (7:55)
+- 9
+- Folate Antagonists and Tetracyclines (TO-2312) (11:20)
+- 9
+- Slides:
+- 9
+- Antibiotics for Gram-Positive Infections (TO-2312)
+- 9
+- Notes: No Written Notes
+- 9
+- Learning Objectives:
+- 9
+- Pharmacology: Self-Study Questions
+- 9
+- Pharmacology: Self-Study Questions + Answers
+- 10
+- Selected References
+- 10
+
+## [S3] Course Director Notes
+- 3 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
 - FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
 - Welcome to Case 2
-- This week follows Jordan Rivera, a college athlete with a painful skin infection. The case connects innate immunity, the
-- virulence of Staphylococcus aureus, and how we choose antibiotics when resistance is possible.
-- Work through the case presentation first, then each discipline in order. Try every self-study question before you look at the
-- answers.
+- This week follows Jordan Rivera, a college athlete with a painful skin infection. The case connects innate immunity,
+- the virulence of Staphylococcus aureus, and how we choose antibiotics when resistance is possible.
+- Work through the case presentation first, then each discipline in order. Try every self-study question before you look
+- at the answers.
 - Small-group session: Thursday, 9:00-11:00 (fictional).
 - This guide demonstrates AI-assisted study; follow your own school's AI policy for real course materials.
 - Case Presentation
 - Chief complaint
 - “There’s a painful bump on my arm that keeps getting bigger.”
 - History of present illness
-- Jordan Rivera is a 19-year-old college wrestler who presents to student health with a 4-day history of a red, swollen, painful
-- lesion on the ulnar (medial) side of the right forearm. It began as what Jordan thought was a spider bite after practice. Over 48
-- hours it became firm and warm, and this morning it felt soft in the center. Jordan reports subjective fevers and fatigue. Two
-- teammates had similar “boils” this season.
+- Jordan Rivera is a 19-year-old college wrestler who presents to student health with a 4-day history of a red, swollen,
+- painful lesion on the ulnar (medial) side of the right forearm. It began as what Jordan thought was a spider bite after
+- practice. Over 48 hours it became firm and warm, and this morning it felt soft in the center. Jordan reports subjective
+- fevers and fatigue. Two teammates had similar “boils” this season.
 - Past history
 - No chronic illnesses; no prior hospitalizations
 - Medications: none. Allergies: no known drug allergies
@@ -67,11 +145,13 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Value: 99% room air
 - Reference: ≥95%
 - Physical examination
-- A 4 cm erythematous, warm, tender nodule on the ulnar side of the right volar forearm with a fluctuant center and 2 cm of
-- surrounding erythema. No lymphangitic streaking. Small, tender right epitrochlear node. The rest of the exam is normal.
+- A 4 cm erythematous, warm, tender nodule on the ulnar side of the right volar forearm with a fluctuant center and 2 cm
+- of surrounding erythema. No lymphangitic streaking. Small, tender right epitrochlear node. The rest of the exam is
+- normal.
 - Laboratory results
 
-## [S3] Test
+## [S4] Test
+- 4 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
 - FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
 - Result
@@ -125,8 +205,8 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Units: mg/dL
 - Reference ranges are typical adult values (hemoglobin and creatinine shown for an adult male); they vary by laboratory.
 - Procedure and microbiology
-- Bedside incision and drainage released 6 mL of thick yellow pus. Gram stain showed many neutrophils and gram-positive cocci in
-- clusters. Culture grew large golden colonies with beta-hemolysis on blood agar.
+- Bedside incision and drainage released 6 mL of thick yellow pus. Gram stain showed many neutrophils and gram-
+- positive cocci in clusters. Culture grew large golden colonies with beta-hemolysis on blood agar.
 - Test
 - Result
 - Interpretation
@@ -150,8 +230,8 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Result: Negative D-test;
 - susceptible
 - Interpretation: none
-- Review the results above. Before reading on, write down: (1) the organism, (2) the host cells doing most of the work, and (3) what
-- you would treat with and why.
+- Review the results above. Before reading on, write down: (1) the organism, (2) the host cells doing most of the work,
+- and (3) what you would treat with and why.
 - Immunology
 - Discipline Director: Dr. Avery Lin (fictional)
 - avery.lin@meridian.example
@@ -160,16 +240,17 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Focus on the first hours of infection: barriers, recognition, recruitment, and killing.
 - Be able to trace a neutrophil from the bloodstream to the abscess.
 
-## [S4] Self-Study Topics:
+## [S5] Self-Study Topics:
+- 5 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
 - FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- Innate Defenses Against Skin Infection (TO-2101):
 - Videos:
-- Barriers and Pattern Recognition (LO-1101) (14:20)
-- Neutrophil Recruitment and Extravasation (LO-1102) (12:05)
-- Phagocytosis and Oxidative Killing (LO-1103) (10:42)
+- Barriers and Pattern Recognition (TO-2101) (14:20)
+- Neutrophil Recruitment and Extravasation (TO-2101) (12:05)
+- Phagocytosis and Oxidative Killing (TO-2101) (10:42)
 - Slides:
-- Innate Immunity I: Barriers and Recognition (LO-1101)
-- Innate Immunity II: Neutrophils (LO-1102, LO-1103)
+- Innate Immunity: Barriers, Recognition, and Neutrophils (TO-2101)
 - Notes: See Below
 - Learning Objectives:
 - 1. Describe how skin acts as a physical, chemical, and microbial barrier.
@@ -179,46 +260,53 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - 5. Predict how S. aureus virulence factors interfere with each step.
 - Neutrophil Recruitment and Killing (LO-1102, LO-1103)
 - Recognition
-- Bacterial lipoproteins are the main ligands for TLR2 (with TLR1 or TLR6); whether lipoteichoic acid also signals through TLR2
-- is debated [PMID:18406368].
+- Bacterial lipoproteins are the main ligands for TLR2 (with TLR1 or TLR6); whether lipoteichoic acid also signals
+- through TLR2 is debated [PMID:18406368].
 - Tissue macrophages release IL-1, TNF-α, and IL-8 (CXCL8).
 - Recruitment (the leukocyte adhesion cascade)
 - Step
 - Endothelial molecule
 - Neutrophil molecule
 - Rolling
-- Endothelial molecule: E-selectin, P-selectin
+- Endothelial molecule: E-selectin, P-
+- selectin
 - Neutrophil molecule: Sialyl-Lewis X
 - Activation
-- Endothelial molecule: Chemokines (IL-8)
-- Neutrophil molecule: Chemokine receptors
+- Endothelial molecule: Chemokines
+- (IL-8)
+- Neutrophil molecule: Chemokine
+- receptors
 - Tight adhesion
 - Endothelial molecule: ICAM-1
-- Neutrophil molecule: Integrins (LFA-1, Mac-1)
+- Neutrophil molecule: Integrins (LFA-1,
+- Mac-1)
 - Transmigration
-- Endothelial molecule: PECAM-1 (CD31)
+- Endothelial molecule: PECAM-1
+- (CD31)
 - Neutrophil molecule: PECAM-1 (CD31)
 - Killing
 - Opsonized bacteria (IgG, C3b) are phagocytosed and the phagosome fuses with lysosomes.
 - NADPH oxidase produces superoxide (the respiratory burst); myeloperoxidase makes hypochlorite.
 - Pus is mostly dead neutrophils, bacteria, and tissue debris.
 - Clinical correlation
-- Chronic granulomatous disease (NADPH oxidase defect): recurrent S. aureus, Aspergillus, and other infections. Often taught
-- as 'catalase-positive organisms', but in a mouse model catalase-negative S. aureus was equally virulent [PMID:11997027].
-- Leukocyte adhesion deficiency type 1 (CD18 defect): little or no pus with marked neutrophilia; delayed umbilical cord
-- separation is classic but not universal.
-- Immunology: Self-Study Questions
+- Chronic granulomatous disease (NADPH oxidase defect): recurrent S. aureus, Aspergillus, and other infections.
+- Often taught as 'catalase-positive organisms', but in a mouse model catalase-negative S. aureus was equally
+- virulent [PMID:11997027].
+- Leukocyte adhesion deficiency type 1 (CD18 defect): little or no pus with marked neutrophilia; delayed umbilical
+- cord separation is classic but not universal.
+
+## [S6] Immunology: Self-Study Questions
+- 6 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
+- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
+- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
 - 1. A neutrophil rolling along the endothelium near Jordan’s abscess is slowed by which endothelial molecule?
 - A. ICAM-1
 - B. E-selectin
-
-## [S5] C. PECAM-1
-- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
-- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- C. PECAM-1
 - D. VCAM-1
 - E. MHC class II
-- 2. A child has recurrent S. aureus abscesses and absent superoxide production on a nitroblue tetrazolium (NBT) test. Which
-- enzyme is defective?
+- 2. A child has recurrent S. aureus abscesses and absent superoxide production on a nitroblue tetrazolium (NBT) test.
+- Which enzyme is defective?
 - A. Myeloperoxidase
 - B. NADPH oxidase
 - C. Superoxide dismutase
@@ -233,16 +321,16 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - E. MHC class II
 - Answer: B
 - Selectins mediate rolling; ICAM-1 binding to integrins mediates tight adhesion.
-- 2. A child has recurrent S. aureus abscesses and absent superoxide production on a nitroblue tetrazolium (NBT) test. Which
-- enzyme is defective?
+- 2. A child has recurrent S. aureus abscesses and absent superoxide production on a nitroblue tetrazolium (NBT) test.
+- Which enzyme is defective?
 - A. Myeloperoxidase
 - B. NADPH oxidase
 - C. Superoxide dismutase
 - D. Catalase
 - E. Lysozyme
 - Answer: B
-- No superoxide on NBT = absent respiratory burst = chronic granulomatous disease (NADPH oxidase defect). Myeloperoxidase
-- deficiency spares superoxide production.
+- No superoxide on NBT = absent respiratory burst = chronic granulomatous disease (NADPH oxidase defect).
+- Myeloperoxidase deficiency spares superoxide production.
 - Microbiology
 - Discipline Director: Dr. Morgan Patel (fictional)
 - morgan.patel@meridian.example
@@ -251,15 +339,17 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Know how to identify S. aureus in the lab and link each virulence factor to a disease.
 - Practice the sample deck: sample/curriculum/MICRO/Staphylococcus aureus (sample lecture).pptx
 
-## [S6] Self-Study Topics:
+## [S7] Self-Study Topics:
+- 7 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
 - FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- Staphylococci and Methicillin Resistance (TO-2205):
 - Videos:
-- Staphylococci: Identification (LO-1201) (9:40)
-- S. aureus Virulence Factors and Toxins (LO-1202) (16:15)
-- MRSA: Mechanism and Epidemiology (LO-1203) (8:30)
+- Staphylococci: Identification (TO-2205) (9:40)
+- S. aureus Virulence Factors and Toxins (TO-2205) (16:15)
+- MRSA: Mechanism and Epidemiology (TO-2205) (8:30)
 - Slides:
-- Staphylococcus aureus (LO-1201, LO-1202, LO-1203)
+- Staphylococcus aureus (TO-2205)
 - Notes: See Below
 - Learning Objectives:
 - 1. Identify S. aureus using Gram stain, catalase, and coagulase.
@@ -288,10 +378,11 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Type: Toxin
 - Action: Pore-forming; kills
 - leukocytes
-- Disease link: Associated with
-- CA-MRSA skin infection and
-- necrotizing pneumonia
-- (causal role debated)
+- Disease link: Associated
+- with CA-MRSA skin
+- infection and necrotizing
+- pneumonia (causal role
+- debated)
 - TSST-1
 - Type: Superantigen
 - Action: Cross-links MHC II
@@ -300,32 +391,33 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - syndrome
 - Exfoliative toxin
 - Type: Protease
-- Action: Cleaves
-- desmoglein-1
-- Disease link: Scalded skin
-- syndrome
+- Action: Cleaves desmoglein-1
+- Disease link: Scalded
+- skin syndrome
 - Enterotoxin
 - Type: Superantigen; heat-
 - stable
 - Action: Preformed toxin in
 - food
 - Disease link: Vomiting 30
-- min-8 h after eating (mean
-- about 3 h)
+- min-8 h after eating
+- (mean about 3 h)
 - Methicillin resistance
 - mecA (on SCCmec) encodes PBP2a, a penicillin-binding protein with low affinity for beta-lactams.
 - MRSA is resistant to nearly all beta-lactams (exception: anti-MRSA cephalosporins such as ceftaroline).
-- Community-associated strains often carry PVL (its role in virulence is debated) and cause skin abscesses in healthy young
-- people, especially with shared equipment and skin contact (athletes, dormitories) [PMID:17146447][PMID:22759601].
+- Community-associated strains often carry PVL (its role in virulence is debated) and cause skin abscesses in
+- healthy young people, especially with shared equipment and skin contact (athletes, dormitories) [PMID:17146447]
+- [PMID:22759601].
 - Microbiology: Self-Study Questions
 - 1. Which test distinguishes S. aureus from coagulase-negative staphylococci?
 - A. Catalase
-- B. Coagulase
-- C. Optochin
 
-## [S7] D. Bacitracin
+## [S8] B. Coagulase
+- 8 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
 - FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- C. Optochin
+- D. Bacitracin
 - E. Bile solubility
 - 2. Jordan’s isolate is cefoxitin-resistant. What is the molecular basis?
 - A. Beta-lactamase hyperproduction
@@ -356,11 +448,16 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Office hours: Friday 10:00-11:00 (fictional)
 - Discipline Director Notes:
 - Know how each anti-staphylococcal drug works and when MRSA changes the choice.
-- Incision and drainage is the main treatment for an abscess. Jordan has fever and tachycardia (two SIRS criteria), so an MRSA-
-- active antibiotic is indicated [PMID:24973422]. In a large trial, TMP-SMX after drainage also raised the cure rate of
-- uncomplicated abscesses (80.5% vs 73.6% with placebo, modified intention-to-treat) [PMID:26962903].
+- Incision and drainage is the main treatment for an abscess. Jordan has fever and tachycardia (two SIRS criteria),
+- so an MRSA-active antibiotic is indicated [PMID:24973422]. In a large trial, TMP-SMX after drainage also raised
+- the cure rate of uncomplicated abscesses (80.5% vs 73.6% with placebo, modified intention-to-treat)
+- [PMID:26962903].
 - Summary of Important Symbols and Parameters
-- Symbol
+
+## [S9] Symbol
+- 9 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
+- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
+- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
 - Meaning
 - Formula
 - Vd
@@ -378,19 +475,18 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - LD
 - Meaning: Loading dose
 - Formula: Css × Vd / F
-
-## [S8] Self-Study Topics:
-- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
-- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- Self-Study Topics:
+- Antibiotics for Gram-Positive Infections (TO-2312):
 - Videos:
-- Cell Wall Inhibitors I: Beta-lactams (LO-1301) (13:10)
-- Cell Wall Inhibitors II: Vancomycin (LO-1302) (7:55)
-- Folate Antagonists and Tetracyclines (LO-1303) (11:20)
+- Cell Wall Inhibitors I: Beta-lactams (TO-2312) (13:10)
+- Cell Wall Inhibitors II: Vancomycin (TO-2312) (7:55)
+- Folate Antagonists and Tetracyclines (TO-2312) (11:20)
 - Slides:
-- Antibiotics for Gram-Positive Infections (LO-1301, LO-1302, LO-1303)
+- Antibiotics for Gram-Positive Infections (TO-2312)
 - Notes: No Written Notes
 - Learning Objectives:
-- 1. Explain how beta-lactams and vancomycin inhibit cell-wall synthesis, and why each fails against resistant organisms.
+- 1. Explain how beta-lactams and vancomycin inhibit cell-wall synthesis, and why each fails against resistant
+- organisms.
 - 2. Choose an oral agent for uncomplicated CA-MRSA skin infection and justify it.
 - 3. Name key adverse effects of vancomycin, TMP-SMX, and doxycycline.
 - 4. Calculate a loading dose from Vd and a target concentration.
@@ -404,8 +500,8 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - resistant)
 - Covers
 - MRSA?: No
-- Key adverse effects: Neutropenia; interstitial
-- nephritis (rare)
+- Key adverse effects: Neutropenia;
+- interstitial nephritis (rare)
 - Cefazolin
 - Target: PBPs
 - Covers
@@ -415,15 +511,15 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Target: Binds D-Ala-D-Ala
 - Covers
 - MRSA?: Yes
-- Key adverse effects: Nephrotoxicity; infusion
-- reaction (flushing)
+- Key adverse effects: Nephrotoxicity;
+- infusion reaction (flushing)
 - TMP-SMX
-- Target: DHFR +
-- dihydropteroate synthase
+- Target: DHFR + dihydropteroate
+- synthase
 - Covers
 - MRSA?: Yes
-- Key adverse effects: Hyperkalemia, rash, bone
-- marrow suppression
+- Key adverse effects: Hyperkalemia,
+- rash, bone marrow suppression
 - Doxycycline
 - Target: 30S ribosome
 - Covers
@@ -437,7 +533,11 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - C. Trimethoprim-sulfamethoxazole
 - D. Amoxicillin
 - E. Penicillin V
-- 2. A drug has Vd = 50 L and target concentration 20 mg/L with F = 1. What loading dose is needed?
+
+## [S10] 2. A drug has Vd = 50 L and target concentration 20 mg/L with F = 1. What loading dose is needed?
+- 10 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
+- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
+- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
 - A. 100 mg
 - B. 250 mg
 - C. 1,000 mg
@@ -445,10 +545,7 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - E. 5,000 mg
 - Pharmacology: Self-Study Questions + Answers
 - 1. After drainage, Jordan is sent home on an oral antibiotic. Which is most appropriate given the susceptibilities?
-
-## [S9] A. Dicloxacillin
-- FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
-- Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
+- A. Dicloxacillin
 - B. Cephalexin
 - C. Trimethoprim-sulfamethoxazole
 - D. Amoxicillin
@@ -464,14 +561,17 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Answer: C
 - LD = Css × Vd / F = 20 mg/L × 50 L = 1,000 mg.
 - Selected References
-- Every reference below was checked in PubMed. A citation shows a source exists; open it to see whether it supports the claim.
+- Every reference below was checked in PubMed. A citation shows a source exists; open it to see whether it supports
+- the claim.
 - Stevens DL, et al. IDSA practice guidelines for skin and soft tissue infections, 2014 update. [PMID:24973422]
-- Talan DA, et al. Trimethoprim-sulfamethoxazole versus placebo for uncomplicated skin abscess. N Engl J Med 2016.
-- [PMID:26962903]
-- Malachowa N, Kobayashi SD, DeLeo FR. Community-associated MRSA and athletes. Phys Sportsmed 2012. [PMID:22759601]
-- Amagai M, et al. Toxin in bullous impetigo and staphylococcal scalded-skin syndrome targets desmoglein 1. Nat Med 2000.
-- [PMID:11062541]
+- Talan DA, et al. Trimethoprim-sulfamethoxazole versus placebo for uncomplicated skin abscess. N Engl J Med
+- 2016. [PMID:26962903]
+- Malachowa N, Kobayashi SD, DeLeo FR. Community-associated MRSA and athletes. Phys Sportsmed 2012.
+- [PMID:22759601]
+- Amagai M, et al. Toxin in bullous impetigo and staphylococcal scalded-skin syndrome targets desmoglein 1. Nat
+- Med 2000. [PMID:11062541]
 - Boyle-Vavra S, Daum RS. Community-acquired MRSA: the role of Panton-Valentine leukocidin. Lab Invest 2007.
 - [PMID:17146447]
 - Zähringer U, et al. TLR2 - promiscuous or specific? Immunobiology 2008. [PMID:18406368]
-- Messina CG, et al. Catalase negative S. aureus retain virulence in a mouse model of CGD. FEBS Lett 2002. [PMID:11997027]
+- Messina CG, et al. Catalase negative S. aureus retain virulence in a mouse model of CGD. FEBS Lett 2002.
+- [PMID:11997027]

@@ -90,11 +90,11 @@ Type in Claude Code:
 /ingest sample
 ```
 
-**Expected:** a table with three sources (the GUIDE case-guide PDF with 9 pages, the MICRO deck with 6 slides, and the PHYS renal clearance handout with 4),
+**Expected:** a table with three sources (the GUIDE case-guide PDF with 10 pages: a cover, a table of contents, and 8 pages of content, the MICRO deck with 6 slides, and the PHYS renal clearance handout with 4),
 the case's learning objectives quoted with citations, and 3-5 cross-discipline threads such as
 protein A (micro) to blocked opsonization (immuno) to abscess to PBP2a/MRSA (pharm).
 
-**Point at:** the citation tags. `[[GUIDE/...#S4]]` means page 4 of the guide PDF, `[[MICRO/...#S3]]` means slide 3.
+**Point at:** the citation tags. `[[GUIDE/...#S5]]` means page 5 of the guide PDF (the cover is page 1), `[[MICRO/...#S3]]` means slide 3.
 Open `notes/sample/GUIDE/` and show the `## [S#]` page headings in the Markdown, so the audience sees that a citation is an address.
 
 ![Output of /ingest sample: sources table and learning objectives with page citations](img/demo/05-ingest.png)
@@ -171,7 +171,7 @@ open output/sample/flashcards.html          # macOS; use xdg-open on Linux, star
 ![export.py writing the Anki files and the study page](img/demo/12-export.png)
 
 
-**Point at:** click a card, flip it, then click a `[[GUIDE/...#S4]]` citation. The exact page opens.
+**Point at:** click a card, flip it, then click a `[[GUIDE/...#S5]]` citation. The exact page opens.
 Say: "This is how you verify an AI-written card in 5 seconds." Then show one `{{c1::...}}` cloze card.
 
 ![A flashcard, front](img/demo/13-card-front.png)

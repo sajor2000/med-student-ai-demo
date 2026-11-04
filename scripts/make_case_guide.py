@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.10"
-# dependencies = ["python-docx>=1.1"]
+# dependencies = ["python-docx>=1.1", "pillow>=10", "pymupdf>=1.24"]
 # ///
 """Build a FICTIONAL case-based self-study guide for practice.
 
@@ -11,6 +11,10 @@ questions). The school, course, faculty, and patient are invented. Nothing
 here is copied from any real course.
 
     uv run scripts/make_case_guide.py [--out sample/curriculum/GUIDE] [--pdf | --no-pdf] [--docx DIR]
+
+It looks like a typical case-guide handout: a cover page (director band, course title, cover art, school
+band), a detailed table of contents with page numbers, and an "N of M - Self Study Guide" footer. The cover art
+and avatar are drawn in code (Pillow); the TOC page numbers come from a first PDF pass (PyMuPDF).
 
 The demo input is a PDF (a fictional M1 class handout). The .docx is built in a temp folder and converted
 with LibreOffice (`soffice --headless --convert-to pdf`), so the PDF keeps the fictional footer on every page.
@@ -28,7 +32,7 @@ from pathlib import Path
 
 from docx import Document
 from docx.enum.table import WD_TABLE_ALIGNMENT
-from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
+from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK, WD_TAB_ALIGNMENT
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
@@ -49,7 +53,47 @@ DISCLAIMER = (
     "FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. "
     "Invented school, faculty, and patient. Not affiliated with any medical school."
 )
-NAVY = RGBColor(0x1F, 0x3A, 0x5F)
+DIRECTOR = ("Dr. Morgan Hale (fictional)", "morgan.hale@meridian.example")
+VERSION = "v. 11/2026"
+RUNNING = f"Self Study Guide: Jordan Rivera ({COURSE_TITLE}) ({VERSION})"
+FONT = "Arial"  # a plain sans that LibreOffice maps to Liberation Sans where Arial is missing
+BAND = "2F6B2F"  # dark green bands and table headers
+GREEN = RGBColor(0x5C, 0x9E, 0x3C)  # cover title green
+HEAD = RGBColor(0x2F, 0x6B, 0x2F)  # heading green
+WHITE = RGBColor(0xFF, 0xFF, 0xFF)
+
+# One self-study topic per discipline, in the guide's "Topic (TO-code) > Videos / Slides / Notes" layout.
+TOPICS = {
+    "Immunology": ("Innate Defenses Against Skin Infection", "TO-2101",
+                   ["Barriers and Pattern Recognition (TO-2101) (14:20)",
+                    "Neutrophil Recruitment and Extravasation (TO-2101) (12:05)",
+                    "Phagocytosis and Oxidative Killing (TO-2101) (10:42)"],
+                   ["Innate Immunity: Barriers, Recognition, and Neutrophils (TO-2101)"],
+                   "See Below"),
+    "Microbiology": ("Staphylococci and Methicillin Resistance", "TO-2205",
+                     ["Staphylococci: Identification (TO-2205) (9:40)",
+                      "S. aureus Virulence Factors and Toxins (TO-2205) (16:15)",
+                      "MRSA: Mechanism and Epidemiology (TO-2205) (8:30)"],
+                     ["Staphylococcus aureus (TO-2205)"],
+                     "See Below"),
+    "Pharmacology": ("Antibiotics for Gram-Positive Infections", "TO-2312",
+                     ["Cell Wall Inhibitors I: Beta-lactams (TO-2312) (13:10)",
+                      "Cell Wall Inhibitors II: Vancomycin (TO-2312) (7:55)",
+                      "Folate Antagonists and Tetracyclines (TO-2312) (11:20)"],
+                     ["Antibiotics for Gram-Positive Infections (TO-2312)"],
+                     "No Written Notes"),
+}
+
+
+def toc_entries() -> list[tuple[int, str]]:
+    """(indent level, text) for the table of contents; each text also appears, in order, in the body."""
+    out = [(0, "Course Director Notes"), (0, "Case Presentation")]
+    for discipline, (title, code, videos, slides, notes) in TOPICS.items():
+        out += [(0, discipline), (1, "Self-Study Topics:"), (2, f"{title} ({code}):"), (3, "Videos:")]
+        out += [(4, v) for v in videos] + [(3, "Slides:")] + [(4, sl) for sl in slides] + [(3, f"Notes: {notes}")]
+        out += [(1, "Learning Objectives:"), (1, f"{discipline}: Self-Study Questions"),
+                (1, f"{discipline}: Self-Study Questions + Answers")]
+    return out + [(0, "Selected References")]
 
 
 # ---------------------------------------------------------------- helpers
@@ -100,7 +144,7 @@ def grid(doc, header: list[str], rows: list[list[str]], fill="1F3A5F") -> None:
     table.style = "Table Grid"
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
     for cell, text in zip(table.rows[0].cells, header):
-        shade(cell, fill)
+        shade(cell, BAND if fill == "1F3A5F" else fill)
         run = cell.paragraphs[0].add_run(text)
         run.bold = True
         run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
@@ -119,12 +163,12 @@ def grid(doc, header: list[str], rows: list[list[str]], fill="1F3A5F") -> None:
         for cell in row.cells:
             for p in cell.paragraphs:
                 p.paragraph_format.keep_with_next = True
-    # Column widths follow the longest cell, but never narrower than the longest word (10 pt body text is about
-    # 0.1 inch per character, plus cell padding), so no word breaks mid-word in the extracted text.
+    # Column widths follow the longest cell, but never narrower than the longest word (10 pt Arial body text is about
+    # 0.12 inch per character, plus cell padding), so no word breaks mid-word in the extracted text.
     labelled = [[row[0]] + [f"{header[c]}: {row[c] or 'none'}" for c in range(1, len(row))] for row in rows]
     cells_by_col = [[r[c] for r in [header, *labelled] if c < len(r)] for c in range(len(header))]
     longest = [max(max(len(t) for t in col), 8) for col in cells_by_col]
-    need = [max(len(w) for t in col for w in t.split()) * 0.11 + 0.3 for col in cells_by_col]
+    need = [max(len(w) for t in col for w in t.split()) * 0.13 + 0.3 for col in cells_by_col]
     total = 7.3  # usable page width in inches
     widths = [total * n / sum(longest) for n in longest]
     for _ in range(len(widths)):
@@ -147,8 +191,10 @@ def grid(doc, header: list[str], rows: list[list[str]], fill="1F3A5F") -> None:
     doc.add_paragraph()
 
 
-def topics(doc, videos: list[str], slides: list[str], notes: str) -> None:
+def topics(doc, discipline: str) -> None:
+    title, code, videos, slides, notes = TOPICS[discipline]
     doc.add_heading("Self-Study Topics:", level=2)
+    doc.add_heading(f"{title} ({code}):", level=3)
     doc.add_heading("Videos:", level=4)
     for v in videos:
         doc.add_heading(v, level=5)
@@ -194,14 +240,164 @@ def page_break(doc) -> None:
     doc.add_paragraph().add_run().add_break(WD_BREAK.PAGE)
 
 
+def field(paragraph, instr: str) -> None:
+    """A Word field (PAGE, NUMPAGES) that LibreOffice fills in when it renders the PDF."""
+    fld = OxmlElement("w:fldSimple")
+    fld.set(qn("w:instr"), instr)
+    run, text = OxmlElement("w:r"), OxmlElement("w:t")
+    size = OxmlElement("w:sz")
+    size.set(qn("w:val"), "16")  # 8 pt, like the rest of the running footer
+    props = OxmlElement("w:rPr")
+    props.append(size)
+    run.append(props)
+    text.text = "1"
+    run.append(text)
+    fld.append(run)
+    paragraph._p.append(fld)
+
+
+def draw_avatar(path: Path) -> Path:
+    """A generic gray head-and-shoulders placeholder (no real person)."""
+    from PIL import Image, ImageDraw
+    img = Image.new("RGB", (240, 240), (205, 210, 214))
+    d = ImageDraw.Draw(img)
+    d.ellipse((80, 40, 160, 120), fill=(140, 146, 152))
+    d.ellipse((35, 135, 205, 300), fill=(140, 146, 152))
+    img.save(path)
+    return path
+
+
+def draw_cover(path: Path) -> Path:
+    """Original cover art: grape-like clusters of golden cocci beside a neutrophil, on a soft tissue background."""
+    import math
+    import random
+    from PIL import Image, ImageDraw, ImageFilter
+    rng = random.Random(501)
+    w, h = 1500, 1500
+    img = Image.new("RGB", (w, h))
+    bg = ImageDraw.Draw(img)
+    for y in range(h):  # warm tissue-colored vertical gradient
+        t = y / h
+        bg.line([(0, y), (w, y)], fill=(int(120 + 70 * t), int(70 + 40 * t), int(78 + 30 * t)))
+    blobs = Image.new("RGB", (w, h), (0, 0, 0))
+    bd = ImageDraw.Draw(blobs)
+    for _ in range(40):
+        x, y, r = rng.randrange(w), rng.randrange(h), rng.randrange(60, 220)
+        bd.ellipse((x - r, y - r, x + r, y + r), fill=rng.choice([(190, 130, 130), (150, 90, 100), (210, 170, 160)]))
+    img = Image.blend(img, blobs.filter(ImageFilter.GaussianBlur(70)), 0.45)
+
+    def sphere(layer, cx, cy, r, base, hi):
+        dd = ImageDraw.Draw(layer)
+        for k in range(r, 0, -2):  # radial shading, highlight toward the upper left
+            f = k / r
+            col = tuple(int(b * f + hc * (1 - f)) for b, hc in zip(base, hi))
+            off = int((r - k) * 0.35)
+            dd.ellipse((cx - k - off, cy - k - off, cx + k - off, cy + k - off), fill=col)
+
+    # neutrophil: a large gray-blue cell with long pseudopods
+    cell = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    cd = ImageDraw.Draw(cell)
+    ncx, ncy, nr = 960, 700, 320
+    for a in range(0, 360, 9):
+        ang = math.radians(a + rng.uniform(-3, 3))
+        length = nr + rng.randrange(60, 260)
+        pts = [(ncx + math.cos(ang) * nr * 0.8, ncy + math.sin(ang) * nr * 0.8)]
+        for step in range(1, 7):
+            rr = nr * 0.8 + (length - nr * 0.8) * step / 6
+            wob = math.radians(rng.uniform(-6, 6))
+            pts.append((ncx + math.cos(ang + wob) * rr, ncy + math.sin(ang + wob) * rr))
+        cd.line(pts, fill=(150, 160, 178, 255), width=rng.randrange(10, 22), joint="curve")
+    sphere(cell, ncx, ncy, nr, (165, 175, 192), (235, 240, 248))
+    for _ in range(26):  # cell-surface ruffles
+        x, y = ncx + rng.uniform(-0.65, 0.55) * nr, ncy + rng.uniform(-0.65, 0.55) * nr
+        cd.ellipse((x - 18, y - 10, x + 18, y + 10), outline=(130, 140, 160, 255), width=4)
+    img.paste(cell, (0, 0), cell)
+
+    # gram-positive cocci in grape-like clusters
+    cocci = Image.new("RGBA", (w, h), (0, 0, 0, 0))
+    for cx, cy, n in ((330, 1130, 34), (430, 380, 22), (1220, 1300, 18)):
+        for _ in range(n):
+            x, y = cx + rng.gauss(0, 85), cy + rng.gauss(0, 70)
+            sphere(cocci, int(x), int(y), rng.randrange(34, 44), (196, 150, 40), (255, 236, 150))
+    img.paste(cocci, (0, 0), cocci)
+    img.filter(ImageFilter.SMOOTH).save(path, quality=88)
+    return path
+
+
+def band(doc, text_lines: list[tuple[str, bool]], picture: Path | None = None, align=WD_ALIGN_PARAGRAPH.LEFT):
+    """A full-width dark-green band (borderless table) with white text and an optional picture on the left."""
+    table = doc.add_table(rows=1, cols=2 if picture else 1)
+    table.alignment = WD_TABLE_ALIGNMENT.CENTER
+    cells = table.rows[0].cells
+    for cell in cells:
+        shade(cell, BAND)
+    if picture:
+        cells[0].paragraphs[0].add_run().add_picture(str(picture), width=Inches(0.85))
+        table.autofit = False
+        for col, width in zip(table.columns, (Inches(1.05), Inches(6.25))):  # LibreOffice reads column widths
+            col.width = width
+            for cell in col.cells:
+                cell.width = width
+    else:
+        cells[0].width = Inches(7.3)
+    target = cells[-1]
+    for i, (line, bold) in enumerate(text_lines):
+        p = target.paragraphs[0] if i == 0 else target.add_paragraph()
+        p.alignment = align
+        p.paragraph_format.space_after = Pt(0)
+        run = p.add_run(line)
+        run.bold, run.font.color.rgb, run.font.size = bold, WHITE, Pt(12)
+    return table
+
+
+def cover(doc, art_dir: Path) -> None:
+    band(doc, [("Course Director:", True), (DIRECTOR[0], True), (DIRECTOR[1], True)],
+         picture=draw_avatar(art_dir / "avatar.png"))
+    para(doc, COURSE, bold=True, size=30, align=WD_ALIGN_PARAGRAPH.CENTER, color=GREEN)
+    para(doc, COURSE_TITLE, bold=True, italic=True, size=24, align=WD_ALIGN_PARAGRAPH.CENTER, color=GREEN)
+    para(doc, CASE, bold=True, size=18, align=WD_ALIGN_PARAGRAPH.CENTER, color=GREEN)
+    pic = doc.add_paragraph()
+    pic.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    pic.add_run().add_picture(str(draw_cover(art_dir / "cover.jpg")), width=Inches(5.6))
+    band(doc, [(SCHOOL, True)], align=WD_ALIGN_PARAGRAPH.CENTER)
+    page_break(doc)
+
+
+def table_of_contents(doc, pages: dict[int, int] | None) -> None:
+    doc.add_heading("Table of Contents", level=1)
+    for i, (level, text) in enumerate(toc_entries()):
+        p = doc.add_paragraph()
+        p.paragraph_format.left_indent = Inches(0.22 * level)
+        p.paragraph_format.space_after = Pt(1)
+        p.paragraph_format.tab_stops.add_tab_stop(Inches(7.3), WD_TAB_ALIGNMENT.RIGHT)
+        # Without computed pages (first pass, or a .docx-only build with no LibreOffice) the number is left blank.
+        p.add_run(f"{text}\t{pages.get(i, '') if pages else ''}").font.size = Pt(9.5)
+    page_break(doc)
+
+
+def toc_pages(pdf: Path) -> dict[int, int]:
+    """Page of each TOC entry in a rendered PDF: search the body in order, starting after the TOC."""
+    import pymupdf
+    with pymupdf.open(str(pdf)) as d:
+        texts = [" ".join(page.get_text().split()) for page in d]
+    start = next(i for i, t in enumerate(texts) if "Welcome to Case 2" in t)
+    found, cursor = {}, start
+    for i, (_, text) in enumerate(toc_entries()):
+        hit = next((k for k in range(cursor, len(texts)) if text in texts[k]), None)
+        if hit is None:
+            raise SystemExit(f"table of contents: {text!r} not found in the rendered PDF")
+        found[i], cursor = hit + 1, hit
+    return found
+
+
 # ---------------------------------------------------------------- content
-def build(out_dir: Path) -> Path:
+def build(out_dir: Path, pages: dict[int, int] | None = None) -> Path:
     doc = Document()
     sec = doc.sections[0]
     sec.page_width, sec.page_height = Inches(8.5), Inches(11)
     for side in ("left_margin", "right_margin", "top_margin", "bottom_margin"):
         setattr(sec, side, Inches(0.6))
-    doc.styles["Normal"].font.name = "Calibri"
+    doc.styles["Normal"].font.name = FONT
     doc.styles["Normal"].font.size = Pt(10)
     doc.styles["Normal"].paragraph_format.space_after = Pt(3)
     for name, size in (("Heading 1", 16), ("Heading 2", 12), ("Heading 3", 12), ("Heading 4", 10.5), ("Heading 5", 10)):
@@ -209,36 +405,39 @@ def build(out_dir: Path) -> Path:
         doc.styles[name].paragraph_format.space_before = Pt(6)
         doc.styles[name].paragraph_format.space_after = Pt(2)
     for level in range(1, 6):
-        doc.styles[f"Heading {level}"].font.color.rgb = NAVY
+        doc.styles[f"Heading {level}"].font.color.rgb = HEAD
+        doc.styles[f"Heading {level}"].font.name = FONT
+        fonts = doc.styles[f"Heading {level}"].element.rPr.rFonts
+        for theme in ("w:asciiTheme", "w:hAnsiTheme", "w:eastAsiaTheme", "w:cstheme"):  # theme fonts beat FONT
+            fonts.attrib.pop(qn(theme), None)
+    doc.styles["Heading 1"].font.size = Pt(20)
 
-    footer = sec.footer.paragraphs[0]
-    footer.text = DISCLAIMER
-    footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    footer.runs[0].font.size = Pt(8)
-    note = sec.footer.add_paragraph(NOTICE)
-    note.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    note.runs[0].font.size = Pt(8)
+    # Footer on every page: "N of M - Self Study Guide: ...", then the fictional notice in small print.
+    doc.styles["Footer"].font.size = Pt(8)  # the PAGE and NUMPAGES field results take the paragraph size
+    running = sec.footer.paragraphs[0]
+    field(running, "PAGE")
+    running.add_run(" of ")
+    field(running, "NUMPAGES")
+    running.add_run(f" - {RUNNING}")
+    for run in running.runs:
+        run.font.size = Pt(8)
+    for line in (DISCLAIMER, NOTICE):
+        small = sec.footer.add_paragraph(line)
+        small.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        small.runs[0].font.size = Pt(6.5)
+        small.paragraph_format.space_after = Pt(0)
 
-    # Cover block
-    para(doc, SCHOOL, size=12, align=WD_ALIGN_PARAGRAPH.CENTER, color=NAVY)
-    para(doc, COURSE, bold=True, size=28, align=WD_ALIGN_PARAGRAPH.CENTER, color=NAVY)
-    para(doc, COURSE_TITLE, size=18, align=WD_ALIGN_PARAGRAPH.CENTER)
-    para(doc, CASE, bold=True, size=22, align=WD_ALIGN_PARAGRAPH.CENTER)
-    para(doc, "Self-Study Guide · Week 2", italic=True, align=WD_ALIGN_PARAGRAPH.CENTER)
-    para(doc, DISCLAIMER, italic=True, size=9, align=WD_ALIGN_PARAGRAPH.CENTER)
-    para(doc, NOTICE, italic=True, size=9, align=WD_ALIGN_PARAGRAPH.CENTER)
+    with tempfile.TemporaryDirectory() as art:
+        cover(doc, Path(art))
+        table_of_contents(doc, pages)
+        _body(doc)
+        out_dir.mkdir(parents=True, exist_ok=True)
+        out = out_dir / FILENAME
+        doc.save(out)  # pictures are embedded on save, so the temp art folder can go afterwards
+    return out
 
-    doc.add_heading("TABLE OF CONTENTS", level=1)
-    for line in [
-        "Course Director Notes",
-        "Case Presentation",
-        "Immunology",
-        "Microbiology",
-        "Pharmacology",
-    ]:
-        doc.add_paragraph(line, style="List Number")
-    page_break(doc)
 
+def _body(doc) -> None:
     doc.add_heading("Course Director Notes", level=1)
     boxed(doc, "Welcome to Case 2", [
         "This week follows Jordan Rivera, a college athlete with a painful skin infection. "
@@ -321,15 +520,7 @@ def build(out_dir: Path) -> Path:
         "Focus on the first hours of infection: barriers, recognition, recruitment, and killing.",
         "Be able to trace a neutrophil from the bloodstream to the abscess.",
     ])
-    topics(
-        doc,
-        ["Barriers and Pattern Recognition (LO-1101) (14:20)",
-         "Neutrophil Recruitment and Extravasation (LO-1102) (12:05)",
-         "Phagocytosis and Oxidative Killing (LO-1103) (10:42)"],
-        ["Innate Immunity I: Barriers and Recognition (LO-1101)",
-         "Innate Immunity II: Neutrophils (LO-1102, LO-1103)"],
-        "See Below",
-    )
+    topics(doc, "Immunology")
     objectives(doc, [
         "Describe how skin acts as a physical, chemical, and microbial barrier.",
         "Explain how pattern recognition receptors (TLR2) detect gram-positive bacteria.",
@@ -378,14 +569,7 @@ def build(out_dir: Path) -> Path:
         "Know how to identify S. aureus in the lab and link each virulence factor to a disease.",
         "Practice the sample deck: sample/curriculum/MICRO/Staphylococcus aureus (sample lecture).pptx",
     ])
-    topics(
-        doc,
-        ["Staphylococci: Identification (LO-1201) (9:40)",
-         "S. aureus Virulence Factors and Toxins (LO-1202) (16:15)",
-         "MRSA: Mechanism and Epidemiology (LO-1203) (8:30)"],
-        ["Staphylococcus aureus (LO-1201, LO-1202, LO-1203)"],
-        "See Below",
-    )
+    topics(doc, "Microbiology")
     objectives(doc, [
         "Identify S. aureus using Gram stain, catalase, and coagulase.",
         "Match surface factors (protein A, capsule, coagulase) to how they evade the host.",
@@ -439,14 +623,7 @@ def build(out_dir: Path) -> Path:
         ["Css", "Steady-state concentration", "Dosing rate / CL", "", ""],
         ["LD", "Loading dose", "Css × Vd / F", "", ""],
     ])
-    topics(
-        doc,
-        ["Cell Wall Inhibitors I: Beta-lactams (LO-1301) (13:10)",
-         "Cell Wall Inhibitors II: Vancomycin (LO-1302) (7:55)",
-         "Folate Antagonists and Tetracyclines (LO-1303) (11:20)"],
-        ["Antibiotics for Gram-Positive Infections (LO-1301, LO-1302, LO-1303)"],
-        "No Written Notes",
-    )
+    topics(doc, "Pharmacology")
     objectives(doc, [
         "Explain how beta-lactams and vancomycin inhibit cell-wall synthesis, and why each fails against resistant organisms.",
         "Choose an oral agent for uncomplicated CA-MRSA skin infection and justify it.",
@@ -481,10 +658,6 @@ def build(out_dir: Path) -> Path:
         "Messina CG, et al. Catalase negative S. aureus retain virulence in a mouse model of CGD. FEBS Lett 2002. [PMID:11997027]",
     ])
 
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out = out_dir / FILENAME
-    doc.save(out)
-    return out
 
 
 def find_soffice() -> str | None:
@@ -518,14 +691,23 @@ def main() -> int:
     args = ap.parse_args()
     soffice = find_soffice()
     if args.pdf is False:  # explicit --no-pdf: the .docx goes to --docx if given, else --out
-        print(f"Saved {build(args.docx or args.out)}")
+        pages = None
+        if soffice:  # fill the table of contents from a throwaway PDF pass when LibreOffice is available
+            with tempfile.TemporaryDirectory() as tmp:
+                pages = toc_pages(to_pdf(build(Path(tmp)), Path(tmp), soffice))
+        print(f"Saved {build(args.docx or args.out, pages)}")
         return 0
     if not soffice:  # never fall back to a .docx beside the PDF fixture (the demo input is PDF only)
         raise SystemExit("PDF output needs LibreOffice: install it (brew install --cask libreoffice), "
                          "or pass --no-pdf --docx DIR to build only the editable .docx")
     with tempfile.TemporaryDirectory() as tmp:
-        docx = build(Path(tmp))
-        print(f"Saved {to_pdf(docx, args.out, soffice)}")
+        # Two passes: render once to find where each heading lands, then rebuild with those TOC page numbers.
+        pages = toc_pages(to_pdf(build(Path(tmp)), Path(tmp), soffice))
+        docx = build(Path(tmp), pages)
+        pdf = to_pdf(docx, args.out, soffice)
+        if toc_pages(pdf) != pages:
+            raise SystemExit("table of contents page numbers moved between passes")
+        print(f"Saved {pdf}")
         if args.docx:
             args.docx.mkdir(parents=True, exist_ok=True)
             print(f"Saved {shutil.copy(docx, args.docx / docx.name)}")

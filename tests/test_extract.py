@@ -284,3 +284,12 @@ def test_running_lines_only_come_from_page_edges(extract):
     banner = [["BANNER"] + p + ["FOOTER"] for p in pages]
     assert extract.running_lines(pages) == set()
     assert extract.running_lines(banner) == {"BANNER", "FOOTER"}
+
+
+def test_numbered_page_footers_count_as_running_lines(extract):
+    """'N of M - Guide' differs on every page only by its page number, so it is still a running footer."""
+    body = [[f"p{n}-a", f"p{n}-b", f"p{n}-c", f"p{n}-d", f"p{n}-e"] for n in range(4)]
+    pages = [p + [f"{n + 1} of 4 - Self Study Guide: Case 2"] for n, p in enumerate(body)]
+    assert extract.running_lines(pages) == {f"{n} of 4 - Self Study Guide: Case 2" for n in range(1, 5)}
+    # Content lines that merely contain digits ("p0-a", "p1-a") are not page numbers and stay content.
+    assert not any(line.startswith("p") for line in extract.running_lines(pages))
