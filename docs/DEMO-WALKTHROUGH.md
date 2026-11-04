@@ -10,6 +10,22 @@ abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/
 
 **Total time:** 25 minutes plus 5 of buffer (a 20-minute version is marked below).
 
+Every screenshot below comes from a timed dress rehearsal on a fresh clone (Claude Code headless, PubMed connector, Node 24).
+The times are what the machine took, not what you will say; talk over the waiting.
+
+| Step | Measured |
+|---|---|
+| `uv run scripts/doctor.py` | 2 s |
+| `/ingest sample` | 88 s |
+| `/study-guide sample` | 3 to 4 min (196 s and 243 s on two runs) |
+| `check.py` on the guide, then on the cards | under 1 s each (PubMed lookups included) |
+| `/flashcards sample 14` | 97 s, then `export.py` in under 1 s |
+| `/quiz sample 3`, first question | 33 s |
+| `/vignette sample 2`, first question | 87 s, then 7 to 40 s per turn |
+| Asking the discrepancy question | 32 s |
+
+Paperclip (the second search connector) needs a browser sign-in and was not used in the rehearsal; everything here ran on PubMed alone, which is the documented fallback.
+
 ## Before you start (5 minutes, the day before)
 
 1. Clone the repo, then follow the README install (`uv`, Claude Code, the project MCP servers).
@@ -22,7 +38,11 @@ abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/
 4. Open `examples/case2/flashcards.html` in a browser tab now. It is your fallback (see the last section).
 5. Close anything with real patient or course data. Use a clean screen share.
 
-**Check you are ready:** `uv run scripts/check.py examples/case2/study-guide.md --notes sample/notes` prints `PASS`.
+**Check you are ready:** `uv run scripts/doctor.py` ends with every line green (the Anki, Playwright, and OpenRouter lines are optional),
+and `uv run scripts/check.py examples/case2/study-guide.md --notes sample/notes` prints `PASS`.
+
+![doctor.py output: all checks green](img/demo/04-doctor.png)
+
 
 ## Run of show
 
@@ -41,6 +61,14 @@ abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/
 - Point at: the three rules in [RESPONSIBLE-USE.md](RESPONSIBLE-USE.md) (attempt first, open the sources, your school owns the materials).
 - Point at: the repo's citation rule in `CLAUDE.md`: every fact cites a slide or a PubMed record, or is marked `[source needed]`.
 - Show: the case guide's "Course Director Notes" box, which carries the same reminder about school AI policy.
+- Show the handout itself as the students would get it: a PDF with a cover page and tables of lab results.
+
+![docs/RESPONSIBLE-USE.md rendered, with the three rules](img/demo/01-responsible-use.png)
+
+![Cover page of the fictional case guide PDF](img/demo/02-pdf-cover.png)
+
+![Page 3 of the case guide PDF: lab results and microbiology tables](img/demo/03-pdf-lab-page.png)
+
 
 ### Act 2 (3-8 min): ingest
 
@@ -50,12 +78,15 @@ Type in Claude Code:
 /ingest sample
 ```
 
-**Expected:** a table with two sources (the GUIDE case-guide PDF with 9 pages, the MICRO deck with 6 slides),
+**Expected:** a table with three sources (the GUIDE case-guide PDF with 9 pages, the MICRO deck with 6 slides, and the PHYS renal clearance handout with 4),
 the case's learning objectives quoted with citations, and 3-5 cross-discipline threads such as
 protein A (micro) to blocked opsonization (immuno) to abscess to PBP2a/MRSA (pharm).
 
 **Point at:** the citation tags. `[[GUIDE/...#S4]]` means page 4 of the guide PDF, `[[MICRO/...#S3]]` means slide 3.
 Open `notes/sample/GUIDE/` and show the `## [S#]` page headings in the Markdown, so the audience sees that a citation is an address.
+
+![Output of /ingest sample: sources table and learning objectives with page citations](img/demo/05-ingest.png)
+
 
 ### Act 3 (8-15 min): study guide with a live citation check
 
@@ -75,12 +106,30 @@ uv run scripts/check.py output/sample/study-guide.md --notes notes/sample
 
 **Expected output:** a list of PubMed titles, then `PASS: every citation resolves and every fact line is cited`.
 
+![The agent's summary after /study-guide sample](img/demo/06-study-guide.png)
+
+![check.py on the generated study guide printing PASS](img/demo/07-check-study-guide.png)
+
+
 **The key teaching moment (do not skip):** `PASS` proves a source *exists*, not that it *supports* the claim.
 Open one citation together. Suggested: the TMP-SMX line, `[PMID:26962903]`. Read the abstract and find
 "80.5% vs 73.6%". Then ask the room: "What did the check not catch?" (Answer: whether the claim matches the paper.)
 
 Optional beat: show `examples/case2/study-guide.md`, which has a **Discrepancies** section. The lecture says
-enterotoxin vomiting starts 1-6 h after eating, and the case guide says 30 min-8 h. Real decks disagree; the agent should say so.
+enterotoxin vomiting starts 1-6 h after eating, and the case guide says 30 min-8 h. Real decks disagree; the agent should say so. To see it live, ask in the same session:
+`When does vomiting start in staphylococcal food poisoning? Use the sample notes.` The agent answers with both windows,
+cites both, and adds a `> ⚠️ Discrepancy:` callout instead of silently picking one.
+
+![The agent flags the 1-6 h versus 30 min-8 h disagreement instead of correcting it](img/demo/08-discrepancy.png)
+
+Then show that the check is real. A deliberately broken file fails, with the reason:
+
+```bash
+uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes
+```
+
+![check.py failing on a made-up PMID, a missing slide, and a card with no source](img/demo/09-hallucination-test.png)
+
 
 ### Act 4 (15-21 min): flashcards, export, click a citation
 
@@ -98,8 +147,28 @@ open output/sample/flashcards.html          # macOS; use xdg-open on Linux, star
 
 **Expected:** `PASS`, then a page with a **Study guide** tab and flip cards.
 
+![The agent's summary after /flashcards sample 14](img/demo/10-flashcards.png)
+
+![check.py on the flashcards printing PASS](img/demo/11-check-cards.png)
+
+![export.py writing the Anki files and the study page](img/demo/12-export.png)
+
+
 **Point at:** click a card, flip it, then click a `[[GUIDE/...#S4]]` citation. The exact page opens.
 Say: "This is how you verify an AI-written card in 5 seconds." Then show one `{{c1::...}}` cloze card.
+
+![A flashcard, front](img/demo/13-card-front.png)
+
+![The same card flipped: answer, source citation, tags](img/demo/14-card-flipped.png)
+
+![A cloze card with the blank](img/demo/15-cloze-card.png)
+
+![The Study guide tab](img/demo/16-study-guide-tab.png)
+
+![A clicked citation opens the case-guide page it cites, with the anchored heading highlighted](img/demo/17-citation-landing.png)
+
+![The Vignettes tab: write an answer first, then reveal the options](img/demo/18-vignettes-tab.png)
+
 
 *20-minute version: skip generating live. Open `examples/case2/flashcards.html` and do only the click-a-citation beat.*
 
@@ -115,13 +184,30 @@ out loud *before* you type a letter. The agent then explains with a quoted line 
 
 Say: "Attempt first is the whole point. If you ask for the answer, you learn nothing."
 
+![The first quiz question: options only, no answer or explanation](img/demo/19-quiz-attempt-first.png)
+
+
 ### Act 6 (26-30 min): Anki, and your own course
 
 - Anki: **File, Import,** pick `output/sample/flashcards.anki.txt`, and again for `flashcards.cloze.anki.txt`.
   Cards land in the deck `AI Study::sample`. Re-importing updates cards instead of duplicating them.
-- Optional extras, only if merged or installed on your machine: `/visualize` (diagrams), `/vignette`,
-  `/teach-back`, `/anki-sync` (pull your misses back from Anki). Mention each in one line; do not demo them live.
+- Optional extras: `/visualize` (diagrams), `/vignette`, `/teach-back`, `/anki-sync` (pull your misses back from Anki).
+  Mention each in one line. `/vignette` is the safest to show: you write an answer before any options appear, and a miss becomes a cited cloze card.
+
+![/vignette: the question appears first, and options only after the student's own answer](img/demo/20-vignette-session.png)
+
 - Close with the section below.
+
+## If the agent stops mid-answer
+
+Toxin chapters (the superantigen, enterotoxin, and leukocidin material in the *S. aureus* lecture) can trip the model's
+safety filter. In rehearsal it happened three times: once in `/study-guide`, once in a `/quiz` explanation,
+and once at the end of `/teach-back`. The `/study-guide` retry passed. The agent says so plainly
+("stopped by a safety classifier", "I'll stop that explanation"). Do not argue with it:
+
+1. Run the same command once more. A file the agent wrote before the stop still passes `check.py`.
+2. If it stops twice, say so, and open the committed `examples/case2/` files below. Showing a failure and the fallback is a fine demo.
+3. For the quiz, pick a topic away from toxins, for example `/quiz sample "renal clearance"`.
 
 ## If the network fails
 
