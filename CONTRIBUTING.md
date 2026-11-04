@@ -20,7 +20,7 @@ something private by accident, follow [SECURITY.md](SECURITY.md); do not open a 
 
 ```bash
 uv run scripts/doctor.py     # checks your machine
-uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q
+uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q
 uv run scripts/check.py --help   # citation checker; run it on examples/ before a PR
 ```
 

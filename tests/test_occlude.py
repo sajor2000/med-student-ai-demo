@@ -1,7 +1,7 @@
 """U2: occlusion boxes, masked cards, Image Occlusion fields, offline deck.
 
 Chromium-dependent tests skip when Chromium is missing (fail instead when REQUIRE_CHROMIUM=1, as in CI).
-Run: uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q
+Run: uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q
 """
 from __future__ import annotations
 

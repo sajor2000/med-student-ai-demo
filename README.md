@@ -196,5 +196,5 @@ scripts/                  extract, check, export, occlude, anki_sync, mnemonic_a
 sample/  examples/        synthetic lecture, and finished outputs built from it
 docs/                     REQUIREMENTS, OPEN-RESOURCES, diagram teaching profile, images
 curriculum/               YOUR files go here (gitignored)
-tests/                    uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q
+tests/                    script tests: uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q
 ```

@@ -34,7 +34,7 @@ jobs:
       - name: Tests
         env:
           REQUIRE_CHROMIUM: "1"  # a missing Chromium fails the Chromium tests instead of skipping them
-        run: uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q -rs
+        run: uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q -rs
 
       # check.py queries NCBI for the PMIDs in the examples (public, no secrets).
       # Retry to absorb transient network or rate-limit failures.
