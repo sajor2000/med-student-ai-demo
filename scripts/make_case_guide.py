@@ -333,7 +333,11 @@ def band(doc, text_lines: list[tuple[str, bool]], picture: Path | None = None, a
         shade(cell, BAND)
     if picture:
         cells[0].paragraphs[0].add_run().add_picture(str(picture), width=Inches(0.85))
-        cells[0].width, cells[1].width = Inches(1.05), Inches(6.25)
+        table.autofit = False
+        for col, width in zip(table.columns, (Inches(1.05), Inches(6.25))):  # LibreOffice reads column widths
+            col.width = width
+            for cell in col.cells:
+                cell.width = width
     else:
         cells[0].width = Inches(7.3)
     target = cells[-1]
