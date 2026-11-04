@@ -345,3 +345,14 @@ def test_deid_checks_concept_too(art, net, monkeypatch):
     monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
     assert run_main(art, args(**{"--concept": "John Smith", "--yes": True}), monkeypatch) == 1
     assert net.calls == []
+
+
+@pytest.mark.parametrize("scene", ["patient JOHN SMITH with fever", "PATIENT JANE DOE presenting"])
+def test_lowercase_or_uppercase_patient_title_with_caps_name_is_refused(art, scene):
+    assert art.phi_hit(scene) is not None
+
+
+@pytest.mark.parametrize("scene", ["Toxic Shock Syndrome", "Acute Myocardial Infarction", "Congestive Heart Failure",
+                                   "patient COPD flare"])
+def test_title_cased_medical_concepts_not_refused(art, scene):
+    assert art.phi_hit(scene) is None

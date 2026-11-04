@@ -71,7 +71,7 @@ PHI_PATTERNS = [
     (re.compile(r"\b(?:https?://|www\.)\S*\?\S+", re.I), "a URL with a query string"),
     (re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Dr|Patient)\b\.?\s+[A-Z][a-z]+"), "a title followed by a name"),
     # all-caps names: after a personal title, or two all-caps words after "Patient" (so "Patient COPD" is not refused)
-    (re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Dr|MR|MRS|MS|MISS|DR)\b\.?\s+[A-Z]{2,}\b|\bPatient\s+[A-Z]{3,}(?:\s+[A-Z]{3,})+"),
+    (re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Dr|MR|MRS|MS|MISS|DR)\b\.?\s+[A-Z]{2,}\b|\b(?i:patient)\s+[A-Z]{3,}(?:\s+[A-Z]{3,})+"),
      "a title followed by a name"),
 ]
 
@@ -84,7 +84,10 @@ Pseudomonas Klebsiella Neisseria Clostridium Clostridioides Candida Aspergillus 
 Chlamydia Treponema Plasmodium Giemsa Ziehl Neelsen Wright Coombs Babinski Murphy Virchow Beck Cheyne Stokes
 Kussmaul Trousseau Chvostek Osler Janeway Roth Charcot Horner Wernicke Korsakoff Mallory Weiss Barrett Zenker
 Meckel Wolff Parkinson White Brugada Lewy Pick Creutzfeldt Jakob Tay Sachs Gaucher Fabry Pompe Niemann Hurler
-Hunter Duchenne Becker Rh Factor Vitamin Group Stage Grade Class Phase Day Week Month Year Case Cell Cells
+Hunter Duchenne Becker Rh Factor Toxic Shock Acute Chronic Myocardial Infarction Congestive Heart Failure
+Respiratory Distress Pulmonary Embolism Cardiac Arrest Renal Kidney Liver Septic Diabetes Mellitus Insipidus Multiple
+Sclerosis Systemic Lupus Erythematosus Rheumatoid Arthritis Deep Vein Thrombosis Urinary Tract Infection Chronic
+Obstructive Disease Hypertension Atrial Fibrillation Sickle Anemia Vitamin Group Stage Grade Class Phase Day Week Month Year Case Cell Cells
 Island Islet Islets Bundle Node Valve Nerve Artery Vein Lobe Gland Cortex Syndrome Disease Law Test Sign Triad
 Tetralogy Pentad Reflex Cycle Krebs Calvin Golgi Purkinje Schwann Kupffer Langerhans Leydig Sertoli Meissner
 Pacinian Ruffini Merkel Broca Brodmann Wernicke Heimlich Valsalva Glasgow Apgar Ringer Hartmann Foley Swan Ganz

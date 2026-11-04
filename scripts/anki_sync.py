@@ -67,7 +67,7 @@ class VersionMismatch(AnkiError):
 
 
 def guid(front: str) -> str:
-    return "msad-" + hashlib.sha1(front.strip().lower().encode()).hexdigest()[:12]
+    return "msad-" + hashlib.sha1(front.replace("\r\n", "\n").strip().lower().encode()).hexdigest()[:12]
 
 
 def is_cloze(front: str) -> bool:

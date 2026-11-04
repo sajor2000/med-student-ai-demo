@@ -566,3 +566,15 @@ def test_hand_imported_multiline_front_is_adopted_not_duplicated(anki_mod, monke
     s = summary(capsys.readouterr().out)
     assert s["adopted"] == 1 and s["added"] == 0 and len(fake.notes) == 1
     assert f"msad-id::{gid_of(front)}" in fake.notes[nid]["tags"]
+
+
+def test_hand_imported_crlf_front_is_adopted_not_duplicated(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    fake.decks.add(DECK)
+    front = "Name the toxin\r\nthat cleaves desmoglein-1?"
+    nid = fake.put_note("Basic", {"Front": "Name the toxin<br>that cleaves desmoglein-1?", "Back": "old"}, ["msad"], DECK)
+    write_csv(workdir, [(front, "Exfoliative toxin", S3, "case-1;micro")])
+    sync(anki_mod, monkeypatch, fake, workdir)
+    s = summary(capsys.readouterr().out)
+    assert s["adopted"] == 1 and s["added"] == 0 and len(fake.notes) == 1
+    assert anki_mod.guid(front) == anki_mod.guid(front.replace("\r\n", "\n"))
