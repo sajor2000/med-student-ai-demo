@@ -180,3 +180,10 @@ def test_file_as_notes_is_argument_error(cov, tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as e:
         run_main(cov, ["--notes", str(f)], monkeypatch)
     assert e.value.code == 2
+
+
+def test_directory_as_csv_is_argument_error(cov, tmp_path, monkeypatch):
+    notes = make_notes(tmp_path)
+    with pytest.raises(SystemExit) as e:
+        run_main(cov, ["--notes", str(notes), "--csv", str(tmp_path)], monkeypatch)
+    assert e.value.code == 2

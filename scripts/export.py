@@ -244,13 +244,14 @@ def load_vignettes(path: Path) -> list[dict]:
     except (OSError, ValueError) as exc:
         raise SystemExit(f"--vignettes: cannot read {path}: {exc}")
     items = data.get("vignettes") if isinstance(data, dict) else None
-    if not isinstance(items, list):
-        raise SystemExit(f'--vignettes: {path} must be an object with a "vignettes" list')
+    if not isinstance(items, list) or not items:
+        raise SystemExit(f'--vignettes: {path} must be an object with a non-empty "vignettes" list')
     for n, v in enumerate(items, 1):
         opts = v.get("options") if isinstance(v, dict) else None
         if (
             not isinstance(v, dict)
             or not isinstance(v.get("stem"), str)
+            or not v["stem"].strip()
             or not isinstance(opts, list)
             or not opts
             or not all(isinstance(o, dict) and isinstance(o.get("text"), str) for o in opts)
@@ -288,7 +289,7 @@ def vignettes_section(path: Path, linker: SourceLinker | None) -> str:
             f'<div class="row"><button type="button" class="vshow" disabled>Show options</button></div>'
             f'<ol class="vlist" type="A"></ol><template class="vtpl">{"".join(rows)}</template></article>'
         )
-    return "\n".join(blocks)
+    return '<p class="vscore" id="vscore" aria-live="polite">Score: 0 / 0</p>\n' + "\n".join(blocks)
 
 
 VIGNETTE_CSS = (
@@ -300,13 +301,14 @@ VIGNETTE_CSS = (
     "box-shadow:inset 4px 0 0 #b3261e}.vexp{font-size:14px;color:var(--muted);margin:4px 0 8px}.vmark{font-weight:600}"
 )
 VIGNETTE_JS = (
-    "<script>document.querySelectorAll('.vg').forEach(g=>{const t=g.querySelector('.vans'),b=g.querySelector('.vshow'),"
+    "<script>(function(){let sc=0,n=0;const se=document.getElementById('vscore');document.querySelectorAll('.vg').forEach(g=>{const t=g.querySelector('.vans'),b=g.querySelector('.vshow'),"
     "l=g.querySelector('.vlist');t.addEventListener('input',()=>{b.disabled=!t.value.trim()});"
     "b.addEventListener('click',()=>{if(b.disabled)return;l.appendChild(g.querySelector('.vtpl').content.cloneNode(true));"
     "b.hidden=true;l.querySelectorAll('.vopt').forEach(o=>o.addEventListener('click',()=>{"
+    "const done=l.querySelector('.vopt:disabled');if(!done){n++;if(o.dataset.correct==='1')sc++;if(se)se.textContent='Score: '+sc+' / '+n}"
     "l.querySelectorAll('.vopt').forEach(x=>{const ok=x.dataset.correct==='1',pick=x===o;x.disabled=true;"
     "if(ok)x.classList.add('correct');else if(pick)x.classList.add('incorrect');"
-    "const e=x.nextElementSibling;e.hidden=false;e.querySelector('.vmark').textContent=ok?'Correct.':(pick?'Incorrect (your pick).':'Incorrect.')})}))})});</script>"
+    "const e=x.nextElementSibling;e.hidden=false;e.querySelector('.vmark').textContent=ok?'Correct.':(pick?'Incorrect (your pick).':'Incorrect.')})}))})})})();</script>"
 )
 
 EXTRA_CSS = (

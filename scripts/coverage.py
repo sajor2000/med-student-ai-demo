@@ -110,10 +110,17 @@ def existing_file(value: str) -> Path:
     return existing(value, "file")
 
 
+def csv_path(value: str) -> Path:
+    p = Path(value)
+    if p.is_dir():
+        raise argparse.ArgumentTypeError(f"not a file: {value}")
+    return p
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="Report learning objectives with no card or vignette.")
     ap.add_argument("--notes", type=existing_dir, required=True, help="notes folder, e.g. notes/<case>")
-    ap.add_argument("--csv", type=Path, help="flashcards.csv with objN tags (a missing file counts as 0 cards)")
+    ap.add_argument("--csv", type=csv_path, help="flashcards.csv with objN tags (a missing file counts as 0 cards)")
     ap.add_argument("--vignettes", type=existing_file, help="vignettes.json with objective fields")
     args = ap.parse_args()
 

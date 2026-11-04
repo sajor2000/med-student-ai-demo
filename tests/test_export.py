@@ -563,3 +563,30 @@ def test_incomplete_vignette_schema_exits_readably(export, tmp_path, monkeypatch
     with pytest.raises(SystemExit) as e:
         run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
     assert "--vignettes" in str(e.value)
+
+
+@pytest.mark.parametrize("content", ['{"vignettes": []}'], ids=["empty-list"])
+def test_empty_vignette_list_exits_readably(export, tmp_path, monkeypatch, content):
+    deck = write_deck(tmp_path / "out", MIXED)
+    bad = tmp_path / "bad.json"
+    bad.write_text(content, encoding="utf-8")
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(bad)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def test_blank_stem_exits_readably(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json", stem="   ")
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def test_vignettes_tab_has_running_score(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    page = (deck.parent / "flashcards.html").read_text(encoding="utf-8")
+    assert 'id="vscore"' in page and "Score: 0 / 0" in page
+    assert "getElementById('vscore')" in page and "'Score: '+sc" in page
