@@ -6,6 +6,11 @@ All notable changes are documented here. Format follows
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-04
+
+### Removed
+- `docs/plans/`: internal planning notes that students do not need. They remain in the git history.
+
 ### Added
 - `docs/img/skill-map.svg`, a diagram of every skill and when to use it, plus a "Which skill when" section in the README.
 
@@ -15,6 +20,7 @@ All notable changes are documented here. Format follows
 - `scripts/export.py` escaped course-citation labels twice, so an "&" in a notes path showed as "&amp;" on the study page. Labels are now escaped once. A test also pins `white-space: pre-wrap` on vignette stems so line breaks stay.
 - `docs/diagram-teaching-profile.md` linked to four files that only exist in the upstream diagram-design repo; the links now point there. The link test covers every page under `docs/`.
 - README repo map lists `doctor.py`, `make_case_guide.py`, and all the docs.
+- The README quick start now rebuilds the example page with its Diagrams and Vignettes tabs, so following it leaves the checked-in page unchanged.
 
 ### Changed
 - The fictional case-guide PDF now looks like a real case-guide handout: a cover page, a table of contents with page numbers, an "N of M - Self Study Guide" footer, and green headings. It is 10 pages; `examples/case2` citations moved to the new page numbers.
