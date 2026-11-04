@@ -2,7 +2,8 @@
 # requires-python = ">=3.11"
 # dependencies = []
 # ///
-"""Check every citation in a study guide (.md) or flashcard deck (.csv).
+"""Check every citation in a study guide (.md), flashcard deck (.csv), diagram
+spec (.json), or vignette file (.json).
 
 Two citation forms are allowed (see CLAUDE.md):
   [[MICRO/Staph aureus#S3]]   course material: notes file + slide/paragraph anchor
@@ -22,6 +23,12 @@ What it checks:
     `(AI analogy)` label. The Self-test section is exempt.
   - a diagram spec (.json: title, nodes, edges) has unique valid ids, edges that
     join existing nodes, and a citation on every node and every labeled edge
+  - a vignette file (.json whose top level has a `vignettes` key) has unique
+    valid ids, a non-empty stem, exactly 5 options keyed A-E with exactly one
+    correct, an integer `objective` of 1 or more when present, a cited
+    explanation on every option, and no patient-identifier shapes (MRN-like
+    numbers, dates, a name with an age) in the stem, options or explanations.
+    Any other .json is checked as a diagram spec.
   - a citation into an output/ or art/ folder is always unresolved: AI
     illustrations are memory aids, not sources
 
@@ -96,6 +103,27 @@ def pubmed_summaries(pmids: list[str]) -> dict[str, dict]:
                 out[pmid] = rec
         time.sleep(0.4)  # NCBI asks for <= 3 requests/second without a key
     return out
+
+
+# Deliberate copy of PHI_PATTERNS in mnemonic_art.py: each script stays standalone.
+PHI_PATTERNS = [
+    (re.compile(r"\d{6,}"), "a number with 6 or more digits (MRN-like)"),
+    (re.compile(r"\b(?:MRN|DOB)\b|date\s+of\s+birth|medical\s+record", re.I), "MRN or date-of-birth wording"),
+    (re.compile(r"\b\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b|\b\d{4}-\d{2}-\d{2}\b"), "a date"),
+    (re.compile(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}\b"
+                r"|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?,?\s+\d{4}\b"), "a date"),
+    (re.compile(r"\b(?:born|dob)\b[^.]{0,20}\b(?:19|20)\d{2}\b", re.I), "a birth year"),
+    (re.compile(r"\b[A-Z][a-z]+(?:,\s*|\s+aged?\s+)\d{1,3}\b"), "a name with an age"),
+    (re.compile(r"\b\d{1,3}[- ]years?[- ]old\s+(?:named|called)\b", re.I), "a name with an age"),
+]
+
+
+def phi_hit(*texts: str) -> str | None:
+    for text in texts:
+        for rx, what in PHI_PATTERNS:
+            if rx.search(text):
+                return what
+    return None
 
 
 ART_WHY = "AI illustrations are memory aids, not sources"
@@ -266,6 +294,70 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
     return units, problems, f"{len(nodes)} nodes, {len(edges)} edges"
 
 
+def vignette_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
+    """Validate a vignette file: ((label, cite text) pairs, structural problems, summary)."""
+    summary = "vignettes"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        return [], [f"not valid JSON ({exc})"], summary
+    items = data.get("vignettes") if isinstance(data, dict) else None
+    if not isinstance(items, list) or not items:
+        return [], ["`vignettes` must be a non-empty list"], summary
+    problems: list[str] = []
+    units: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    for i, v in enumerate(items, 1):
+        if not isinstance(v, dict):
+            problems.append(f"vignette #{i}: must be an object")
+            continue
+        vid = v.get("id")
+        name = f"vignette {vid!r}" if isinstance(vid, str) and vid else f"vignette #{i}"
+        if not isinstance(vid, str) or not ID_OK.match(vid):
+            problems.append(f"{name}: invalid id (use 1-40 chars of a-z, 0-9, -)")
+        elif vid in seen:
+            problems.append(f"{name}: duplicate id")
+        else:
+            seen.add(vid)
+        obj = v.get("objective")
+        if "objective" in v and (not isinstance(obj, int) or isinstance(obj, bool) or obj < 1):
+            problems.append(f"{name}: objective must be an integer of 1 or more")
+        stem = v.get("stem")
+        if not isinstance(stem, str) or not stem.strip():
+            problems.append(f"{name}: stem is missing or empty")
+            stem = ""
+        if what := phi_hit(stem):
+            problems.append(f"{name}: stem contains {what}")
+        opts = v.get("options")
+        if not isinstance(opts, list) or len(opts) != 5:
+            problems.append(f"{name}: needs exactly 5 options (A-E)")
+            opts = opts if isinstance(opts, list) else []
+        keys = [o.get("key") for o in opts if isinstance(o, dict)]
+        if len(opts) == 5 and sorted(map(str, keys)) != list("ABCDE"):
+            problems.append(f"{name}: option keys must be A, B, C, D, E once each")
+        if sum(1 for o in opts if isinstance(o, dict) and o.get("correct") is True) != 1:
+            problems.append(f"{name}: exactly one correct option is required")
+        for j, o in enumerate(opts, 1):
+            if not isinstance(o, dict):
+                problems.append(f"{name}: option #{j} must be an object")
+                continue
+            oname = f"{name} option {o.get('key') if isinstance(o.get('key'), str) else '#' + str(j)}"
+            text, expl = o.get("text"), o.get("explanation")
+            if not isinstance(text, str) or not text.strip():
+                problems.append(f"{oname}: text is missing or empty")
+                text = ""
+            if not isinstance(expl, str) or not expl.strip():
+                problems.append(f"{oname}: explanation is missing or empty")
+                expl = ""
+            elif not has_citation(expl):
+                problems.append(f"{oname}: explanation has no citation")
+            for part, t in (("text", text), ("explanation", expl)):
+                if what := phi_hit(t):
+                    problems.append(f"{oname}: {part} contains {what}")
+            units.append((f"{oname} explanation", expl))
+    return units, problems, f"{len(items)} vignettes"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("file", type=Path)
@@ -277,7 +369,14 @@ def main() -> int:
         return 1
     is_spec = args.file.suffix.lower() == ".json"
     if is_spec:
-        units, problems, summary = spec_units(args.file)
+        try:
+            top = json.loads(args.file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            top = None
+        if isinstance(top, dict) and "vignettes" in top:
+            units, problems, summary = vignette_units(args.file)
+        else:
+            units, problems, summary = spec_units(args.file)
     else:
         units, problems = load_units(args.file)
     is_deck = args.file.suffix.lower() == ".csv"

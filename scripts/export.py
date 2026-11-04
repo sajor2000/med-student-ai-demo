@@ -20,12 +20,19 @@ Outputs, next to the CSV:
 Usage:
     uv run scripts/export.py output/<case>/flashcards.csv \\
         [--guide output/<case>/study-guide.md] [--notes notes/<case>] \\
-        [--diagrams output/<case>/diagrams] [--art output/<case>/art]
+        [--diagrams output/<case>/diagrams] [--art output/<case>/art] \\
+        [--vignettes output/<case>/vignettes.json]
 
 --diagrams adds a "Diagrams" tab: each <slug>.occlusion.json (from occlude.py) shows its card
 PNG, title, and labels with linked citations. --art adds a "Memory aids" tab with the PNGs
 from mnemonic_art.py, headed "AI illustrations - memory aids, not references". PNGs are copied
-to <name>_media/. Without either flag the page is unchanged.
+to <name>_media/. --vignettes adds a "Vignettes" tab from a vignettes.json
+({"vignettes": [{"id", "objective"?, "discipline"?, "stem", "options": [{"key", "text", "correct",
+"explanation"}]}]}): each case shows its stem and a textarea; "Show options" stays disabled until
+something is typed, and the options live only in an inert <template> until then. Picking an option
+reveals every explanation (citations linked like card citations) and marks right/wrong. Typed text
+and score stay in the page: no storage, no network. A malformed file exits with a readable message.
+Without any of these flags the page is unchanged.
 """
 
 from __future__ import annotations
@@ -230,6 +237,71 @@ def art_section(folder: Path, page: Path) -> str:
     return f"<h2>{ART_HEADING}</h2>\n" + "\n".join(blocks)
 
 
+def load_vignettes(path: Path) -> list[dict]:
+    """Read and shape-check a vignettes file; any problem is a one-line SystemExit, never a traceback."""
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        raise SystemExit(f"--vignettes: cannot read {path}: {exc}")
+    items = data.get("vignettes") if isinstance(data, dict) else None
+    if not isinstance(items, list):
+        raise SystemExit(f'--vignettes: {path} must be an object with a "vignettes" list')
+    for n, v in enumerate(items, 1):
+        opts = v.get("options") if isinstance(v, dict) else None
+        if (
+            not isinstance(v, dict)
+            or not isinstance(v.get("stem"), str)
+            or not isinstance(opts, list)
+            or not opts
+            or not all(isinstance(o, dict) and isinstance(o.get("text"), str) for o in opts)
+        ):
+            raise SystemExit(f'--vignettes: vignette #{n} needs a "stem" string and a non-empty "options" list of objects with "text"')
+    return items
+
+
+def vignettes_section(path: Path, linker: SourceLinker | None) -> str:
+    """HTML for the Vignettes tab. Options (and their explanations) exist only inside an inert <template>."""
+    blocks = []
+    for n, v in enumerate(load_vignettes(path), 1):
+        rows = []
+        for o in v["options"]:
+            key = html.escape(str(o.get("key", "")))
+            expl = linkify(html.escape(str(o.get("explanation", "")), quote=False), linker)
+            rows.append(
+                f'<li><button type="button" class="vopt" data-correct="{"1" if o.get("correct") is True else "0"}">'
+                f'<b>{key}.</b> {html.escape(o["text"], quote=False)}</button>'
+                f'<div class="vexp" hidden><span class="vmark"></span> {expl}</div></li>'
+            )
+        label = html.escape(str(v.get("discipline") or ""))
+        blocks.append(
+            f'<article class="vg"><h2>Case {n}</h2>'
+            + (f"<small>{label}</small>" if label else "")
+            + f'<p class="vstem">{html.escape(str(v["stem"]), quote=False)}</p>'
+            f'<label>Your answer and reasoning<br><textarea class="vans" rows="3"></textarea></label>'
+            f'<div class="row"><button type="button" class="vshow" disabled>Show options</button></div>'
+            f'<ol class="vlist" type="A"></ol><template class="vtpl">{"".join(rows)}</template></article>'
+        )
+    return "\n".join(blocks)
+
+
+VIGNETTE_CSS = (
+    ".vg{margin:0 0 32px;padding-bottom:20px;border-bottom:1px solid var(--line)}.vans{width:100%;font:inherit;padding:8px;"
+    "background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px}.vshow:disabled{opacity:.5;cursor:not-allowed}"
+    ".vlist{list-style:none;padding:0}.vopt{display:block;width:100%;text-align:left;margin-top:8px;padding:10px;font:inherit;"
+    "background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;cursor:pointer}"
+    ".vopt.correct{border-color:var(--accent);box-shadow:inset 4px 0 0 var(--accent)}.vopt.incorrect{border-color:#b3261e;"
+    "box-shadow:inset 4px 0 0 #b3261e}.vexp{font-size:14px;color:var(--muted);margin:4px 0 8px}.vmark{font-weight:600}"
+)
+VIGNETTE_JS = (
+    "<script>document.querySelectorAll('.vg').forEach(g=>{const t=g.querySelector('.vans'),b=g.querySelector('.vshow'),"
+    "l=g.querySelector('.vlist');t.addEventListener('input',()=>{b.disabled=!t.value.trim()});"
+    "b.addEventListener('click',()=>{if(b.disabled)return;l.appendChild(g.querySelector('.vtpl').content.cloneNode(true));"
+    "b.hidden=true;l.querySelectorAll('.vopt').forEach(o=>o.addEventListener('click',()=>{"
+    "l.querySelectorAll('.vopt').forEach(x=>{const ok=x.dataset.correct==='1',pick=x===o;x.disabled=true;"
+    "if(ok)x.classList.add('correct');else if(pick)x.classList.add('incorrect');"
+    "const e=x.nextElementSibling;e.hidden=false;e.querySelector('.vmark').textContent=ok?'Correct.':(pick?'Incorrect (your pick).':'Incorrect.')})}))})});</script>"
+)
+
 EXTRA_CSS = (
     "figure{margin:0 0 28px}figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}"
     "figcaption,.dg small{color:var(--muted);font-size:13px}.dg li{margin:4px 0}"
@@ -280,6 +352,7 @@ def main() -> int:
     ap.add_argument("--notes", type=Path, help="notes folder from extract.py; makes course citations clickable")
     ap.add_argument("--diagrams", type=Path, help="folder of <slug>.occlusion.json + card PNGs; adds a Diagrams tab")
     ap.add_argument("--art", type=Path, help="folder of mnemonic-art PNGs; adds a Memory aids tab")
+    ap.add_argument("--vignettes", type=Path, help="vignettes.json; adds a Vignettes tab (options hidden until an answer is typed)")
     args = ap.parse_args()
 
     with args.csv.open(newline="", encoding="utf-8") as fh:
@@ -332,6 +405,8 @@ def main() -> int:
         extras.append(("td", "Diagrams", "diagrams", inner))
     if args.art and (inner := art_section(args.art, site)):
         extras.append(("ta", "Memory aids", "art", inner))
+    if args.vignettes and (inner := vignettes_section(args.vignettes, linker)):
+        extras.append(("tv", "Vignettes", "vignettes", inner))
     if extras:
         buttons = "".join(f'<button id="{b}" aria-pressed="false">{label}</button>' for b, label, _, _ in extras)
         sections = "".join(f'<section id="{sid}" hidden>{inner}</section>\n' for _, _, sid, inner in extras)
@@ -344,6 +419,10 @@ def main() -> int:
             if anchor not in page:
                 raise RuntimeError(f"export template is missing the anchor {anchor!r}; extra tabs cannot be added")
             page = page.replace(anchor, spliced, 1)
+        if any(e[0] == "tv" for e in extras):
+            page = page.replace("['ta','art']]", "['ta','art'],['tv','vignettes']]", 1)
+            page = page.replace("</style>", VIGNETTE_CSS + "</style>", 1)
+            page = page.replace("</body></html>", VIGNETTE_JS + "</body></html>", 1)
     site.write_text(page, encoding="utf-8")
 
     print(f"{len(basic)} basic cards -> {anki} (Anki: File > Import)")
