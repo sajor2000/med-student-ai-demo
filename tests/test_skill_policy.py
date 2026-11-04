@@ -12,3 +12,16 @@ def test_manual_skills_have_codex_policy():
     for d in manual:
         policy = (d / "agents" / "openai.yaml").read_text()
         assert "allow_implicit_invocation: false" in policy, d.name
+
+
+def test_flashcards_skill_runs_coverage_before_writing_cards():
+    """A deck of N cards should close objective gaps first, not pile onto objectives already covered."""
+    text = (SKILLS / "flashcards" / "SKILL.md").read_text()
+    write_step = text.index("Write `output/<case>/flashcards.csv`")
+    assert "scripts/coverage.py" in text[:write_step]
+    assert "UNCOVERED" in text[:write_step]
+    assert "--vignettes" in text[:write_step]  # vignettes already cover objectives; do not duplicate them
+
+
+def test_flashcards_skill_stays_within_the_forty_line_cap():
+    assert len((SKILLS / "flashcards" / "SKILL.md").read_text().splitlines()) <= 40
