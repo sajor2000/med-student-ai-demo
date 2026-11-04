@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-vignette" viewBox="0 0 1200 427" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-vignette-title skill-vignette-desc">
+  <title id="skill-vignette-title">How vignette works</title>
+  <desc id="skill-vignette-desc">/vignette sample 2. Goes in: notes/&lt;case&gt;/ and the case objectives; output/&lt;case&gt;/weak-spots.md if it exists. The AI: Writes vignettes.json: a made-up patient, 5 look-alike options, a cited explanation for every option; check.py must PASS; Shows the story only. You type your own answer, then it shows options A to E, then explains each one; Each miss becomes a weak-spot line and a cited cloze card. You get: output/&lt;case&gt;/vignettes.json; Misses added to weak-spots.md and flashcards.csv; An objectives coverage report in chat. Next: /anki-sync &lt;case&gt; (miss cards go to AI Study::&lt;case&gt;::misses); Re-export with --vignettes for a Vignettes tab.</desc>
+  <defs>
+    <style>#skill-vignette { font-family: system-ui, sans-serif; }
+      #skill-vignette text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-vignette .name { font-size: 18px; font-weight: 700; }
+      #skill-vignette .t { font-size: 14px; }
+      #skill-vignette .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-vignette .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-vignette .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-vignette .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-vignette .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-vignette .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-vignette .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-vignette .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-vignette .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-vignette .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-vignette .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-vignette .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-vignette .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-vignette-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-vignette-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="427" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/vignette sample 2</text>
+  <text x="1162" y="70" class="name" text-anchor="end">Board-style questions, harder: answer before options</text>
+  <rect x="20" y="112" width="270" height="295" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,259 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-vignette-arrow)"/>
+  <rect x="316" y="112" width="270" height="295" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,259 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-vignette-arrow)"/>
+  <rect x="612" y="112" width="270" height="295" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,259 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-vignette-arrow)"/>
+  <rect x="908" y="112" width="270" height="295" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">notes/&lt;case&gt;/ and the case</text>
+    <text x="50" y="183" class="t">objectives</text>
+  <circle cx="39" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="210" class="t">output/&lt;case&gt;/weak-spots.md if</text>
+    <text x="50" y="229" class="t">it exists</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Writes vignettes.json: a</text>
+    <text x="360" y="183" class="t">made-up patient, 5 look-alike</text>
+    <text x="360" y="202" class="t">options, a cited explanation</text>
+    <text x="360" y="221" class="t">for every option; check.py</text>
+    <text x="360" y="240" class="t">must PASS</text>
+  <circle cx="341" cy="266" r="10" fill="#0b4f9c"/>
+  <text x="341" y="271" class="num" text-anchor="middle">2</text>
+  <text x="360" y="271" class="t">Shows the story only. You</text>
+    <text x="360" y="290" class="t">type your own answer, then it</text>
+    <text x="360" y="309" class="t">shows options A to E, then</text>
+    <text x="360" y="328" class="t">explains each one</text>
+  <circle cx="341" cy="354" r="10" fill="#0b4f9c"/>
+  <text x="341" y="359" class="num" text-anchor="middle">3</text>
+  <text x="360" y="359" class="t">Each miss becomes a weak-spot</text>
+    <text x="360" y="378" class="t">line and a cited cloze card</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">output/&lt;case&gt;/vignettes.json</text>
+  <circle cx="631" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="191" class="t">Misses added to weak-spots.md</text>
+    <text x="642" y="210" class="t">and flashcards.csv</text>
+  <circle cx="631" cy="232" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="237" class="t">An objectives coverage report</text>
+    <text x="642" y="256" class="t">in chat</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">/anki-sync &lt;case&gt; (miss cards</text>
+    <text x="938" y="183" class="t">go to AI Study::&lt;case&gt;::misses)</text>
+  <circle cx="927" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="210" class="t">Re-export with --vignettes for</text>
+    <text x="938" y="229" class="t">a Vignettes tab</text>
+</svg>

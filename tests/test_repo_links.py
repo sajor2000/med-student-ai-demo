@@ -23,11 +23,55 @@ def test_relative_markdown_links_resolve():
     assert not broken, broken
 
 
-def test_readme_images_exist():
-    readme = ROOT / "README.md"
-    missing = [t for t in IMG.findall(readme.read_text())
-               if not re.match(r"[a-z]+:", t) and not (readme.parent / t).exists()]
+SKILL_NAMES = sorted(p.name for p in (ROOT / ".claude" / "skills").iterdir() if (p / "SKILL.md").exists())
+
+
+def test_readme_and_skills_guide_images_exist():
+    missing = []
+    for doc in (ROOT / "README.md", ROOT / "docs" / "SKILLS-GUIDE.md"):
+        images = IMG.findall(doc.read_text())
+        assert images, f"{doc.name} shows no images"
+        missing += [f"{doc.name} -> {t}" for t in images
+                    if not re.match(r"[a-z]+:", t) and not (doc.parent / t).exists()]
     assert not missing, missing
+
+
+def test_new_diagrams_are_small_accessible_svgs():
+    names = ["how-it-works", *(f"skill-{n}" for n in SKILL_NAMES)]
+    for name in names:
+        path = ROOT / "docs" / "img" / f"{name}.svg"
+        text = path.read_text()
+        assert path.stat().st_size < 20_000, f"{path.name} is over 20 KB"
+        assert 'role="img"' in text and "<title" in text and "<desc" in text, path.name
+        assert 'fill="#ffffff"' in text, f"{path.name} needs a fixed light background"
+
+
+def test_skills_guide_covers_every_skill_with_its_diagram():
+    guide = (ROOT / "docs" / "SKILLS-GUIDE.md").read_text()
+    assert len(SKILL_NAMES) == 10, SKILL_NAMES
+    for name in SKILL_NAMES:
+        assert re.search(rf"^## {re.escape(name)}$", guide, re.M), f"SKILLS-GUIDE has no section for {name}"
+        assert f"img/skill-{name}.svg" in guide, f"SKILLS-GUIDE does not show skill-{name}.svg"
+        assert (ROOT / "docs" / "img" / f"skill-{name}.svg").exists(), name
+
+
+def test_readme_links_every_skill_guide_anchor():
+    readme = (ROOT / "README.md").read_text()
+    guide = (ROOT / "docs" / "SKILLS-GUIDE.md").read_text()
+    anchors = set(re.findall(r"SKILLS-GUIDE\.md#([a-z-]+)", readme))
+    assert set(SKILL_NAMES) <= anchors, sorted(set(SKILL_NAMES) - anchors)
+    headings = set(re.findall(r"^## ([a-z-]+)$", guide, re.M))
+    assert anchors <= headings | {"set-up-the-sample-case"}, sorted(anchors - headings)
+
+
+def test_readme_has_student_sections_before_developer_material():
+    readme = (ROOT / "README.md").read_text()
+    order = ["## What you get", "## New to Claude Code? Start here", "## Quick start", "## Skills",
+             "## Which skill when", "## Responsible use", "## For developers and contributors"]
+    positions = [readme.index(h) for h in order]
+    assert positions == sorted(positions), order
+    assert "docs/img/how-it-works.svg" in readme
+    assert readme.index("### Repo map") > readme.index("## For developers and contributors")
 
 
 def test_readme_shows_skill_map_and_use_cases():

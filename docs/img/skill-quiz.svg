@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-quiz" viewBox="0 0 1200 370" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-quiz-title skill-quiz-desc">
+  <title id="skill-quiz-title">How quiz works</title>
+  <desc id="skill-quiz-desc">/quiz sample "MRSA resistance and treatment" 3. Goes in: notes/&lt;case&gt;/; output/&lt;case&gt;/weak-spots.md if it exists (questions lean toward your misses); Optional topic and count (default 5). The AI: Writes one short case vignette with options A to E; Stops and waits for your answer; Explains the right answer with a quoted slide line, and why each wrong option is wrong. You get: Your score in chat; output/&lt;case&gt;/weak-spots.md: one line per question you missed (check.py verifies it). Next: /flashcards &lt;case&gt; aims new cards at your misses; /anki-sync &lt;case&gt;.</desc>
+  <defs>
+    <style>#skill-quiz { font-family: system-ui, sans-serif; }
+      #skill-quiz text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-quiz .name { font-size: 18px; font-weight: 700; }
+      #skill-quiz .t { font-size: 14px; }
+      #skill-quiz .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-quiz .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-quiz .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-quiz .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-quiz .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-quiz .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-quiz .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-quiz .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-quiz .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-quiz .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-quiz .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-quiz .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-quiz .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-quiz-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-quiz-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="370" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/quiz sample "MRSA resistance and treatment" 3</text>
+  <text x="1162" y="70" class="name" text-anchor="end">Practice questions, one at a time</text>
+  <rect x="20" y="112" width="270" height="238" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,231 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-quiz-arrow)"/>
+  <rect x="316" y="112" width="270" height="238" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,231 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-quiz-arrow)"/>
+  <rect x="612" y="112" width="270" height="238" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,231 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-quiz-arrow)"/>
+  <rect x="908" y="112" width="270" height="238" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">notes/&lt;case&gt;/</text>
+  <circle cx="39" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="191" class="t">output/&lt;case&gt;/weak-spots.md if</text>
+    <text x="50" y="210" class="t">it exists (questions lean</text>
+    <text x="50" y="229" class="t">toward your misses)</text>
+  <circle cx="39" cy="251" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="256" class="t">Optional topic and count</text>
+    <text x="50" y="275" class="t">(default 5)</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Writes one short case</text>
+    <text x="360" y="183" class="t">vignette with options A to E</text>
+  <circle cx="341" cy="209" r="10" fill="#0b4f9c"/>
+  <text x="341" y="214" class="num" text-anchor="middle">2</text>
+  <text x="360" y="214" class="t">Stops and waits for your</text>
+    <text x="360" y="233" class="t">answer</text>
+  <circle cx="341" cy="259" r="10" fill="#0b4f9c"/>
+  <text x="341" y="264" class="num" text-anchor="middle">3</text>
+  <text x="360" y="264" class="t">Explains the right answer</text>
+    <text x="360" y="283" class="t">with a quoted slide line, and</text>
+    <text x="360" y="302" class="t">why each wrong option is</text>
+    <text x="360" y="321" class="t">wrong</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">Your score in chat</text>
+  <circle cx="631" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="191" class="t">output/&lt;case&gt;/weak-spots.md:</text>
+    <text x="642" y="210" class="t">one line per question you</text>
+    <text x="642" y="229" class="t">missed (check.py verifies it)</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">/flashcards &lt;case&gt; aims new</text>
+    <text x="938" y="183" class="t">cards at your misses</text>
+  <circle cx="927" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="210" class="t">/anki-sync &lt;case&gt;</text>
+</svg>

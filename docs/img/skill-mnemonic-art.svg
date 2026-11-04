@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-mnemonic-art" viewBox="0 0 1200 408" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-mnemonic-art-title skill-mnemonic-art-desc">
+  <title id="skill-mnemonic-art-title">How mnemonic-art works</title>
+  <desc id="skill-mnemonic-art-desc">/mnemonic-art sample "protein A". Goes in: notes/&lt;case&gt;/ (one concept, with its citation); Your own OpenRouter key; A one-sentence scene you approve. The AI: Picks one concept and drafts the scene with you; mnemonic_art.py shows you the exact prompt, and refuses text that looks like patient details; After your yes, sends the prompt to OpenRouter and saves the picture with a caption. You get: output/&lt;case&gt;/art/&lt;slug&gt;.png, labeled "AI illustration, not a reference". Next: Use it as a memory hook only; Add --art output/&lt;case&gt;/art to export for a Memory aids tab.</desc>
+  <defs>
+    <style>#skill-mnemonic-art { font-family: system-ui, sans-serif; }
+      #skill-mnemonic-art text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-mnemonic-art .name { font-size: 18px; font-weight: 700; }
+      #skill-mnemonic-art .t { font-size: 14px; }
+      #skill-mnemonic-art .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-mnemonic-art .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-mnemonic-art .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-mnemonic-art .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-mnemonic-art .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-mnemonic-art .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-mnemonic-art .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-mnemonic-art .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-mnemonic-art .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-mnemonic-art .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-mnemonic-art .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-mnemonic-art .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-mnemonic-art .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-mnemonic-art-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-mnemonic-art-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="408" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/mnemonic-art sample "protein A"</text>
+  <text x="1162" y="70" class="name" text-anchor="end">One captioned memory-hook picture</text>
+  <rect x="20" y="112" width="270" height="276" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,250 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-mnemonic-art-arrow)"/>
+  <rect x="316" y="112" width="270" height="276" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,250 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-mnemonic-art-arrow)"/>
+  <rect x="612" y="112" width="270" height="276" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,250 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-mnemonic-art-arrow)"/>
+  <rect x="908" y="112" width="270" height="276" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">notes/&lt;case&gt;/ (one concept,</text>
+    <text x="50" y="183" class="t">with its citation)</text>
+  <circle cx="39" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="210" class="t">Your own OpenRouter key</text>
+  <circle cx="39" cy="232" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="237" class="t">A one-sentence scene you</text>
+    <text x="50" y="256" class="t">approve</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Picks one concept and drafts</text>
+    <text x="360" y="183" class="t">the scene with you</text>
+  <circle cx="341" cy="209" r="10" fill="#0b4f9c"/>
+  <text x="341" y="214" class="num" text-anchor="middle">2</text>
+  <text x="360" y="214" class="t">mnemonic_art.py shows you the</text>
+    <text x="360" y="233" class="t">exact prompt, and refuses</text>
+    <text x="360" y="252" class="t">text that looks like patient</text>
+    <text x="360" y="271" class="t">details</text>
+  <circle cx="341" cy="297" r="10" fill="#0b4f9c"/>
+  <text x="341" y="302" class="num" text-anchor="middle">3</text>
+  <text x="360" y="302" class="t">After your yes, sends the</text>
+    <text x="360" y="321" class="t">prompt to OpenRouter and</text>
+    <text x="360" y="340" class="t">saves the picture with a</text>
+    <text x="360" y="359" class="t">caption</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">output/&lt;case&gt;/art/&lt;slug&gt;.png,</text>
+    <text x="642" y="183" class="t">labeled "AI illustration, not a</text>
+    <text x="642" y="202" class="t">reference"</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">Use it as a memory hook only</text>
+  <circle cx="927" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="191" class="t">Add --art output/&lt;case&gt;/art to</text>
+    <text x="938" y="210" class="t">export for a Memory aids tab</text>
+</svg>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-teach-back" viewBox="0 0 1200 446" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-teach-back-title skill-teach-back-desc">
+  <title id="skill-teach-back-title">How teach-back works</title>
+  <desc id="skill-teach-back-desc">/teach-back sample "MRSA resistance". Goes in: notes/&lt;case&gt;/; Your mechanism in quotes. The AI: Asks 5 prompts one at a time: what it is, how it causes disease, how it shows up, how we treat it, and a what-if. Nothing is shown until all 5 are answered; Marks each answer correct, missing, or wrong against the slides; check.py must PASS; Shows the marks next to a cited expert model; each gap becomes a cloze card. You get: In output/&lt;case&gt;/teach-back/: &lt;slug&gt;.md (your answers, marks, and the expert model); Gap cards in flashcards.csv, gap lines in weak-spots.md. Next: /anki-sync &lt;case&gt;; Optional: open one cited paper and judge if it supports the claim.</desc>
+  <defs>
+    <style>#skill-teach-back { font-family: system-ui, sans-serif; }
+      #skill-teach-back text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-teach-back .name { font-size: 18px; font-weight: 700; }
+      #skill-teach-back .t { font-size: 14px; }
+      #skill-teach-back .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-teach-back .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-teach-back .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-teach-back .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-teach-back .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-teach-back .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-teach-back .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-teach-back .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-teach-back .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-teach-back .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-teach-back .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-teach-back .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-teach-back .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-teach-back-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-teach-back-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="446" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/teach-back sample "MRSA resistance"</text>
+  <text x="1162" y="70" class="name" text-anchor="end">Explain a mechanism in your own words</text>
+  <rect x="20" y="112" width="270" height="314" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,269 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-teach-back-arrow)"/>
+  <rect x="316" y="112" width="270" height="314" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,269 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-teach-back-arrow)"/>
+  <rect x="612" y="112" width="270" height="314" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,269 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-teach-back-arrow)"/>
+  <rect x="908" y="112" width="270" height="314" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">notes/&lt;case&gt;/</text>
+  <circle cx="39" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="191" class="t">Your mechanism in quotes</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Asks 5 prompts one at a time:</text>
+    <text x="360" y="183" class="t">what it is, how it causes</text>
+    <text x="360" y="202" class="t">disease, how it shows up, how</text>
+    <text x="360" y="221" class="t">we treat it, and a what-if.</text>
+    <text x="360" y="240" class="t">Nothing is shown until all 5</text>
+    <text x="360" y="259" class="t">are answered</text>
+  <circle cx="341" cy="285" r="10" fill="#0b4f9c"/>
+  <text x="341" y="290" class="num" text-anchor="middle">2</text>
+  <text x="360" y="290" class="t">Marks each answer correct,</text>
+    <text x="360" y="309" class="t">missing, or wrong against the</text>
+    <text x="360" y="328" class="t">slides; check.py must PASS</text>
+  <circle cx="341" cy="354" r="10" fill="#0b4f9c"/>
+  <text x="341" y="359" class="num" text-anchor="middle">3</text>
+  <text x="360" y="359" class="t">Shows the marks next to a</text>
+    <text x="360" y="378" class="t">cited expert model; each gap</text>
+    <text x="360" y="397" class="t">becomes a cloze card</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">In output/&lt;case&gt;/teach-back/:</text>
+    <text x="642" y="183" class="t">&lt;slug&gt;.md (your answers, marks,</text>
+    <text x="642" y="202" class="t">and the expert model)</text>
+  <circle cx="631" cy="224" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="229" class="t">Gap cards in flashcards.csv,</text>
+    <text x="642" y="248" class="t">gap lines in weak-spots.md</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">/anki-sync &lt;case&gt;</text>
+  <circle cx="927" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="191" class="t">Optional: open one cited paper</text>
+    <text x="938" y="210" class="t">and judge if it supports the</text>
+    <text x="938" y="229" class="t">claim</text>
+</svg>

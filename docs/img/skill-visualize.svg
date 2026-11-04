@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-visualize" viewBox="0 0 1200 408" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-visualize-title skill-visualize-desc">
+  <title id="skill-visualize-title">How visualize works</title>
+  <desc id="skill-visualize-desc">/visualize sample "staph toxins". Goes in: notes/&lt;case&gt;/; Needs the diagram-design plugin and Chromium (a browser engine the script uses to take pictures). The AI: Writes a diagram spec (a JSON file): 4 to 9 ideas, each with a label and a citation; check.py must PASS; Draws the picture from the spec with the diagram-design plugin; occlude.py hides one label at a time to make cards, and packs them into a deck. You get: In output/&lt;case&gt;/diagrams/: &lt;slug&gt;.json (the spec), .html and .card.png (the picture), .occlusion.json (the cards); output/&lt;case&gt;/diagrams.apkg (the offline deck). Next: /anki-sync &lt;case&gt; (best: masks stay editable); Or File &gt; Import diagrams.apkg; Spot-check one label.</desc>
+  <defs>
+    <style>#skill-visualize { font-family: system-ui, sans-serif; }
+      #skill-visualize text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-visualize .name { font-size: 18px; font-weight: 700; }
+      #skill-visualize .t { font-size: 14px; }
+      #skill-visualize .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-visualize .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-visualize .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-visualize .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-visualize .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-visualize .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-visualize .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-visualize .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-visualize .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-visualize .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-visualize .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-visualize .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-visualize .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-visualize-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-visualize-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="408" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/visualize sample "staph toxins"</text>
+  <text x="1162" y="70" class="name" text-anchor="end">A cited diagram, plus Image Occlusion cards</text>
+  <rect x="20" y="112" width="270" height="276" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,250 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-visualize-arrow)"/>
+  <rect x="316" y="112" width="270" height="276" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,250 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-visualize-arrow)"/>
+  <rect x="612" y="112" width="270" height="276" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,250 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-visualize-arrow)"/>
+  <rect x="908" y="112" width="270" height="276" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">notes/&lt;case&gt;/</text>
+  <circle cx="39" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="191" class="t">Needs the diagram-design plugin</text>
+    <text x="50" y="210" class="t">and Chromium (a browser engine</text>
+    <text x="50" y="229" class="t">the script uses to take</text>
+    <text x="50" y="248" class="t">pictures)</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Writes a diagram spec (a JSON</text>
+    <text x="360" y="183" class="t">file): 4 to 9 ideas, each</text>
+    <text x="360" y="202" class="t">with a label and a citation;</text>
+    <text x="360" y="221" class="t">check.py must PASS</text>
+  <circle cx="341" cy="247" r="10" fill="#0b4f9c"/>
+  <text x="341" y="252" class="num" text-anchor="middle">2</text>
+  <text x="360" y="252" class="t">Draws the picture from the</text>
+    <text x="360" y="271" class="t">spec with the diagram-design</text>
+    <text x="360" y="290" class="t">plugin</text>
+  <circle cx="341" cy="316" r="10" fill="#0b4f9c"/>
+  <text x="341" y="321" class="num" text-anchor="middle">3</text>
+  <text x="360" y="321" class="t">occlude.py hides one label at</text>
+    <text x="360" y="340" class="t">a time to make cards, and</text>
+    <text x="360" y="359" class="t">packs them into a deck</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">In output/&lt;case&gt;/diagrams/:</text>
+    <text x="642" y="183" class="t">&lt;slug&gt;.json (the spec), .html</text>
+    <text x="642" y="202" class="t">and .card.png (the picture),</text>
+    <text x="642" y="221" class="t">.occlusion.json (the cards)</text>
+  <circle cx="631" cy="243" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="248" class="t">output/&lt;case&gt;/diagrams.apkg</text>
+    <text x="642" y="267" class="t">(the offline deck)</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">/anki-sync &lt;case&gt; (best: masks</text>
+    <text x="938" y="183" class="t">stay editable)</text>
+  <circle cx="927" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="210" class="t">Or File &gt; Import diagrams.apkg</text>
+  <circle cx="927" cy="232" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="237" class="t">Spot-check one label</text>
+</svg>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-ingest" viewBox="0 0 1200 389" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-ingest-title skill-ingest-desc">
+  <title id="skill-ingest-title">How ingest works</title>
+  <desc id="skill-ingest-desc">/ingest sample. Goes in: Your files in curriculum/&lt;case&gt;/: .pptx, .pdf, .docx, .txt, .md, .vtt, .srt. The AI: Reminds you to check your school's AI policy first; Runs scripts/extract.py: one note per file, with an address per slide (S3), paragraph (P12), or minute of transcript; Reads the notes and writes you a summary. You get: notes/&lt;case&gt;/ (Markdown notes + manifest.json); In chat: a table of decks, the learning objectives, 3 to 5 links between subjects, and anything it skipped. Next: /quiz &lt;case&gt;; or /flashcards &lt;case&gt; "topic".</desc>
+  <defs>
+    <style>#skill-ingest { font-family: system-ui, sans-serif; }
+      #skill-ingest text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-ingest .name { font-size: 18px; font-weight: 700; }
+      #skill-ingest .t { font-size: 14px; }
+      #skill-ingest .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-ingest .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-ingest .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-ingest .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-ingest .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-ingest .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-ingest .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-ingest .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-ingest .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-ingest .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-ingest .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-ingest .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-ingest .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-ingest-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-ingest-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="389" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/ingest sample</text>
+  <text x="1162" y="70" class="name" text-anchor="end">Turn your files into notes you can cite</text>
+  <rect x="20" y="112" width="270" height="257" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,240 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-ingest-arrow)"/>
+  <rect x="316" y="112" width="270" height="257" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,240 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-ingest-arrow)"/>
+  <rect x="612" y="112" width="270" height="257" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,240 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-ingest-arrow)"/>
+  <rect x="908" y="112" width="270" height="257" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">Your files in</text>
+    <text x="50" y="183" class="t">curriculum/&lt;case&gt;/: .pptx,</text>
+    <text x="50" y="202" class="t">.pdf, .docx, .txt, .md, .vtt,</text>
+    <text x="50" y="221" class="t">.srt</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Reminds you to check your</text>
+    <text x="360" y="183" class="t">school's AI policy first</text>
+  <circle cx="341" cy="209" r="10" fill="#0b4f9c"/>
+  <text x="341" y="214" class="num" text-anchor="middle">2</text>
+  <text x="360" y="214" class="t">Runs scripts/extract.py: one</text>
+    <text x="360" y="233" class="t">note per file, with an</text>
+    <text x="360" y="252" class="t">address per slide (S3),</text>
+    <text x="360" y="271" class="t">paragraph (P12), or minute of</text>
+    <text x="360" y="290" class="t">transcript</text>
+  <circle cx="341" cy="316" r="10" fill="#0b4f9c"/>
+  <text x="341" y="321" class="num" text-anchor="middle">3</text>
+  <text x="360" y="321" class="t">Reads the notes and writes</text>
+    <text x="360" y="340" class="t">you a summary</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">notes/&lt;case&gt;/ (Markdown notes +</text>
+    <text x="642" y="183" class="t">manifest.json)</text>
+  <circle cx="631" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="210" class="t">In chat: a table of decks, the</text>
+    <text x="642" y="229" class="t">learning objectives, 3 to 5</text>
+    <text x="642" y="248" class="t">links between subjects, and</text>
+    <text x="642" y="267" class="t">anything it skipped</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">/quiz &lt;case&gt;</text>
+  <circle cx="927" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="191" class="t">or /flashcards &lt;case&gt; "topic"</text>
+</svg>
