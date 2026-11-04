@@ -6,7 +6,7 @@
 
 This script is written for a presenter, and a student can follow it alone. It uses the fictional
 case guide **BMS 501 Self-Study Guide 02, Jordan Rivera** (a 19-year-old wrestler with a CA-MRSA forearm
-abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/`. Nothing here is real course material.
+abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/`. The case guide is a fictional M1 class PDF, a handout of the kind a school hands out as a PDF (built by `scripts/make_case_guide.py`; the editable Word file is in `docs/sample-case/`). Nothing here is real course material.
 
 **Total time:** 25 minutes plus 5 of buffer (a 20-minute version is marked below).
 
@@ -50,12 +50,12 @@ Type in Claude Code:
 /ingest sample
 ```
 
-**Expected:** a table with two sources (the GUIDE case guide with about 210 paragraphs, the MICRO deck with 6 slides),
+**Expected:** a table with two sources (the GUIDE case-guide PDF with 9 pages, the MICRO deck with 6 slides),
 the case's learning objectives quoted with citations, and 3-5 cross-discipline threads such as
 protein A (micro) to blocked opsonization (immuno) to abscess to PBP2a/MRSA (pharm).
 
-**Point at:** the citation tags. `[[GUIDE/...#P18]]` means paragraph 18 of the guide, `[[MICRO/...#S3]]` means slide 3.
-Open `notes/sample/GUIDE/` and show paragraph numbers in the Markdown, so the audience sees that a citation is an address.
+**Point at:** the citation tags. `[[GUIDE/...#S4]]` means page 4 of the guide PDF, `[[MICRO/...#S3]]` means slide 3.
+Open `notes/sample/GUIDE/` and show the `## [S#]` page headings in the Markdown, so the audience sees that a citation is an address.
 
 ### Act 3 (8-15 min): study guide with a live citation check
 
@@ -98,7 +98,7 @@ open output/sample/flashcards.html          # macOS; use xdg-open on Linux, star
 
 **Expected:** `PASS`, then a page with a **Study guide** tab and flip cards.
 
-**Point at:** click a card, flip it, then click a `[[GUIDE/...#P60]]` citation. The exact paragraph opens.
+**Point at:** click a card, flip it, then click a `[[GUIDE/...#S4]]` citation. The exact page opens.
 Say: "This is how you verify an AI-written card in 5 seconds." Then show one `{{c1::...}}` cloze card.
 
 *20-minute version: skip generating live. Open `examples/case2/flashcards.html` and do only the click-a-citation beat.*
@@ -128,7 +128,7 @@ Say: "Attempt first is the whole point. If you ask for the answer, you learn not
 The agent steps and the PubMed lookups need the network. Everything you need to finish is already committed:
 
 1. Open `examples/case2/flashcards.html` in a browser (`open examples/case2/flashcards.html`). It works offline.
-2. Walk the same beats: the **Study guide** tab, flip a card, click a citation to open the source paragraph.
+2. Walk the same beats: the **Study guide** tab, flip a card, click a citation to open the source page.
 3. Show the cited guide at `examples/case2/study-guide.md` and the card list at `examples/case2/flashcards.csv`.
 4. Say what you would have run: `/ingest`, `/study-guide`, `/flashcards`, and the `check.py` line. Be honest that `check.py` needs the network.
 5. Do the quiz from the committed notes by hand: read the questions in `sample/notes/GUIDE/` (Immunology, Microbiology, Pharmacology), let the room answer, then read the answer lines.

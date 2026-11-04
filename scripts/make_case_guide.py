@@ -10,12 +10,20 @@ section per discipline with topics, objectives, notes, and self-study
 questions). The school, course, faculty, and patient are invented. Nothing
 here is copied from any real course.
 
-    uv run scripts/make_case_guide.py [--out sample/curriculum/GUIDE]
+    uv run scripts/make_case_guide.py [--out sample/curriculum/GUIDE] [--pdf | --no-pdf] [--docx DIR]
+
+The demo input is a PDF (a fictional M1 class handout). The .docx is built in a temp folder and converted
+with LibreOffice (`soffice --headless --convert-to pdf`), so the PDF keeps the fictional footer on every page.
+--pdf is the default and needs `soffice` (PATH or the macOS app bundle); --docx DIR also keeps the editable
+.docx there. --no-pdf builds only the .docx, into --docx DIR (or --out when no --docx is given).
 """
 
 from __future__ import annotations
 
 import argparse
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 from docx import Document
@@ -29,7 +37,14 @@ SCHOOL = "Meridian College of Medicine (fictional)"
 COURSE = "BMS 501"
 COURSE_TITLE = "Foundations of Infection and Immunity"
 CASE = "Case 2: Jordan Rivera"
-FILENAME = "BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).docx"
+STEM = "BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample)"
+FILENAME = STEM + ".docx"
+PDF_FILENAME = STEM + ".pdf"
+NOTICE = (
+    "Educational demo. AI supports learning, it does not replace it. Real course materials belong to "
+    "your institution: follow its AI policy before uploading anything."
+)
+SOFFICE_APP = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
 DISCLAIMER = (
     "FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. "
     "Invented school, faculty, and patient. Not affiliated with any medical school."
@@ -90,9 +105,45 @@ def grid(doc, header: list[str], rows: list[list[str]], fill="1F3A5F") -> None:
         run.bold = True
         run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
     for row in rows:
-        cells = table.add_row().cells
-        for cell, text in zip(cells, row):
-            cell.text = text
+        new_row = table.add_row()
+        new_row._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))  # a row never straddles two pages
+        cells = new_row.cells
+        for col, (cell, text) in enumerate(zip(cells, row)):
+            # Every value after the first column carries its column name ("Result: 14.2"). A PDF has no table
+            # structure, so text extraction reads cells one per line; the label keeps each value attached to
+            # its column even when a cell (such as an empty Flag) is blank.
+            cell.text = text if col == 0 else f"{header[col]}: {text or 'none'}"
+    # Keep the whole table on one page: with PDF page anchors, a citation to a table must name the page that
+    # holds all of it.
+    for row in table.rows[:-1]:
+        for cell in row.cells:
+            for p in cell.paragraphs:
+                p.paragraph_format.keep_with_next = True
+    # Column widths follow the longest cell, but never narrower than the longest word (10 pt body text is about
+    # 0.1 inch per character, plus cell padding), so no word breaks mid-word in the extracted text.
+    labelled = [[row[0]] + [f"{header[c]}: {row[c] or 'none'}" for c in range(1, len(row))] for row in rows]
+    cells_by_col = [[r[c] for r in [header, *labelled] if c < len(r)] for c in range(len(header))]
+    longest = [max(max(len(t) for t in col), 8) for col in cells_by_col]
+    need = [max(len(w) for t in col for w in t.split()) * 0.11 + 0.3 for col in cells_by_col]
+    total = 7.3  # usable page width in inches
+    widths = [total * n / sum(longest) for n in longest]
+    for _ in range(len(widths)):
+        short = [c for c, w in enumerate(widths) if w < need[c]]
+        if not short:
+            break
+        for c in short:
+            widths[c] = need[c]
+        spare = [c for c in range(len(widths)) if c not in short and widths[c] > need[c]]
+        excess = sum(widths) - total
+        room = sum(widths[c] - need[c] for c in spare)
+        if excess > 0 and room > 0:
+            for c in spare:
+                widths[c] -= excess * (widths[c] - need[c]) / room
+    table.autofit = False
+    for c, col in enumerate(table.columns):
+        col.width = Inches(widths[c])
+        for cell in col.cells:
+            cell.width = col.width
     doc.add_paragraph()
 
 
@@ -164,6 +215,9 @@ def build(out_dir: Path) -> Path:
     footer.text = DISCLAIMER
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     footer.runs[0].font.size = Pt(8)
+    note = sec.footer.add_paragraph(NOTICE)
+    note.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    note.runs[0].font.size = Pt(8)
 
     # Cover block
     para(doc, SCHOOL, size=12, align=WD_ALIGN_PARAGRAPH.CENTER, color=NAVY)
@@ -172,6 +226,7 @@ def build(out_dir: Path) -> Path:
     para(doc, CASE, bold=True, size=22, align=WD_ALIGN_PARAGRAPH.CENTER)
     para(doc, "Self-Study Guide · Week 2", italic=True, align=WD_ALIGN_PARAGRAPH.CENTER)
     para(doc, DISCLAIMER, italic=True, size=9, align=WD_ALIGN_PARAGRAPH.CENTER)
+    para(doc, NOTICE, italic=True, size=9, align=WD_ALIGN_PARAGRAPH.CENTER)
 
     doc.add_heading("TABLE OF CONTENTS", level=1)
     for line in [
@@ -432,11 +487,48 @@ def build(out_dir: Path) -> Path:
     return out
 
 
+def find_soffice() -> str | None:
+    return shutil.which("soffice") or (SOFFICE_APP if Path(SOFFICE_APP).exists() else None)
+
+
+def profile_uri(path) -> str:
+    """file:// URI for a LibreOffice profile folder; as_uri() is also right for Windows drive paths."""
+    return path.as_uri()
+
+
+def to_pdf(docx: Path, out_dir: Path, soffice: str) -> Path:
+    """Convert with LibreOffice into out_dir; the PDF is named like the .docx."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as profile:  # private profile: no clash with a running LibreOffice
+        cmd = [soffice, f"-env:UserInstallation={profile_uri(Path(profile))}", "--headless", "--convert-to", "pdf",
+               "--outdir", str(out_dir), str(docx)]
+        done = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+    pdf = out_dir / PDF_FILENAME
+    if done.returncode != 0 or not pdf.exists():
+        raise SystemExit(f"soffice could not convert {docx.name} to PDF: {done.stderr.strip() or done.stdout.strip()}")
+    return pdf
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=Path("sample/curriculum/GUIDE"))
+    ap.add_argument("--pdf", action=argparse.BooleanOptionalAction, default=None,
+                    help="write the demo input as a PDF (default; needs soffice). --no-pdf builds the .docx only")
+    ap.add_argument("--docx", type=Path, metavar="DIR", help="also keep the editable .docx in DIR")
     args = ap.parse_args()
-    print(f"Saved {build(args.out)}")
+    soffice = find_soffice()
+    if args.pdf is False:  # explicit --no-pdf: the .docx goes to --docx if given, else --out
+        print(f"Saved {build(args.docx or args.out)}")
+        return 0
+    if not soffice:  # never fall back to a .docx beside the PDF fixture (the demo input is PDF only)
+        raise SystemExit("PDF output needs LibreOffice: install it (brew install --cask libreoffice), "
+                         "or pass --no-pdf --docx DIR to build only the editable .docx")
+    with tempfile.TemporaryDirectory() as tmp:
+        docx = build(Path(tmp))
+        print(f"Saved {to_pdf(docx, args.out, soffice)}")
+        if args.docx:
+            args.docx.mkdir(parents=True, exist_ok=True)
+            print(f"Saved {shutil.copy(docx, args.docx / docx.name)}")
     return 0
 
 

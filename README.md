@@ -153,7 +153,7 @@ Prefer open source end to end? [`docs/OPEN-RESOURCES.md`](docs/OPEN-RESOURCES.md
 
 ## What the checker proves, and what it doesn't
 
-- Course citation: `[[MICRO/Staph aureus#S3]]` is that deck, slide 3 (`#P12` Word paragraph, `#T2` Word table).
+- Course citation: `[[MICRO/Staph aureus#S3]]` is that deck, slide 3 (a PDF page is `#S2` too; Word files use `#P12` paragraph and `#T2` table).
 - Literature citation: `[PMID:26016486]` is a real PubMed record.
 
 AI models invent realistic-looking PMIDs. `scripts/check.py` **catches** PMIDs that don't exist, retracted papers, slides that don't exist, cards or bullets with no citation, and malformed cloze markup. It **does not catch** a real source that doesn't say what the card claims, or a medical error.
@@ -173,7 +173,7 @@ Full text: [`docs/RESPONSIBLE-USE.md`](docs/RESPONSIBLE-USE.md).
 - **Follow your institution's AI policy.** Confirm it allows uploading course content before you start.
 - **Never** put patient information in, or use these tools on graded work.
 
-A 20-30 minute demo uses the fictional case in `sample/curriculum/GUIDE` (BMS 501 Case 2: Jordan Rivera). Start with [`docs/DEMO-WALKTHROUGH.md`](docs/DEMO-WALKTHROUGH.md).
+A 20-30 minute demo uses the fictional case in `sample/curriculum/GUIDE` (BMS 501 Case 2: Jordan Rivera), a fictional M1 class PDF. Start with [`docs/DEMO-WALKTHROUGH.md`](docs/DEMO-WALKTHROUGH.md).
 
 ## Ground rules
 
