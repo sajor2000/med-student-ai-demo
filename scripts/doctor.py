@@ -39,8 +39,11 @@ class Result:
 
 def run_cmd(args: list[str]) -> str:
     """Return stdout of a command, or '' if it is missing or fails."""
+    exe = shutil.which(args[0])  # resolves npx.cmd etc. on Windows
+    if not exe:
+        return ""
     try:
-        done = subprocess.run(args, capture_output=True, text=True, timeout=15)
+        done = subprocess.run([exe, *args[1:]], capture_output=True, text=True, timeout=15)
     except (OSError, subprocess.SubprocessError):
         return ""
     return done.stdout.strip() if done.returncode == 0 else ""
@@ -73,17 +76,27 @@ def playwright_chromium() -> bool:
             "import os\n"
             "with sync_playwright() as p:\n"
             "    raise SystemExit(0 if os.path.exists(p.chromium.executable_path) else 1)\n")
+    uv = shutil.which("uv")
+    if not uv:
+        return False
     try:
-        done = subprocess.run(["uv", "run", "--with", "playwright", "python", "-c", code],
+        done = subprocess.run([uv, "run", "--with", "playwright", "python", "-c", code],
                               capture_output=True, timeout=120)
     except (OSError, subprocess.SubprocessError):
         return False
     return done.returncode == 0
 
 
-def git_ignored(path: str) -> bool:
-    done = subprocess.run(["git", "-C", str(ROOT), "check-ignore", "-q", path + "x"],
-                          capture_output=True)
+def git_ignored(path: str) -> bool | None:
+    """True/False for the ignore rule; None when git is missing or cannot run."""
+    git = shutil.which("git")
+    if not git:
+        return None
+    try:
+        done = subprocess.run([git, "-C", str(ROOT), "check-ignore", "-q", path + "x"],
+                              capture_output=True, timeout=15)
+    except (OSError, subprocess.SubprocessError):
+        return None
     return done.returncode == 0
 
 
@@ -109,7 +122,8 @@ def check_python() -> Result:
 def check_node() -> Result:
     out = run_cmd(["node", "--version"])
     major = parse_major(out)
-    fix = "install Node 24 or newer: https://nodejs.org (the PubMed MCP server needs it)"
+    fix = ("install Node 24 or newer from https://nodejs.org; the PubMed MCP server "
+           "fails on Node 22 with \"Promise.try is not a function\"")
     if major is None:
         return Result("node", FAIL, "not found", fix)
     if major < 24:
@@ -156,7 +170,11 @@ def check_openrouter() -> Result:
 
 
 def check_gitignore() -> Result:
-    missing = [p for p in PROTECTED if not git_ignored(p)]
+    states = {p: git_ignored(p) for p in PROTECTED}
+    if None in states.values():
+        return Result("gitignore", FAIL, "git not available",
+                      "install git (https://git-scm.com) so the ignore rules can be checked")
+    missing = [p for p, ok in states.items() if not ok]
     if not missing:
         return Result("gitignore", OK, "curriculum/ notes/ output/ are git-ignored")
     return Result("gitignore", FAIL, "not ignored: " + ", ".join(missing),
@@ -175,11 +193,26 @@ def exit_code(results: list[Result]) -> int:
     return 1 if any(r.required and r.status == FAIL for r in results) else 0
 
 
+def stdout_encoding() -> str:
+    return getattr(sys.stdout, "encoding", None) or "ascii"
+
+
+def labels() -> dict[str, str]:
+    """Emoji labels, or ASCII ones when stdout cannot encode them (e.g. cp1252)."""
+    try:
+        for s in (OK, WARN, FAIL):
+            s.encode(stdout_encoding())
+    except (UnicodeEncodeError, LookupError):
+        return {OK: "[OK]  ", WARN: "[WARN]", FAIL: "[FAIL]"}
+    return {OK: OK, WARN: WARN, FAIL: FAIL}
+
+
 def main(argv: list[str] | None = None) -> int:
     results = collect()
+    mark = labels()
     for r in results:
         tag = "" if r.required else " (optional)"
-        print(f"{r.status} {r.name}{tag}: {r.detail}")
+        print(f"{mark[r.status]} {r.name}{tag}: {r.detail}")
         if r.status != OK and r.fix:
             print(f"     fix: {r.fix}")
     print("\nBefore using real course materials, confirm your school's AI policy allows it"

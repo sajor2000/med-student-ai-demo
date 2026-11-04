@@ -110,3 +110,50 @@ def test_final_policy_reminder(doctor, monkeypatch, capsys):
     patch_all_ok(doctor, monkeypatch)
     doctor.main([])
     assert "docs/RESPONSIBLE-USE.md" in capsys.readouterr().out.splitlines()[-1]
+
+
+def test_run_cmd_resolves_with_which(doctor, monkeypatch):
+    seen = {}
+    monkeypatch.setattr(doctor.shutil, "which", lambda n: "C:\\node\\npx.cmd" if n == "npx" else None)
+
+    class Done:
+        returncode, stdout = 0, "10.0.0\n"
+
+    def fake_run(args, **kw):
+        seen["args"] = args
+        return Done()
+
+    monkeypatch.setattr(doctor.subprocess, "run", fake_run)
+    assert doctor.run_cmd(["npx", "--version"]) == "10.0.0"
+    assert seen["args"][0] == "C:\\node\\npx.cmd"
+    assert doctor.run_cmd(["nope", "--version"]) == ""
+
+
+def test_missing_git_is_required_failure_not_crash(doctor, monkeypatch):
+    patch_all_ok(doctor, monkeypatch)
+    monkeypatch.setattr(doctor, "git_ignored", lambda path: None)
+    res = by_name(doctor.collect())
+    assert res["gitignore"].status == doctor.FAIL
+    assert "git" in res["gitignore"].fix
+    assert doctor.exit_code(list(res.values())) == 1
+
+
+def test_git_ignored_without_git(doctor, monkeypatch):
+    monkeypatch.setattr(doctor.shutil, "which", lambda n: None)
+    assert doctor.git_ignored("notes/") is None
+
+
+def test_ascii_fallback_on_cp1252(doctor, monkeypatch, capsys):
+    patch_all_ok(doctor, monkeypatch)
+    monkeypatch.setattr(doctor, "stdout_encoding", lambda: "cp1252")
+    doctor.main([])
+    out = capsys.readouterr().out
+    assert "[OK]" in out
+    assert doctor.OK not in out
+
+
+def test_node_fix_names_promise_try(doctor, monkeypatch):
+    patch_all_ok(doctor, monkeypatch)
+    monkeypatch.setattr(doctor, "run_cmd", lambda a: {"uv": "uv 0.12.0", "node": "v22.1.0", "npx": "10"}.get(a[0], ""))
+    fix = by_name(doctor.collect())["node"].fix
+    assert "Promise.try is not a function" in fix

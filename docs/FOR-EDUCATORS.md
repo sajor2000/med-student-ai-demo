@@ -28,7 +28,7 @@ student does the studying; the tool does the drafting and the bookkeeping.
 | Course files (`curriculum/`, `notes/`, `output/`) | Stay on the student's machine and are git-ignored. **The AI provider reads whatever the agent reads** (slide text it is asked to process), under the provider's terms for that student's account. |
 | PubMed and Europe PMC queries | Search terms and PMIDs go to NCBI/NLM. No course files are uploaded. |
 | Paperclip (optional) | Paper searches go to Paperclip's service. |
-| OpenRouter (optional) | Only if the student sets a key and uses the optional judgment checks; never on patient data. |
+| OpenRouter (optional) | Only `/mnemonic-art`, and only after the student explicitly says yes: the student-approved concept and scene prompt go to an image model through OpenRouter. No course text is sent, and the prompt is screened for patient information first. |
 | Anki sync (optional) | Loopback only, between the agent and the student's own Anki. |
 
 The repo contains no patient data and the tool should never be given any.
