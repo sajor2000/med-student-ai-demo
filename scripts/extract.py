@@ -114,18 +114,40 @@ def docx_to_md(path: Path) -> tuple[str, int]:
     return "\n".join(lines), n
 
 
+PRIVATE_USE = re.compile("[\ue000-\uf8ff]")  # Word bullets in Symbol/Wingdings extract here, not as text
+RUNNING_MIN_PAGES = 3  # fewer pages cannot establish a running header or footer
+
+
+def pdf_page_lines(raw: str) -> list[str]:
+    """One page's text as clean lines: private-use bullet glyphs dropped, blank lines removed."""
+    return [t for t in (slug(PRIVATE_USE.sub("", ln)) for ln in raw.splitlines()) if t]
+
+
+def running_lines(pages: list[list[str]]) -> set[str]:
+    """Lines on at least half of the pages of a 3+ page PDF: a banner or footer, not page content."""
+    if len(pages) < RUNNING_MIN_PAGES:
+        return set()
+    counts: dict[str, int] = {}
+    for page in pages:
+        for line in set(page):
+            counts[line] = counts.get(line, 0) + 1
+    return {line for line, n in counts.items() if n * 2 >= len(pages)}
+
+
 def pdf_to_md(path: Path) -> tuple[str, int, int]:
     import pymupdf as fitz
 
     lines = [f"# {path.stem}", "", f"Source: `{path.name}` (slides)", ""]
     blanks = 0
     with fitz.open(str(path)) as doc:
-        for i, page in enumerate(doc, start=1):
-            text = [slug(ln) for ln in page.get_text().splitlines()]
-            text = [t for t in text if t]
-            lines.append(f"## [S{i}] {text[0] if text else '(no text)'}")
+        pages = [pdf_page_lines(page.get_text()) for page in doc]
+        running = running_lines(pages)
+        for i, text in enumerate(pages, start=1):
+            # The heading is the first line that is not a running banner; every line stays in the body.
+            idx = next((k for k, t in enumerate(text) if t not in running), 0)
+            lines.append(f"## [S{i}] {text[idx] if text else '(no text)'}")
             if text:
-                lines.extend("- " + t for t in text[1:])
+                lines.extend("- " + t for k, t in enumerate(text) if k != idx)
             else:
                 blanks += 1
                 lines.append(f"- _{NO_TEXT}_")

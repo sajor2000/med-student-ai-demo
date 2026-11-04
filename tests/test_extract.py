@@ -229,3 +229,43 @@ def test_output_check_and_collisions_ignore_case(extract, tmp_path):
     m = run(extract, src2, tmp_path / "out2")
     notes = [f["notes"].casefold() for f in m["files"]]
     assert len(notes) == 2 and len(set(notes)) == 2
+
+
+def make_banner_pdf(path, bodies, banner="FICTIONAL SAMPLE banner for every page", footer="Page footer notice"):
+    """Every page opens with the same running banner and closes with the same footer."""
+    doc = fitz.open()
+    for body in bodies:
+        page = doc.new_page()
+        page.insert_text((72, 60), banner)
+        page.insert_text((72, 120), body)
+        page.insert_text((72, 780), footer)
+    doc.save(str(path))
+    doc.close()
+
+
+def test_pdf_heading_skips_running_banner(extract, tmp_path):
+    """A banner repeated on every page must not become every page's identical heading."""
+    src = tmp_path / "in"
+    src.mkdir()
+    make_banner_pdf(src / "Guide.pdf", ["Course Director Notes", "Case Presentation", "Immunology"])
+    run(extract, src, tmp_path / "out")
+    md = (tmp_path / "out" / "Guide.md").read_text()
+    assert re.findall(r"^## \[S\d+\] (.*)$", md, re.M) == ["Course Director Notes", "Case Presentation", "Immunology"]
+    # nothing is dropped: the banner text is still in the page body
+    assert md.count("FICTIONAL SAMPLE banner for every page") == 3
+
+
+def test_pdf_heading_unchanged_for_short_documents(extract, tmp_path):
+    """Two pages cannot establish a running header, so the first line stays the heading."""
+    src = tmp_path / "in"
+    src.mkdir()
+    make_banner_pdf(src / "Two.pdf", ["Alpha", "Beta"])
+    run(extract, src, tmp_path / "out")
+    md = (tmp_path / "out" / "Two.md").read_text()
+    assert re.findall(r"^## \[S\d+\] (.*)$", md, re.M) == ["FICTIONAL SAMPLE banner for every page"] * 2
+
+
+def test_pdf_private_use_bullet_glyph_lines_are_dropped(extract):
+    """Word bullets (U+F0B7, Symbol font) extract as lone private-use characters, not text."""
+    raw = "\uf0b7\n\uf0b7 Bullet text kept\n  \uf0a7  \nReal fact"
+    assert extract.pdf_page_lines(raw) == ["Bullet text kept", "Real fact"]

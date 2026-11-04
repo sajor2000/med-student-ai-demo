@@ -9,6 +9,9 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
 
 1. Read the notes for the topic. **If `output/<case>/weak-spots.md` exists, read it too**: cover those topics first,
    and use them as the topic when none was given.
+   When no topic was given, also run `uv run scripts/coverage.py --notes notes/<case> --csv output/<case>/flashcards.csv`
+   (add `--vignettes output/<case>/vignettes.json` when it exists). Spend the cards on objectives it reports
+   `UNCOVERED` first (weak spots still come first), and tag each with `<slug>-objN` as the script's header describes.
 2. Write `output/<case>/flashcards.csv` with columns `front,back,sources,tags`. Quote any field that contains a comma.
    When the file already exists, merge: keep every existing row, add the new rows, and dedupe by `front`.
    Done when the row count is at least the old count and no `front` appears twice.
