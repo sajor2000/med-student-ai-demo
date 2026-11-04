@@ -85,8 +85,8 @@ def vignette_counts(path: Path) -> dict[Key, int]:
         n = v.get("objective")
         if n is None:
             continue
-        if not isinstance(n, int) or isinstance(n, bool):
-            raise ValueError(f"{path}: vignette #{i} has a non-integer objective {n!r}")
+        if not isinstance(n, int) or isinstance(n, bool) or n < 1:
+            raise ValueError(f"{path}: vignette #{i} needs an objective that is an integer of 1 or more, not {n!r}")
         lecture = v.get("lecture") if isinstance(v.get("lecture"), str) else ""
         counts[(lecture, n)] = counts.get((lecture, n), 0) + 1
     return counts

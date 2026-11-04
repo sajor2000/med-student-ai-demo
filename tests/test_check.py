@@ -489,3 +489,21 @@ def test_phi_gate_catches_name_comma_age_forms(check, stem):
 @pytest.mark.parametrize("stem", ["Fever, 38 C on arrival", "Tachycardic, 104 bpm at rest"])
 def test_phi_gate_keeps_vital_sign_exclusions(check, stem):
     assert check.phi_hit(stem) is None
+
+
+@pytest.mark.parametrize("stem", [
+    "Contact maria@example.com about the result", "Call 312-555-0142 for the lab", "SSN 123-45-6789 on the form",
+    "Lives at 42 Maple Street", "ZIP 60611 on file", "Mr. Garcia has a fever", "Jane Wilson presents with fever",
+])
+def test_phi_gate_covers_contact_details_and_names(check, stem):
+    assert check.phi_hit(stem) is not None
+
+
+def test_phi_pattern_lists_stay_in_sync_with_mnemonic_art(check):
+    from conftest import load_script
+    art = load_script("mnemonic_art")
+    # check.py adds a vital-sign exclusion to the "Name, <number>" rule; every other rule must match exactly
+    mine = [(rx.pattern, w) for rx, w in check.PHI_PATTERNS if "bpm" not in rx.pattern]
+    theirs = [(rx.pattern, w) for rx, w in art.PHI_PATTERNS if not rx.pattern.startswith(r"\b[A-Z][a-z]+(?:,")]
+    assert mine == theirs
+    assert check.NAME_ALLOW == art.NAME_ALLOW and check.GENERIC_WORDS == art.GENERIC_WORDS

@@ -743,3 +743,18 @@ def test_flashcards_skill_lists_every_export_flag():
     text = (Path(__file__).resolve().parent.parent / ".claude" / "skills" / "flashcards" / "SKILL.md").read_text(encoding="utf-8")
     for flag in ("--guide", "--notes", "--diagrams", "--art", "--deepen", "--vignettes"):
         assert flag in text, flag
+
+
+def test_unreadable_deepen_file_exits_before_any_output_changes(export, notes, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Q?", "A", S3)])
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    anki = deck.with_suffix(".anki.txt")
+    anki_before = anki.read_text(encoding="utf-8")
+    deck.write_text(deck.read_text(encoding="utf-8") + 'Q2?,A2,"' + S3 + '",\n', encoding="utf-8")  # a new card
+    dd = tmp_path / "deepen"
+    dd.mkdir()
+    (dd / "bad.md").write_bytes(b"\xff\xfe\x00bad")
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--notes", str(notes), "--deepen", str(dd)], monkeypatch)
+    assert "--deepen" in str(e.value)
+    assert anki.read_text(encoding="utf-8") == anki_before

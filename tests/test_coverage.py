@@ -197,3 +197,12 @@ def test_malformed_vignette_entries_exit_2(cov, tmp_path, monkeypatch, capsys, p
     bad.write_text(json.dumps(payload), encoding="utf-8")
     assert run_main(cov, ["--notes", str(notes), "--vignettes", str(bad)], monkeypatch) == 2
     assert "bad.json" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("objective", [0, -1])
+def test_non_positive_objective_exits_2(cov, tmp_path, monkeypatch, capsys, objective):
+    notes = make_notes(tmp_path)
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps({"vignettes": [{"objective": objective}]}), encoding="utf-8")
+    assert run_main(cov, ["--notes", str(notes), "--vignettes", str(bad)], monkeypatch) == 2
+    assert "bad.json" in capsys.readouterr().err
