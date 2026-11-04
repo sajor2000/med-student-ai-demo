@@ -193,13 +193,14 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     out = args.out.expanduser().resolve()
-    if out == src or src in out.parents:
+    fold = lambda p: [q.casefold() for q in p.parts]  # case-insensitive filesystems
+    if fold(out)[: len(src.parts)] == fold(src):
         print(f"--out must not be the input folder or inside it (would overwrite sources): {out}", file=sys.stderr)
         return 2
 
     manifest = []
     skipped = []
-    taken: set[Path] = set()  # destination notes files already written
+    taken: set[str] = set()  # casefolded: destination notes files; macOS/Windows ignore case
     files = sorted(src.rglob("*"), key=lambda q: (PRIORITY.index(q.suffix.lower()) if q.suffix.lower() in PRIORITY else 99, str(q)))
     for path in files:
         if not path.is_file() or path.name in SKIP or path.name.startswith("~$"):
@@ -231,13 +232,13 @@ def main(argv: list[str] | None = None) -> int:
             skipped.append(f"{rel} (error: {exc.__class__.__name__})")
             continue
         dest = args.out / rel.with_suffix(".md")
-        if dest in taken:  # Renal.pdf and Renal.vtt: keep both citable
+        if str(dest).casefold() in taken:  # Renal.pdf and Renal.vtt: keep both citable
             dest = dest.with_name(f"{rel.stem} ({ext[1:]}).md")
             k = 2
-            while dest in taken:  # fallback name itself already used
+            while str(dest).casefold() in taken:  # fallback name itself already used
                 dest = dest.with_name(f"{rel.stem} ({ext[1:]} {k}).md")
                 k += 1
-        taken.add(dest)
+        taken.add(str(dest).casefold())
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(md, encoding="utf-8")
         manifest.append(

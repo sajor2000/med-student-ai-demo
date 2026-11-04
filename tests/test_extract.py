@@ -211,3 +211,21 @@ def test_vtt_note_style_region_blocks_are_not_transcript(extract, tmp_path):
     run(extract, src, tmp_path / "out")
     txt = (tmp_path / "out" / "t.md").read_text()
     assert "Real cue." in txt and "leaked" not in txt
+
+
+def test_output_check_and_collisions_ignore_case(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "guide.md").write_text("Original body.")
+    shouty = tmp_path / "IN"  # same folder on a case-insensitive filesystem
+    assert extract.main([str(src), "--out", str(shouty)]) == 2
+    assert extract.main([str(src), "--out", str(shouty / "sub")]) == 2
+    assert (src / "guide.md").read_text() == "Original body."
+
+    src2 = tmp_path / "in2"
+    src2.mkdir()
+    (src2 / "Renal.txt").write_text("Upper.")
+    (src2 / "renal.md").write_text("Lower.")
+    m = run(extract, src2, tmp_path / "out2")
+    notes = [f["notes"].casefold() for f in m["files"]]
+    assert len(notes) == 2 and len(set(notes)) == 2
