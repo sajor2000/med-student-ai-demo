@@ -85,3 +85,24 @@ def test_readme_links_required_files_and_they_exist():
         assert (ROOT / target).exists(), target
     assert "scripts/doctor.py" in readme
     assert "MIT" in readme and "CC BY 4.0" in readme
+
+
+def test_demo_walkthrough_shows_every_screenshot_and_keeps_them_small():
+    walkthrough = (ROOT / "docs" / "DEMO-WALKTHROUGH.md").read_text()
+    shots = sorted((ROOT / "docs" / "img" / "demo").glob("*.png"))
+    assert shots, "no demo screenshots"
+    for png in shots:
+        assert f"img/demo/{png.name}" in walkthrough, f"{png.name} is not shown in DEMO-WALKTHROUGH.md"
+        assert png.stat().st_size <= 260_000, f"{png.name} is over 260 KB"
+    for target in LINK.findall(walkthrough):
+        if not re.match(r"[a-z]+:", target):
+            assert (ROOT / "docs" / target).exists(), target
+
+
+def test_demo_screenshots_are_all_different():
+    import hashlib
+    seen = {}
+    for png in sorted((ROOT / "docs" / "img" / "demo").glob("*.png")):
+        digest = hashlib.sha256(png.read_bytes()).hexdigest()
+        assert digest not in seen, f"{png.name} duplicates {seen[digest]}"
+        seen[digest] = png.name
