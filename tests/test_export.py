@@ -540,3 +540,26 @@ def test_vignette_flow_in_browser(export, tmp_path, monkeypatch):
     finally:
         browser.close()
         pw.stop()
+
+
+def _vignette_with(tmp_path, mutate):
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    data = json.loads(vg.read_text(encoding="utf-8"))
+    mutate(data["vignettes"][0])
+    vg.write_text(json.dumps(data), encoding="utf-8")
+    return vg
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda v: v.__setitem__("options", v["options"][:4]),
+    lambda v: v["options"][0].__setitem__("key", "Z"),
+    lambda v: [o.__setitem__("correct", False) for o in v["options"]],
+    lambda v: v["options"][2].__setitem__("explanation", ""),
+    lambda v: v["options"][1].pop("explanation"),
+], ids=["four-options", "bad-key", "no-correct", "empty-explanation", "missing-explanation"])
+def test_incomplete_vignette_schema_exits_readably(export, tmp_path, monkeypatch, mutate):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = _vignette_with(tmp_path, mutate)
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    assert "--vignettes" in str(e.value)

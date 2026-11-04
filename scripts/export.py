@@ -256,6 +256,13 @@ def load_vignettes(path: Path) -> list[dict]:
             or not all(isinstance(o, dict) and isinstance(o.get("text"), str) for o in opts)
         ):
             raise SystemExit(f'--vignettes: vignette #{n} needs a "stem" string and a non-empty "options" list of objects with "text"')
+        if (
+            len(opts) != 5
+            or sorted(str(o.get("key")) for o in opts) != list("ABCDE")
+            or sum(1 for o in opts if o.get("correct") is True) != 1
+            or not all(isinstance(o.get("explanation"), str) and o["explanation"].strip() for o in opts)
+        ):
+            raise SystemExit(f"--vignettes: vignette #{n} needs exactly 5 options (keys A-E once each), one correct, each with an explanation; run check.py on it")
     return items
 
 

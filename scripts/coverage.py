@@ -91,18 +91,30 @@ def plural(n: int, word: str) -> str:
     return f"{n} {word}" + ("" if n == 1 else "s")
 
 
-def existing(value: str) -> Path:
+def existing(value: str, kind: str = "any") -> Path:
     p = Path(value)
     if not p.exists():
         raise argparse.ArgumentTypeError(f"path does not exist: {value}")
+    if kind == "dir" and not p.is_dir():
+        raise argparse.ArgumentTypeError(f"not a directory: {value}")
+    if kind == "file" and not p.is_file():
+        raise argparse.ArgumentTypeError(f"not a file: {value}")
     return p
+
+
+def existing_dir(value: str) -> Path:
+    return existing(value, "dir")
+
+
+def existing_file(value: str) -> Path:
+    return existing(value, "file")
 
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="Report learning objectives with no card or vignette.")
-    ap.add_argument("--notes", type=existing, required=True, help="notes folder, e.g. notes/<case>")
+    ap.add_argument("--notes", type=existing_dir, required=True, help="notes folder, e.g. notes/<case>")
     ap.add_argument("--csv", type=Path, help="flashcards.csv with objN tags (a missing file counts as 0 cards)")
-    ap.add_argument("--vignettes", type=existing, help="vignettes.json with objective fields")
+    ap.add_argument("--vignettes", type=existing_file, help="vignettes.json with objective fields")
     args = ap.parse_args()
 
     try:

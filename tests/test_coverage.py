@@ -165,3 +165,18 @@ def test_missing_csv_counts_zero_cards_with_a_note(cov, tmp_path, monkeypatch, c
     assert run_main(cov, ["--notes", str(notes), "--csv", str(tmp_path / "none.csv")], monkeypatch) == 0
     out = capsys.readouterr().out
     assert "none.csv" in out and "0 cards" in out and "3 objective(s) uncovered" in out.splitlines()[-1]
+
+
+def test_directory_as_vignettes_is_argument_error(cov, tmp_path, monkeypatch):
+    notes = make_notes(tmp_path)
+    with pytest.raises(SystemExit) as e:
+        run_main(cov, ["--notes", str(notes), "--vignettes", str(tmp_path)], monkeypatch)
+    assert e.value.code == 2
+
+
+def test_file_as_notes_is_argument_error(cov, tmp_path, monkeypatch):
+    f = tmp_path / "f.md"
+    f.write_text("x", encoding="utf-8")
+    with pytest.raises(SystemExit) as e:
+        run_main(cov, ["--notes", str(f)], monkeypatch)
+    assert e.value.code == 2
