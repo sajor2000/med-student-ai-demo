@@ -18,7 +18,9 @@ Not covered, and never part of this repository:
   Those belong to their authors and your institution. See CONTRIBUTING.md.
 
 All other files (code, scripts, skills, docs) are under the PolyForm
-Noncommercial License 1.0.0 in LICENSE. See NOTICE.md for the scope of these
+Noncommercial License 1.0.0 in LICENSE, except third-party material that keeps
+its own license: CODE_OF_CONDUCT.md is adapted from the Contributor Covenant 2.1
+and stays under CC BY 4.0. See NOTICE.md for the scope of these
 licenses and the responsible-use terms.
 
 -----------------------------------------------------------------------
