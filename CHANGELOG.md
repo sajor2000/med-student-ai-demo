@@ -9,7 +9,7 @@ All notable changes are documented here. Format follows
 ## [0.4.0] - 2026-11-04
 
 ### Changed
-- License: code moves from MIT to the PolyForm Noncommercial License 1.0.0, and the fictional sample and example content from CC BY 4.0 to CC BY-NC-SA 4.0. Free for students, educators, schools, and research; commercial use needs a separate written license. Copies obtained under 0.3.0 or earlier keep their MIT / CC BY 4.0 terms.
+- License: code moves from MIT to the PolyForm Noncommercial License 1.0.0, and the fictional sample and example content from CC BY 4.0 to CC BY-NC-SA 4.0. Free for personal study and for noncommercial teaching and research by schools, universities, and other noncommercial organizations; commercial use needs a separate written license. Copies obtained under 0.3.0 or earlier keep their MIT / CC BY 4.0 terms.
 - Demo walkthrough: live steps run on the MRSA resistance topic, and Act 6 is a live Anki sync (#15).
 
 ## [0.3.0] - 2026-11-04
