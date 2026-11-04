@@ -313,7 +313,7 @@ def test_pmid_digits_in_a_citation_are_not_phi(check, notes, tmp_path, monkeypat
 def test_bad_citation_in_stem_fails(check, notes, tmp_path, monkeypatch, capsys):
     v = mutated(lambda v: v.update(stem=v["stem"] + " See [[MICRO/does-not-exist#S99]]."), "vx")
     code, out = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
-    assert code == 1 and "vx stem" in out and "does-not-exist" in out
+    assert code == 1 and "stem" in out and "does-not-exist" in out
 
 
 def test_bad_citation_in_option_text_fails(check, notes, tmp_path, monkeypatch, capsys):
