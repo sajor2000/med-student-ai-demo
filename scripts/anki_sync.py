@@ -88,8 +88,8 @@ def request(url: str, action: str, params: dict | None = None):
         raise Unreachable(str(e)) from e
     except ValueError as e:
         raise AnkiError(f"AnkiConnect returned a reply that is not JSON: {e}") from e
-    if not isinstance(out, dict):
-        raise AnkiError("AnkiConnect returned an unexpected reply (not a JSON object)")
+    if not isinstance(out, dict) or "result" not in out or "error" not in out:
+        raise AnkiError("AnkiConnect returned an unexpected reply (need a JSON object with result and error)")
     if out.get("error"):
         raise AnkiError(str(out["error"]))
     return out.get("result")

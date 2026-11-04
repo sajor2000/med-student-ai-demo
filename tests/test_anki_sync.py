@@ -495,7 +495,7 @@ def test_apostrophe_course_path_still_links(anki_mod, tmp_path):
     assert back.count('title="') == 1 and 'title=""' not in back
 
 
-@pytest.mark.parametrize("raw", [b"not json", b"[1, 2]", b"null"])
+@pytest.mark.parametrize("raw", [b"not json", b"[1, 2]", b"null", b'{"result": 6}', b'{"error": null}'])
 def test_malformed_ankiconnect_reply_is_ankierror(anki_mod, raw):
     class H(BaseHTTPRequestHandler):
         def do_POST(self):
