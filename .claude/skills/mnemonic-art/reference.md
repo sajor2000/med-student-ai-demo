@@ -17,9 +17,24 @@ Use `/visualize` for an accurate, cited diagram.
 
 ## What the script refuses
 
-Before any network call it refuses numbers with 6 or more digits, "MRN"/"DOB"/"date of birth", dates, birth years,
-and a name next to an age ("Name, 45"; "45-year-old named"). A refusal means: rewrite the scene without patient
-details. The check is a second safeguard; the student review in step 2 is the first.
+Before any network call (after the student's own review, on concept and scene together) it refuses:
+
+- numbers with 6 or more digits, "MRN"/"DOB"/"date of birth"/"medical record", dates, birth years, and a name next
+  to an age ("Name, 45"; "45-year-old named")
+- email addresses; US phone numbers ("(312) 555-0100", "312-555-0100", "312.555.0100", "+1 312 555 0100")
+- street addresses (a number plus a street word: St, Ave, Rd, Blvd, Dr, Lane, Court, Way ...)
+- ZIP and ZIP+4 codes; SSN-like patterns (123-45-6789)
+- MRN-like identifiers ("#48213", "chart/account/patient number 4821")
+- URLs with a query string
+- titles followed by a name (Mr, Mrs, Ms, Miss, Dr, Patient + Capitalized word)
+- likely personal names: two or more Title-Case words in a row, none of which is on a built-in allowlist of medical
+  and common terms (Graves, Hashimoto, Cushing, Lyme, Staphylococcus, Gram, Type, Vitamin ...). "John Smith"
+  is refused; "Graves disease" and "Type 2 diabetes" pass.
+
+A refusal tells the student to describe the idea without people's names or contact details and offers a generic
+rephrase ("a patient", "a farmer"). The gate is heuristic and fail-closed: it will miss some identifiers (a lone first
+name, a city) and refuse some harmless text (a five-digit count reads as a ZIP). The student's confirmation in step 2
+is the real control; the script's check is a second safeguard.
 
 ## Key, cost, and privacy
 
