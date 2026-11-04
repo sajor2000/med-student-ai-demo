@@ -151,7 +151,12 @@ def build(out_dir: Path) -> Path:
     for side in ("left_margin", "right_margin", "top_margin", "bottom_margin"):
         setattr(sec, side, Inches(0.6))
     doc.styles["Normal"].font.name = "Calibri"
-    doc.styles["Normal"].font.size = Pt(11)
+    doc.styles["Normal"].font.size = Pt(10)
+    doc.styles["Normal"].paragraph_format.space_after = Pt(3)
+    for name, size in (("Heading 1", 16), ("Heading 2", 12), ("Heading 3", 12), ("Heading 4", 10.5), ("Heading 5", 10)):
+        doc.styles[name].font.size = Pt(size)
+        doc.styles[name].paragraph_format.space_before = Pt(6)
+        doc.styles[name].paragraph_format.space_after = Pt(2)
     for level in range(1, 6):
         doc.styles[f"Heading {level}"].font.color.rgb = NAVY
 
@@ -187,6 +192,7 @@ def build(out_dir: Path) -> Path:
         "Work through the case presentation first, then each discipline in order. "
         "Try every self-study question before you look at the answers.",
         "Small-group session: Thursday, 9:00-11:00 (fictional).",
+        "This guide demonstrates AI-assisted study; follow your own school's AI policy for real course materials.",
     ])
 
     doc.add_heading("Case Presentation", level=1)
@@ -195,7 +201,7 @@ def build(out_dir: Path) -> Path:
     para(doc, "History of present illness", bold=True)
     para(doc, (
         "Jordan Rivera is a 19-year-old college wrestler who presents to student health with a "
-        "4-day history of a red, swollen, painful lesion on the right forearm. It began as what "
+        "4-day history of a red, swollen, painful lesion on the ulnar (medial) side of the right forearm. It began as what "
         "Jordan thought was a spider bite after practice. Over 48 hours it became firm and warm, "
         "and this morning it felt soft in the center. Jordan reports subjective fevers and "
         "fatigue. Two teammates had similar “boils” this season."
@@ -210,13 +216,13 @@ def build(out_dir: Path) -> Path:
     grid(doc, ["Measure", "Value", "Reference"], [
         ["Temperature", "38.4 °C", "36.1-37.2 °C"],
         ["Heart rate", "104 /min", "60-100 /min"],
-        ["Blood pressure", "122/74 mmHg", "<120/80 mmHg"],
+        ["Blood pressure", "118/72 mmHg", "<120/80 mmHg"],
         ["Respiratory rate", "16 /min", "12-20 /min"],
         ["SpO2", "99% room air", "≥95%"],
     ])
     para(doc, "Physical examination", bold=True)
     para(doc, (
-        "A 4 cm erythematous, warm, tender nodule on the right volar forearm with a fluctuant "
+        "A 4 cm erythematous, warm, tender nodule on the ulnar side of the right volar forearm with a fluctuant "
         "center and 2 cm of surrounding erythema. No lymphangitic streaking. Small, tender right "
         "epitrochlear node. The rest of the exam is normal."
     ))
@@ -232,6 +238,7 @@ def build(out_dir: Path) -> Path:
         ["Creatinine", "0.9", "", "0.7-1.3", "mg/dL"],
         ["Glucose", "94", "", "70-99", "mg/dL"],
     ])
+    para(doc, "Reference ranges are typical adult values (hemoglobin and creatinine shown for an adult male); they vary by laboratory.", italic=True, size=9)
     para(doc, "Procedure and microbiology", bold=True)
     para(doc, (
         "Bedside incision and drainage released 6 mL of thick yellow pus. Gram stain showed "
@@ -250,7 +257,6 @@ def build(out_dir: Path) -> Path:
         "Review the results above. Before reading on, write down: (1) the organism, "
         "(2) the host cells doing most of the work, and (3) what you would treat with and why."
     ), italic=True)
-    page_break(doc)
 
     # ---------------- Immunology
     doc.add_heading("Immunology", level=1)
@@ -279,7 +285,7 @@ def build(out_dir: Path) -> Path:
     doc.add_heading("Neutrophil Recruitment and Killing (LO-1102, LO-1103)", level=3)
     para(doc, "Recognition", bold=True)
     bullets(doc, [
-        "Bacterial lipoproteins are the main ligands for TLR2 (with TLR1 or TLR6); whether lipoteichoic acid also signals through TLR2 is debated.",
+        "Bacterial lipoproteins are the main ligands for TLR2 (with TLR1 or TLR6); whether lipoteichoic acid also signals through TLR2 is debated [PMID:18406368].",
         "Tissue macrophages release IL-1, TNF-α, and IL-8 (CXCL8).",
     ])
     para(doc, "Recruitment (the leukocyte adhesion cascade)", bold=True)
@@ -298,17 +304,16 @@ def build(out_dir: Path) -> Path:
     para(doc, "Clinical correlation", bold=True)
     bullets(doc, [
         "Chronic granulomatous disease (NADPH oxidase defect): recurrent S. aureus, Aspergillus, and other infections. Often taught as 'catalase-positive organisms', but in a mouse model catalase-negative S. aureus was equally virulent [PMID:11997027].",
-        "Leukocyte adhesion deficiency type 1 (CD18 defect): no pus, delayed umbilical cord separation.",
+        "Leukocyte adhesion deficiency type 1 (CD18 defect): little or no pus with marked neutrophilia; delayed umbilical cord separation is classic but not universal.",
     ])
     questions(doc, "Immunology", [
-        ("A neutrophil rolling along the endothelium near Jordan’s abscess binds which ligand on the endothelium?",
+        ("A neutrophil rolling along the endothelium near Jordan’s abscess is slowed by which endothelial molecule?",
          ["ICAM-1", "E-selectin", "PECAM-1", "VCAM-1", "MHC class II"], "B",
          "Selectins mediate rolling; ICAM-1 binding to integrins mediates tight adhesion."),
-        ("A child has recurrent S. aureus abscesses and a negative dihydrorhodamine test. Which enzyme is defective?",
+        ("A child has recurrent S. aureus abscesses and absent superoxide production on a nitroblue tetrazolium (NBT) test. Which enzyme is defective?",
          ["Myeloperoxidase", "NADPH oxidase", "Superoxide dismutase", "Catalase", "Lysozyme"], "B",
-         "Absent respiratory burst = chronic granulomatous disease; catalase-positive organisms escape killing."),
+         "No superoxide on NBT = absent respiratory burst = chronic granulomatous disease (NADPH oxidase defect). Myeloperoxidase deficiency spares superoxide production."),
     ])
-    page_break(doc)
 
     # ---------------- Microbiology
     doc.add_heading("Microbiology", level=1)
@@ -336,29 +341,29 @@ def build(out_dir: Path) -> Path:
     doc.add_heading("Staphylococcus aureus (LO-1201, LO-1202, LO-1203)", level=3)
     grid(doc, ["Factor", "Type", "Action", "Disease link", ""], [
         ["Protein A", "Surface", "Binds Fc of IgG; blocks opsonization", "Immune evasion", ""],
-        ["Coagulase", "Enzyme", "Converts fibrinogen to fibrin", "Walls off abscess", ""],
-        ["Panton-Valentine leukocidin", "Toxin", "Pore-forming; kills leukocytes", "CA-MRSA skin infection, necrotizing pneumonia", ""],
+        ["Coagulase", "Enzyme", "Activates prothrombin, forming fibrin", "Fibrin wall around the abscess", ""],
+        ["Panton-Valentine leukocidin", "Toxin", "Pore-forming; kills leukocytes", "Associated with CA-MRSA skin infection and necrotizing pneumonia (causal role debated)", ""],
         ["TSST-1", "Superantigen", "Cross-links MHC II and TCR", "Toxic shock syndrome", ""],
         ["Exfoliative toxin", "Protease", "Cleaves desmoglein-1", "Scalded skin syndrome", ""],
-        ["Enterotoxin", "Superantigen; heat-stable", "Preformed toxin in food", "Vomiting 2-8 h after eating", ""],
+        ["Enterotoxin", "Superantigen; heat-stable", "Preformed toxin in food", "Vomiting 30 min-8 h after eating (mean about 3 h)", ""],
     ])
     para(doc, "Methicillin resistance", bold=True)
     bullets(doc, [
         "mecA (on SCCmec) encodes PBP2a, a penicillin-binding protein with low affinity for beta-lactams.",
-        "MRSA is resistant to nearly all beta-lactams (exception: ceftaroline).",
-        "Community-associated strains often carry PVL and cause skin abscesses in healthy young people, "
-        "especially with shared equipment and skin contact (athletes, dormitories).",
+        "MRSA is resistant to nearly all beta-lactams (exception: anti-MRSA cephalosporins such as ceftaroline).",
+        "Community-associated strains often carry PVL (its role in virulence is debated) and cause skin abscesses "
+        "in healthy young people, especially with shared equipment and skin contact (athletes, dormitories) "
+        "[PMID:17146447][PMID:22759601].",
     ])
     questions(doc, "Microbiology", [
         ("Which test distinguishes S. aureus from coagulase-negative staphylococci?",
          ["Catalase", "Coagulase", "Optochin", "Bacitracin", "Bile solubility"], "B",
-         "All staphylococci are catalase positive; only S. aureus is coagulase positive."),
+         "All staphylococci are catalase positive; among human isolates, S. aureus is the coagulase-positive species."),
         ("Jordan’s isolate is cefoxitin-resistant. What is the molecular basis?",
          ["Beta-lactamase hyperproduction", "Altered PBP (PBP2a) encoded by mecA",
           "Efflux pump", "D-Ala-D-Lac cell wall precursor", "Decreased porin expression"], "B",
          "PBP2a binds beta-lactams poorly, so cell-wall synthesis continues."),
     ])
-    page_break(doc)
 
     # ---------------- Pharmacology
     doc.add_heading("Pharmacology", level=1)
@@ -366,9 +371,10 @@ def build(out_dir: Path) -> Path:
             "riley.okafor@meridian.example", "Office hours: Friday 10:00-11:00 (fictional)")
     discipline_notes(doc, [
         "Know how each anti-staphylococcal drug works and when MRSA changes the choice.",
-        "Incision and drainage is the main treatment for an abscess. Jordan has fever and tachycardia, "
-        "so an antibiotic is indicated [PMID:24973422]. In a large trial, TMP-SMX after drainage also "
-        "raised the cure rate of uncomplicated abscesses (80.5% vs 73.6% with placebo) [PMID:26962903].",
+        "Incision and drainage is the main treatment for an abscess. Jordan has fever and tachycardia "
+        "(two SIRS criteria), so an MRSA-active antibiotic is indicated [PMID:24973422]. In a large trial, "
+        "TMP-SMX after drainage also raised the cure rate of uncomplicated abscesses "
+        "(80.5% vs 73.6% with placebo, modified intention-to-treat) [PMID:26962903].",
     ])
     para(doc, "Summary of Important Symbols and Parameters", bold=True)
     grid(doc, ["Symbol", "Meaning", "Formula", "", ""], [
@@ -408,14 +414,15 @@ def build(out_dir: Path) -> Path:
          "LD = Css × Vd / F = 20 mg/L × 50 L = 1,000 mg."),
     ])
 
-    page_break(doc)
     doc.add_heading("Selected References", level=1)
     para(doc, "Every reference below was checked in PubMed. A citation shows a source exists; open it to see whether it supports the claim.", italic=True)
     bullets(doc, [
         "Stevens DL, et al. IDSA practice guidelines for skin and soft tissue infections, 2014 update. [PMID:24973422]",
         "Talan DA, et al. Trimethoprim-sulfamethoxazole versus placebo for uncomplicated skin abscess. N Engl J Med 2016. [PMID:26962903]",
-        "Malachowa N, et al. Community-associated MRSA and athletes. Phys Sportsmed 2012. [PMID:22759601]",
+        "Malachowa N, Kobayashi SD, DeLeo FR. Community-associated MRSA and athletes. Phys Sportsmed 2012. [PMID:22759601]",
         "Amagai M, et al. Toxin in bullous impetigo and staphylococcal scalded-skin syndrome targets desmoglein 1. Nat Med 2000. [PMID:11062541]",
+        "Boyle-Vavra S, Daum RS. Community-acquired MRSA: the role of Panton-Valentine leukocidin. Lab Invest 2007. [PMID:17146447]",
+        "Zähringer U, et al. TLR2 - promiscuous or specific? Immunobiology 2008. [PMID:18406368]",
         "Messina CG, et al. Catalase negative S. aureus retain virulence in a mouse model of CGD. FEBS Lett 2002. [PMID:11997027]",
     ])
 
