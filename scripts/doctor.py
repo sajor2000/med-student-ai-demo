@@ -182,6 +182,8 @@ def main(argv: list[str] | None = None) -> int:
         print(f"{r.status} {r.name}{tag}: {r.detail}")
         if r.status != OK and r.fix:
             print(f"     fix: {r.fix}")
+    print("\nBefore using real course materials, confirm your school's AI policy allows it"
+          " - see docs/RESPONSIBLE-USE.md")
     return exit_code(results)
 
 

@@ -5,6 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
+        Follow your institution's AI policy; never include course content or patient information.
+
         **Paste NO course content and NO patient information.** No slide text, notes, exam
         material, or patient details, in logs, screenshots, or files. Describe the problem
         in your own words or reproduce it with the synthetic file in `sample/`.

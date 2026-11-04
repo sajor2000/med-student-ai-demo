@@ -10,6 +10,8 @@ This tool handles course files and, if misused, could expose them. Report any of
 - A script behavior that sends data somewhere the docs do not describe.
 - A vulnerability in the scripts.
 
+Follow your institution's AI policy; never include course content or patient information in a report.
+
 ## How to report
 
 **Do not open a public issue or PR.** Use a private security advisory:

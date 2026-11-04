@@ -4,7 +4,7 @@ labels: [enhancement]
 body:
   - type: markdown
     attributes:
-      value: Do not paste course content or patient information.
+      value: Follow your institution's AI policy; never include course content or patient information.
   - type: textarea
     id: problem
     attributes:

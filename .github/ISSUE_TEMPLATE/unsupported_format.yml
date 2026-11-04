@@ -5,6 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
+        Follow your institution's AI policy; never include course content or patient information.
+
         **Do not attach your real course files** (copyright, and your school's rules). Describe
         the format, or attach a synthetic file with the same structure and made-up content.
   - type: input

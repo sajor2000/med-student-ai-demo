@@ -14,6 +14,8 @@ or sharpen a skill are the most useful.
 Only the synthetic material in `sample/` and `examples/` belongs here. If you commit
 something private by accident, follow [SECURITY.md](SECURITY.md); do not open a public issue.
 
+**Follow your institution's AI policy; never include course content or patient information.** See [NOTICE.md](NOTICE.md).
+
 ## Set up and test
 
 ```bash

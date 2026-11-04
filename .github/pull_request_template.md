@@ -1,5 +1,7 @@
 ## What and why
 
+Reminder: Follow your institution's AI policy; never include course content or patient information.
+
 ## Checklist
 
 - [ ] Tests green: `uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q`

@@ -1,7 +1,17 @@
 # For faculty and curriculum deans
 
+**AI powers learning; it does not replace it.** This is an educational demonstration: the
+AI drafts, cites, and quizzes, and the student does the retrieving, explaining, and reviewing.
+
 One page. Students may ask your permission to use this tool; here is what it is and
 what to decide.
+
+## Institutional policy comes first
+
+Nothing here overrides your school's AI, data, and academic-integrity policies. Students
+must confirm those policies allow uploading course content to an AI tool before they use real
+materials. The licenses grant no rights to your course materials. See
+[RESPONSIBLE-USE.md](RESPONSIBLE-USE.md) and [NOTICE.md](../NOTICE.md).
 
 ## What it does
 

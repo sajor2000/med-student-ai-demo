@@ -104,3 +104,9 @@ def test_report_has_one_line_fix_per_problem(doctor, monkeypatch, capsys):
 def test_parse_node_major(doctor):
     assert doctor.parse_major("v24.1.0") == 24
     assert doctor.parse_major("garbage") is None
+
+
+def test_final_policy_reminder(doctor, monkeypatch, capsys):
+    patch_all_ok(doctor, monkeypatch)
+    doctor.main([])
+    assert "docs/RESPONSIBLE-USE.md" in capsys.readouterr().out.splitlines()[-1]
