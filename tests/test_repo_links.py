@@ -97,3 +97,12 @@ def test_demo_walkthrough_shows_every_screenshot_and_keeps_them_small():
     for target in LINK.findall(walkthrough):
         if not re.match(r"[a-z]+:", target):
             assert (ROOT / "docs" / target).exists(), target
+
+
+def test_demo_screenshots_are_all_different():
+    import hashlib
+    seen = {}
+    for png in sorted((ROOT / "docs" / "img" / "demo").glob("*.png")):
+        digest = hashlib.sha256(png.read_bytes()).hexdigest()
+        assert digest not in seen, f"{png.name} duplicates {seen[digest]}"
+        seen[digest] = png.name

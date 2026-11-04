@@ -19,7 +19,7 @@ The times are what the machine took, not what you will say; talk over the waitin
 | `/ingest sample` | 88 s |
 | `/study-guide sample` | 3 to 4 min (196 s and 243 s on two runs) |
 | `check.py` on the guide, then on the cards | under 1 s each (PubMed lookups included) |
-| `/flashcards sample 14` | 97 s, then `export.py` in under 1 s |
+| `/flashcards sample 14` | 97 to 152 s on two clean runs, then `export.py` in under 1 s |
 | `/quiz sample 3`, first question | 33 s |
 | `/vignette sample 2`, first question | 87 s, then 7 to 40 s per turn |
 | Asking the discrepancy question | 32 s |
