@@ -133,6 +133,8 @@ def spec_type_problems(spec: dict) -> list[str]:
                 continue
             if not isinstance(item.get("id"), str):
                 probs.append(f"{kind} #{i}: id is missing or not a string")
+            elif re.search(r"[/\\\x00]", item["id"]):
+                probs.append(f"{kind} {item['id']!r}: id must not contain path separators or NUL")
             if kind == "node" and "label" not in item:
                 probs.append(f"{kind} {item['id'] if isinstance(item.get('id'), str) else '#' + str(i)}: label is missing")
             ident = item.get("id") if isinstance(item.get("id"), str) else f"#{i}"
@@ -149,7 +151,7 @@ def validate(spec: dict, texts: list[dict]) -> tuple[list[str], dict]:
     for n in spec.get("nodes", []):
         want[n["id"]] = {"kind": "node", "label": n["label"], "cite": n.get("cite", "")}
     for e in spec.get("edges", []):
-        if e.get("label"):
+        if str(e.get("label") or "").strip():
             want[e["id"]] = {"kind": "edge", "label": e["label"], "cite": e.get("cite", "")}
     found: dict[str, dict] = {}
     for t in texts:

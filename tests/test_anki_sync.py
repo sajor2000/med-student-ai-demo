@@ -520,3 +520,21 @@ def test_malformed_ankiconnect_reply_is_ankierror(anki_mod, raw):
 
 def test_uncited_weak_spot_uses_source_needed_marker(anki_mod):
     assert anki_mod.first_cite({"Back": "no citation here"}) == "[source needed]"
+
+
+def test_sidecar_write_is_atomic(anki_mod, tmp_path, monkeypatch):
+    case = tmp_path / "case-1"
+    case.mkdir()
+    sidecar = case / ".weak-spots-synced.json"
+    sidecar.write_text(json.dumps({"synced": ["a"]}), encoding="utf-8")
+    real = Path.write_text
+
+    def boom(self, *a, **k):
+        real(self, "{trunc", encoding="utf-8")
+        raise OSError("disk full")
+
+    monkeypatch.setattr(Path, "write_text", boom)
+    with pytest.raises(OSError):
+        anki_mod.append_weak_spots(case, [{"id": "b", "discipline": "d", "topic": "t", "cite": "c"}])
+    monkeypatch.setattr(Path, "write_text", real)
+    assert json.loads(sidecar.read_text(encoding="utf-8")) == {"synced": ["a"]}
