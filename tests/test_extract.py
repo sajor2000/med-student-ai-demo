@@ -112,3 +112,33 @@ def test_prints_policy_reminder(extract, tmp_path, capsys):
     (src / "a.txt").write_text("x")
     run(extract, src, tmp_path / "out")
     assert "Follow your school's AI policy" in capsys.readouterr().out
+
+
+def test_same_stem_files_do_not_overwrite(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    make_pdf(src / "Renal.pdf", ["Slide text"])
+    (src / "Renal.vtt").write_text("WEBVTT\n\n00:00:01.000 --> 00:00:05.000\nSpoken text.\n")
+    (src / "Renal.txt").write_text("Typed text.")
+    m = run(extract, src, tmp_path / "out")
+    notes = {f["source"]: f["notes"] for f in m["files"]}
+    assert len(set(notes.values())) == 3
+    assert "Slide text" in (tmp_path / "out" / "Renal.md").read_text()
+    assert "Spoken text." in (tmp_path / "out" / "Renal (vtt).md").read_text()
+    assert "Typed text." in (tmp_path / "out" / "Renal (txt).md").read_text()
+
+
+def test_literal_comparisons_survive_but_subtitle_tags_go(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "a.vtt").write_text(
+        "WEBVTT\n\n00:00:01.000 --> 00:00:05.000\n<v Dr Lee><i>GFR < 60 indicates CKD; GFR > 90 is normal.</i></v>\n\n"
+        "00:00:06.000 --> 00:00:08.000\n<c.yellow>Hello</c> <00:00:07.000>there <b>bold</b>\n"
+    )
+    (src / "b.srt").write_text("1\n00:00:01,000 --> 00:00:03,000\n<font color=\"red\">Na < 135 is low</font>\n")
+    run(extract, src, tmp_path / "out")
+    a = (tmp_path / "out" / "a.md").read_text()
+    assert "GFR < 60 indicates CKD; GFR > 90 is normal." in a
+    assert "Hello there bold" in a
+    assert "<" not in a.split("Source:")[1].replace("< 60", "").replace("<br", "")
+    assert "Na < 135 is low" in (tmp_path / "out" / "b.md").read_text()

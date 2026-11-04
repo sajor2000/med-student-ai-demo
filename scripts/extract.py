@@ -32,7 +32,12 @@ SKIP = {".DS_Store"}
 NO_TEXT = "[no text on this page — scanned slide]"
 CHUNK_SECONDS = 60
 TS = re.compile(r"(?:(\d+):)?(\d{1,2}):(\d{2})[.,]\d{1,3}\s*-->")
-TAG = re.compile(r"<[^>]+>")
+TAG = re.compile(
+    r"</?(?:v|c|i|b|u|ruby|rt|rp|font|lang)(?:[.\s][^<>]*)?>"  # known subtitle tags only
+    r"|<\d+:\d{2}(?::\d{2})?\.\d{1,3}>",  # inline timestamp tags
+    re.I,
+)
+PRIORITY = [".pptx", ".pdf", ".docx", ".txt", ".md", ".vtt", ".srt"]
 
 
 def slug(text: str) -> str:
@@ -176,7 +181,9 @@ def main(argv: list[str] | None = None) -> int:
 
     manifest = []
     skipped = []
-    for path in sorted(src.rglob("*")):
+    taken: set[Path] = set()  # destination notes files already written
+    files = sorted(src.rglob("*"), key=lambda q: (PRIORITY.index(q.suffix.lower()) if q.suffix.lower() in PRIORITY else 99, str(q)))
+    for path in files:
         if not path.is_file() or path.name in SKIP or path.name.startswith("~$"):
             continue
         ext = path.suffix.lower()
@@ -206,6 +213,9 @@ def main(argv: list[str] | None = None) -> int:
             skipped.append(f"{rel} (error: {exc.__class__.__name__})")
             continue
         dest = args.out / rel.with_suffix(".md")
+        if dest in taken:  # Renal.pdf and Renal.vtt: keep both citable
+            dest = dest.with_name(f"{rel.stem} ({ext[1:]}).md")
+        taken.add(dest)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(md, encoding="utf-8")
         manifest.append(
