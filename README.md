@@ -89,7 +89,8 @@ Skills are slash commands: `/ingest`, `/flashcards`, ...
 </td><td>
 
 ```bash
-codex mcp login paperclip   # once, before the first session
+codex mcp add paperclip --url https://paperclip.gxl.ai/mcp   # once: register for sign-in
+codex mcp login paperclip                                    # once: sign in
 codex
 ```
 Codex reads `AGENTS.md`, `.agents/skills/`, and `.codex/config.toml` here. Name a skill in your prompt, for example "use the ingest skill on <case>".
