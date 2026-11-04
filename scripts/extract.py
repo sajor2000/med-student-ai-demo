@@ -162,6 +162,8 @@ def transcript_to_md(path: Path) -> tuple[str, int]:
     chunks: list[tuple[int, list[str]]] = []
     for cue in re.split(r"\n\s*\n", raw):
         cl = cue.strip().splitlines()
+        if cl and re.match(r"(NOTE|STYLE|REGION)(\s|$)", cl[0]):
+            continue  # WebVTT metadata block, never transcript text
         idx = next((k for k, ln in enumerate(cl) if TS.search(ln)), None)
         if idx is None:
             continue  # WEBVTT header, NOTE, or cue number alone
@@ -188,6 +190,11 @@ def main(argv: list[str] | None = None) -> int:
     src: Path = args.input_dir.expanduser().resolve()
     if not src.is_dir():
         print(f"not a folder: {src}", file=sys.stderr)
+        return 2
+
+    out = args.out.expanduser().resolve()
+    if out == src or src in out.parents:
+        print(f"--out must not be the input folder or inside it (would overwrite sources): {out}", file=sys.stderr)
         return 2
 
     manifest = []
@@ -226,6 +233,10 @@ def main(argv: list[str] | None = None) -> int:
         dest = args.out / rel.with_suffix(".md")
         if dest in taken:  # Renal.pdf and Renal.vtt: keep both citable
             dest = dest.with_name(f"{rel.stem} ({ext[1:]}).md")
+            k = 2
+            while dest in taken:  # fallback name itself already used
+                dest = dest.with_name(f"{rel.stem} ({ext[1:]} {k}).md")
+                k += 1
         taken.add(dest)
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_text(md, encoding="utf-8")

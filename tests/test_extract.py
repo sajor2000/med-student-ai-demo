@@ -175,3 +175,39 @@ def test_ingest_skill_links_resolve():
     for target in re.findall(r"\]\(([^)#]+)(?:#[^)]*)?\)", skill.read_text()):
         if "://" not in target:
             assert (skill.parent / target).resolve().exists(), target
+
+
+def test_fallback_names_never_collide(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    make_pdf(src / "report.pdf", ["slide text"])
+    (src / "report.md").write_text("Markdown body.")
+    (src / "report (md).txt").write_text("Text body.")
+    m = run(extract, src, tmp_path / "out")
+    notes = [f["notes"] for f in m["files"]]
+    assert len(notes) == 3 and len(set(notes)) == 3
+    for f in m["files"]:
+        assert (tmp_path / f["notes"] if not f["notes"].startswith("/") else __import__("pathlib").Path(f["notes"])).exists()
+
+
+def test_output_inside_input_is_rejected_and_inputs_survive(extract, tmp_path, capsys):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "guide.md").write_text("Original body.")
+    assert extract.main([str(src), "--out", str(src)]) == 2
+    assert (src / "guide.md").read_text() == "Original body."
+    assert extract.main([str(src), "--out", str(src / "sub")]) == 2
+
+
+def test_vtt_note_style_region_blocks_are_not_transcript(extract, tmp_path):
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "t.vtt").write_text(
+        "WEBVTT\n\nNOTE\n00:00:05.000 --> 00:00:06.000 leaked note\n\n"
+        "STYLE\n::cue { color: red }\n00:00:07.000 --> 00:00:08.000\nleaked style\n\n"
+        "REGION\nid:r1\n\n"
+        "00:00:01.000 --> 00:00:04.000\nReal cue.\n"
+    )
+    run(extract, src, tmp_path / "out")
+    txt = (tmp_path / "out" / "t.md").read_text()
+    assert "Real cue." in txt and "leaked" not in txt
