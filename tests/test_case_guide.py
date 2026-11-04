@@ -88,3 +88,33 @@ def test_default_run_without_soffice_never_writes_a_docx_into_the_input_folder(t
     with pytest.raises(SystemExit) as e:
         mod.main()
     assert "LibreOffice" in str(e.value) and not list(tmp_path.iterdir())
+
+
+def test_libreoffice_profile_uri_is_valid_on_windows_paths():
+    import importlib.util
+    from pathlib import PureWindowsPath
+    pytest.importorskip("docx")
+    spec = importlib.util.spec_from_file_location("mcg3", ROOT / "scripts" / "make_case_guide.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    assert mod.profile_uri(PureWindowsPath(r"C:\Users\me\AppData\Local\Temp\lo profile")) == \
+        "file:///C:/Users/me/AppData/Local/Temp/lo%20profile"
+
+
+def test_to_pdf_passes_the_profile_as_a_file_uri(tmp_path, monkeypatch):
+    import importlib.util
+    pytest.importorskip("docx")
+    spec = importlib.util.spec_from_file_location("mcg4", ROOT / "scripts" / "make_case_guide.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    seen = {}
+
+    def fake_run(cmd, **kw):
+        seen["cmd"] = cmd
+        (tmp_path / mod.PDF_FILENAME).write_bytes(b"%PDF")
+        return subprocess.CompletedProcess(cmd, 0, "", "")
+
+    monkeypatch.setattr(mod.subprocess, "run", fake_run)
+    mod.to_pdf(tmp_path / "x.docx", tmp_path, "soffice")
+    env = [a for a in seen["cmd"] if a.startswith("-env:UserInstallation=")][0]
+    assert env.startswith("-env:UserInstallation=file:///")

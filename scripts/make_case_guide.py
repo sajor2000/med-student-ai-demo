@@ -491,11 +491,16 @@ def find_soffice() -> str | None:
     return shutil.which("soffice") or (SOFFICE_APP if Path(SOFFICE_APP).exists() else None)
 
 
+def profile_uri(path) -> str:
+    """file:// URI for a LibreOffice profile folder; as_uri() is also right for Windows drive paths."""
+    return path.as_uri()
+
+
 def to_pdf(docx: Path, out_dir: Path, soffice: str) -> Path:
     """Convert with LibreOffice into out_dir; the PDF is named like the .docx."""
     out_dir.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory() as profile:  # private profile: no clash with a running LibreOffice
-        cmd = [soffice, f"-env:UserInstallation=file://{profile}", "--headless", "--convert-to", "pdf",
+        cmd = [soffice, f"-env:UserInstallation={profile_uri(Path(profile))}", "--headless", "--convert-to", "pdf",
                "--outdir", str(out_dir), str(docx)]
         done = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
     pdf = out_dir / PDF_FILENAME
