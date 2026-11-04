@@ -20,6 +20,10 @@ What it checks:
   - every study-guide bullet, numbered item, and table row has a citation,
     `[source needed]` (reported as a warning), or an `(AI mnemonic)` /
     `(AI analogy)` label. The Self-test section is exempt.
+  - a diagram spec (.json: title, nodes, edges) has unique valid ids, edges that
+    join existing nodes, and a citation on every node and every labeled edge
+  - a citation into an output/ or art/ folder is always unresolved: AI
+    illustrations are memory aids, not sources
 
 What PASS does NOT mean: that the source actually says what the card says.
 Open one or two cited slides/PMIDs and compare before you study a deck.
@@ -35,8 +39,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import functools
 import json
 import os
+import posixpath
 import re
 import sys
 import time
@@ -92,11 +98,47 @@ def pubmed_summaries(pmids: list[str]) -> dict[str, dict]:
     return out
 
 
+ART_WHY = "AI illustrations are memory aids, not sources"
+ID_OK = re.compile(r"^[a-z0-9-]{1,40}$")
+
+
+def _norm_cite_path(rel: str) -> str:
+    return posixpath.normpath(rel.strip().replace("\\", "/"))
+
+
+def is_art_path(rel: str) -> bool:
+    """True for a citation path inside an output or art folder (AI illustrations are never sources)."""
+    parts = _norm_cite_path(rel).split("/")
+    return parts[0] == "output" or "art" in parts[:-1]
+
+
+def escapes_notes(rel: str) -> bool:
+    """True for a normalized citation path that climbs out of the notes folder or names output/art."""
+    norm = _norm_cite_path(rel)
+    parts = norm.split("/")
+    return norm.startswith("..") or posixpath.isabs(norm) or "output" in parts or "art" in parts
+
+
+@functools.lru_cache(maxsize=None)
+def read_notes(path: Path) -> str | None:
+    try:
+        return path.read_text(encoding="utf-8")
+    except FileNotFoundError:
+        return None
+
+
 def anchor_exists(notes_dir: Path, rel: str, anchor: str) -> tuple[bool, str]:
-    f = notes_dir / (rel.strip() + ".md")
-    if not f.exists():
+    if is_art_path(rel):
+        return False, ART_WHY
+    outside = "points outside the notes folder"
+    if escapes_notes(rel):
+        return False, outside
+    f = notes_dir / (_norm_cite_path(rel) + ".md")
+    if not f.resolve().is_relative_to(notes_dir.resolve()):
+        return False, outside
+    text = read_notes(f)
+    if text is None:
         return False, f"no notes file {f}"
-    text = f.read_text(encoding="utf-8")
     if f"[{anchor}]" not in text:
         return False, f"{anchor} not found in {f.name}"
     return True, ""
@@ -148,18 +190,101 @@ def uncited_guide_lines(path: Path) -> tuple[list[str], list[str]]:
     return uncited, needed
 
 
+def has_citation(text: str) -> bool:
+    return bool(COURSE.search(text) or PMID.search(text))
+
+
+def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
+    """Validate a diagram spec: ((label, cite text) pairs, structural problems, summary)."""
+    try:
+        spec = json.loads(path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        return [], [f"not valid JSON ({exc})"], "diagram spec"
+    if not isinstance(spec, dict):
+        return [], ["diagram spec must be a JSON object with title, nodes, and edges"], "diagram spec"
+    problems: list[str] = []
+    if not str(spec.get("title") or "").strip():
+        problems.append("spec needs a non-empty title")
+    nodes, edges = spec.get("nodes"), spec.get("edges", [])
+    if not isinstance(nodes, list) or not nodes:
+        problems.append("spec needs a non-empty list of nodes")
+        nodes = []
+    if not isinstance(edges, list):
+        problems.append("edges must be a list")
+        edges = []
+    units: list[tuple[str, str]] = []
+    seen: set[str] = set()
+    node_ids: set[str] = set()
+
+    def check_id(kind: str, i: int, item: dict) -> str:
+        ident = item.get("id")
+        name = f"{kind} {ident!r}" if isinstance(ident, str) and ident else f"{kind} #{i}"
+        if not isinstance(ident, str) or not ID_OK.match(ident):
+            problems.append(f"{name}: invalid id (use 1-40 chars of a-z, 0-9, -)")
+        elif ident in seen:
+            problems.append(f"{name}: duplicate id")
+        else:
+            seen.add(ident)
+        return name
+
+    for i, n in enumerate(nodes, 1):
+        if not isinstance(n, dict):
+            problems.append(f"node #{i}: must be an object")
+            continue
+        name = check_id("node", i, n)
+        if isinstance(n.get("id"), str):
+            node_ids.add(n["id"])
+        if "label" in n and not isinstance(n["label"], str):
+            problems.append(f"{name}: label must be a string")
+        elif not str(n.get("label") or "").strip():
+            problems.append(f"{name}: missing label")
+        cite = n.get("cite") or ""
+        if not isinstance(cite, str):
+            problems.append(f"{name}: cite must be a string")
+            cite = ""
+        if not has_citation(cite):
+            problems.append(f"{name}: no citation")
+        units.append((name, cite))
+    for i, e in enumerate(edges, 1):
+        if not isinstance(e, dict):
+            problems.append(f"edge #{i}: must be an object")
+            continue
+        name = check_id("edge", i, e)
+        for end in ("from", "to"):
+            target = e.get(end)
+            if not isinstance(target, str) or target not in node_ids:
+                problems.append(f"{name}: {end} {e.get(end)!r} is not a node id")
+        cite = e.get("cite") or ""
+        if not isinstance(cite, str):
+            problems.append(f"{name}: cite must be a string")
+            cite = ""
+        if "label" in e and not isinstance(e["label"], str):
+            problems.append(f"{name}: label must be a string")
+        elif str(e.get("label") or "").strip() and not has_citation(cite):
+            problems.append(f"{name}: labeled edge has no citation")
+        units.append((name, cite))
+    return units, problems, f"{len(nodes)} nodes, {len(edges)} edges"
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("file", type=Path)
     ap.add_argument("--notes", type=Path, required=True, help="folder made by extract.py")
     args = ap.parse_args()
 
-    units, problems = load_units(args.file)
+    if not args.file.is_file():
+        print(f"FAIL: no such file {args.file}")
+        return 1
+    is_spec = args.file.suffix.lower() == ".json"
+    if is_spec:
+        units, problems, summary = spec_units(args.file)
+    else:
+        units, problems = load_units(args.file)
     is_deck = args.file.suffix.lower() == ".csv"
     course_refs = 0
     pmids: dict[str, str] = {}
     needed: list[str] = []
-    if not is_deck:
+    if not is_deck and not is_spec:
         uncited, needed = uncited_guide_lines(args.file)
         problems.extend(uncited)
 
@@ -195,7 +320,7 @@ def main() -> int:
                 problems.append(f"{label}: PMID:{p} is a RETRACTED publication")
             print(f"  PMID:{p}  {rec.get('pubdate', '')[:4]}  {rec.get('title', '')[:100]}")
 
-    kind = f"{len(units)} cards" if is_deck else "study guide"
+    kind = summary if is_spec else f"{len(units)} cards" if is_deck else "study guide"
     print(f"\n{args.file.name} ({kind}): {course_refs} course citations, {len(pmids)} PubMed citations")
     for n in needed:
         print(f"  WARN [source needed] {n}")
@@ -204,7 +329,7 @@ def main() -> int:
         for p in problems:
             print(f"  - {p}")
         return 1
-    print("PASS: every citation resolves" + ("" if is_deck else " and every fact line is cited"))
+    print("PASS: every citation resolves" + ("" if is_deck or is_spec else " and every fact line is cited"))
     print("Next: spot-check 2-3 citations yourself. PASS means the sources exist, not that they support the claim.")
     return 0
 

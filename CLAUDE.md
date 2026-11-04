@@ -21,7 +21,9 @@ source the student can open.
 
 1. Cite course material as `[[<path under notes/<case>/, no .md>#<anchor>]]`,
    where the anchor is `S12` (slide 12), `P34` (Word paragraph 34), or `T2`
-   (Word table 2). Example: `[[MICRO/Staph aureus#S3]]`. Cite PubMed as
+   (Word table 2). Example: `[[MICRO/Staph aureus#S3]]`. Copy paths exactly as they appear in `notes/`, with spaces,
+   parentheses and `&` written verbatim and never URL-escaped:
+   `[[GUIDE/Self Study Guide 01 Smith & Lee#P561]]`. Cite PubMed as
    `[PMID:12345678]`.
 2. **Never write a PMID you did not get from a PubMed tool call in this
    session.** No PMIDs from memory. If you cannot find a source, write
@@ -40,6 +42,17 @@ source the student can open.
    off topic.
 6. A PASS means the sources **exist**, not that they **support** the claim.
    Tell the student this and point them to one citation worth opening.
+
+## Diagrams, AI illustrations, and Anki sync
+
+- A diagram is a **cited spec** (`output/<case>/diagrams/<slug>.json`): every node has a label and a citation,
+  and every labeled edge has one. Run `uv run scripts/check.py <spec> --notes notes/<case>` and fix every
+  failure, exactly as for a deck. The picture is rendered from the spec, never the other way round.
+- AI illustrations (`/mnemonic-art`) are memory aids. Always keep their "AI illustration - not a reference"
+  label. Never cite one, never put one in a guide as evidence, and never put patient details in the prompt.
+  Show the prompt and get a yes before it goes to OpenRouter.
+- `/anki-sync` only touches notes tagged `msad` in the deck `AI Study::<case>`. Never edit or delete other
+  notes or decks.
 
 ## Trusted source ladder (use the highest rung that answers the question)
 

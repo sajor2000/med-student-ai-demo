@@ -1,0 +1,79 @@
+{
+  "title": "S. aureus toxins",
+  "type": "flowchart",
+  "nodes": [
+    {
+      "id": "n1",
+      "label": "Exfoliative toxin",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "n2",
+      "label": "Desmoglein-1",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "n3",
+      "label": "Scalded skin syndrome",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "n4",
+      "label": "TSST-1 superantigen",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "n5",
+      "label": "Massive cytokine release",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "n6",
+      "label": "Toxic shock syndrome",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "n7",
+      "label": "Heat-stable enterotoxin",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "n8",
+      "label": "Vomiting within 1-6 h",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "from": "n1",
+      "to": "n2",
+      "label": "cleaves",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "e2",
+      "from": "n2",
+      "to": "n3"
+    },
+    {
+      "id": "e3",
+      "from": "n4",
+      "to": "n5",
+      "label": "causes",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    },
+    {
+      "id": "e4",
+      "from": "n5",
+      "to": "n6"
+    },
+    {
+      "id": "e5",
+      "from": "n7",
+      "to": "n8",
+      "label": "causes",
+      "cite": "[[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+    }
+  ]
+}

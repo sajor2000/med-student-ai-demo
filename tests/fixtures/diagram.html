@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>S. aureus toxins (synthetic fixture)</title>
+<style>
+  body { margin: 0; padding: 48px 64px; background: #ffffff; font-family: sans-serif; }
+  h1 { font-size: 28px; margin: 0 0 32px 0; }
+  svg { display: block; width: 100%; max-width: 480px; }
+  text { font-family: sans-serif; font-size: 14px; fill: #111111; }
+</style>
+</head>
+<body>
+<h1>S. aureus toxins</h1>
+<svg viewBox="0 0 600 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="S. aureus toxins">
+  <text data-decorative="true" x="20" y="24" font-size="12">Synthetic fixture legend</text>
+  <g transform="translate(10 10)">
+    <rect x="10" y="60" width="150" height="40" fill="#ffffff" stroke="#333333"/>
+    <text data-node="n1" x="20" y="85">Exfoliative toxin</text>
+    <rect x="300" y="60" width="130" height="40" fill="#ffffff" stroke="#333333"/>
+    <text data-node="n2" x="310" y="85">Desmoglein-1</text>
+    <line x1="160" y1="80" x2="300" y2="80" stroke="#333333"/>
+    <text data-node="e1" x="205" y="72">cleaves</text>
+    <rect x="300" y="170" width="190" height="40" fill="#ffffff" stroke="#333333"/>
+    <text data-node="n3" x="310" y="195">Scalded skin syndrome</text>
+    <line x1="365" y1="100" x2="365" y2="170" stroke="#333333"/>
+    <rect x="10" y="170" width="100" height="40" fill="#ffffff" stroke="#333333"/>
+    <text data-node="n4" x="20" y="195">PBP2a</text>
+  </g>
+</svg>
+<script>
+  /* Must never run: occlude.py loads this page with JavaScript disabled. */
+  document.querySelector('[data-node="n1"]').textContent = 'TAMPERED BY SCRIPT';
+</script>
+</body>
+</html>

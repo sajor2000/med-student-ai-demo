@@ -32,10 +32,10 @@ Image Library**.
 | Agent harness | **OpenCode**, **Aider**, **Goose**, **Cline** (Claude Code / Codex are not open source) | All can read `CLAUDE.md`/`AGENTS.md`-style rules and call MCP servers |
 | Literature tools | **PubMed MCP server** (`@cyanheads/pubmed-mcp-server`), **Zotero** + a Zotero MCP server | Zotero becomes your personal citation library |
 | Local / private models | **Ollama** or **LM Studio** with open-weight models (Llama, Qwen, Gemma, gpt-oss) | Course files stay on your laptop; weaker at accuracy, so run the citation check |
-| Flashcards | **Anki** (open source) + **FSRS** scheduler, **genanki** (build `.apkg` in Python), **AnkiConnect** (agent reads your review stats) | Lets the agent see which cards you miss and write new ones on those weak spots |
+| Flashcards | **Anki** (open source) + **FSRS** scheduler, **genanki** (build `.apkg` in Python), **AnkiConnect** (open source; wired into `/anki-sync`, which adds your cards and reads which ones you miss) | Lets the agent see which cards you miss and write new ones on those weak spots |
 | Notes / knowledge base | **Logseq** (open source), **Obsidian** (free, closed), plain Markdown + git | `[[wikilinks]]` match this repo's citation style |
 | Document conversion | **pandoc**, **python-pptx**, **python-docx**, **Docling**, **MarkItDown** | Turn slides and PDFs into text the agent can cite |
-| Diagrams / concept maps | **Mermaid** | Agent draws the micro → immuno → path → pharm map in text |
+| Diagrams / concept maps | **Mermaid**; **diagram-design** (MIT, by cathrynlavery; wired into `/visualize`) | Agent draws the micro → immuno → path → pharm map in text, or a cited diagram that becomes Image Occlusion cards |
 | Verification / CI | **GitHub Actions** running `scripts/check.py` | In a *private* study-group repo, the build fails if any citation breaks |
 
 ## 3. Ideas: how M1/M2 students could use the loop

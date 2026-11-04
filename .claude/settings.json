@@ -4,6 +4,8 @@
       "Bash(uv run scripts/extract.py:*)",
       "Bash(uv run scripts/check.py:*)",
       "Bash(uv run scripts/export.py:*)",
+      "Bash(uv run scripts/occlude.py:*)",
+      "Bash(uv run scripts/anki_sync.py:*)",
       "mcp__pubmed",
       "mcp__paperclip"
     ]
