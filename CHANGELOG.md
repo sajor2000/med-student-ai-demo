@@ -10,6 +10,7 @@ All notable changes are documented here. Format follows
 - `docs/img/skill-map.svg`, a diagram of every skill and when to use it, plus a "Which skill when" section in the README.
 
 ### Fixed
+- `check.py`: diagrams citing a case guide named after its (fictional) case patient pass again; citation paths are checked by citation resolution, not the name screen.
 - Security and privacy hardening from the final audit. `check.py` now runs the PHI gate over all diagram spec text (title, node and edge labels, any other free-text field), not just vignettes. `export.py` strips `javascript:`, `data:`, and `vbscript:` URLs from the rendered source pages. `anki_sync.py` and `occlude.py --apkg` refuse diagram images and card assets that are not a `.png` inside the diagrams folder (absolute paths, `..`, and symlinks are rejected). `extract.py --out '~/notes'` now writes to the expanded path. A plan doc no longer names the maintainer's school.
 - `scripts/export.py` escaped course-citation labels twice, so an "&" in a notes path showed as "&amp;" on the study page. Labels are now escaped once. A test also pins `white-space: pre-wrap` on vignette stems so line breaks stay.
 - `docs/diagram-teaching-profile.md` linked to four files that only exist in the upstream diagram-design repo; the links now point there. The link test covers every page under `docs/`.

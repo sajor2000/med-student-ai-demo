@@ -556,6 +556,20 @@ def test_diagram_citation_with_trailing_name_fails_closed(check, tmp_path, monke
 
 
 def test_diagram_citation_path_with_name_fails_closed(check, tmp_path, monkeypatch, capsys):
+    # A made-up path with a name is not a notes file, so the citation check fails it.
     path = spec_copy(tmp_path, lambda s: s["nodes"][0].update(cite="[[MICRO/Jane Smith#S1]]"))
     code, out = run_spec(check, path, monkeypatch, capsys)
-    assert code == 1 and "PHI" in out, out
+    assert code == 1 and "MICRO/Jane Smith" in out, out
+
+
+def test_diagram_citing_a_case_guide_named_for_its_patient_passes(check, tmp_path, monkeypatch, capsys):
+    # Case guides are named after the (fictional) case patient; citing one is not PHI.
+    notes = tmp_path / "notes"
+    (notes / "GUIDE").mkdir(parents=True)
+    (notes / "GUIDE" / "Self Study Guide 02 Jordan Rivera.md").write_text("## [S4] Neutrophils\n\nRolling uses selectins.\n")
+    spec = tmp_path / "d.json"
+    spec.write_text('{"title": "Recruitment", "nodes": [{"id": "n1", "label": "Rolling", '
+                    '"cite": "[[GUIDE/Self Study Guide 02 Jordan Rivera#S4]]"}], "edges": []}')
+    code = run_main(check, [str(spec), "--notes", str(notes)], monkeypatch)
+    out = capsys.readouterr().out
+    assert code == 0 and "PASS" in out, out
