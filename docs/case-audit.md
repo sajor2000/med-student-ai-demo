@@ -1,7 +1,7 @@
 # Case audit: BMS 501 Case 2, Jordan Rivera (fictional)
 
 Audit of every factual claim in `scripts/make_case_guide.py` (case data, lab values, mechanisms, tables,
-formulas, and all six self-study questions). Run for the 2026-11-04 class demo. The patient, school, and faculty are invented;
+formulas, and all six self-study questions). The demo input is the generated PDF (`sample/curriculum/GUIDE/*.pdf`, converted from the same content with LibreOffice; the editable .docx is in `docs/sample-case/`), so the text audited here is the text students ingest. Run for the 2026-11-04 class demo. The patient, school, and faculty are invented;
 only the medicine is checked against real sources.
 
 **Tools:** PubMed MCP (`pubmed_fetch_articles`, `pubmed_search_articles`), Paperclip MCP (`evidence`), Tavily MCP

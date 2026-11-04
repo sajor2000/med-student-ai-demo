@@ -10,12 +10,20 @@ section per discipline with topics, objectives, notes, and self-study
 questions). The school, course, faculty, and patient are invented. Nothing
 here is copied from any real course.
 
-    uv run scripts/make_case_guide.py [--out sample/curriculum/GUIDE]
+    uv run scripts/make_case_guide.py [--out sample/curriculum/GUIDE] [--pdf | --no-pdf] [--docx DIR]
+
+The demo input is a PDF (a fictional M1 class handout). The .docx is built in a temp folder and converted
+with LibreOffice (`soffice --headless --convert-to pdf`), so the PDF keeps the fictional footer on every page.
+--pdf is on by default when `soffice` is on PATH (or in the macOS app bundle); --docx DIR also keeps the
+editable .docx there. Without a PDF, the .docx goes into --out instead.
 """
 
 from __future__ import annotations
 
 import argparse
+import shutil
+import subprocess
+import tempfile
 from pathlib import Path
 
 from docx import Document
@@ -29,7 +37,14 @@ SCHOOL = "Meridian College of Medicine (fictional)"
 COURSE = "BMS 501"
 COURSE_TITLE = "Foundations of Infection and Immunity"
 CASE = "Case 2: Jordan Rivera"
-FILENAME = "BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).docx"
+STEM = "BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample)"
+FILENAME = STEM + ".docx"
+PDF_FILENAME = STEM + ".pdf"
+NOTICE = (
+    "Educational demo. AI supports learning, it does not replace it. Real course materials belong to "
+    "your institution: follow its AI policy before uploading anything."
+)
+SOFFICE_APP = "/Applications/LibreOffice.app/Contents/MacOS/soffice"
 DISCLAIMER = (
     "FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. "
     "Invented school, faculty, and patient. Not affiliated with any medical school."
@@ -90,9 +105,29 @@ def grid(doc, header: list[str], rows: list[list[str]], fill="1F3A5F") -> None:
         run.bold = True
         run.font.color.rgb = RGBColor(0xFF, 0xFF, 0xFF)
     for row in rows:
-        cells = table.add_row().cells
-        for cell, text in zip(cells, row):
-            cell.text = text
+        new_row = table.add_row()
+        new_row._tr.get_or_add_trPr().append(OxmlElement("w:cantSplit"))  # a row never straddles two pages
+        cells = new_row.cells
+        for col, (cell, text) in enumerate(zip(cells, row)):
+            # Every value after the first column carries its column name ("Result: 14.2"). A PDF has no table
+            # structure, so text extraction reads cells one per line; the label keeps each value attached to
+            # its column even when a cell (such as an empty Flag) is blank.
+            cell.text = text if col == 0 else f"{header[col]}: {text or 'none'}"
+    # Keep the whole table on one page: with PDF page anchors, a citation to a table must name the page that
+    # holds all of it.
+    for row in table.rows[:-1]:
+        for cell in row.cells:
+            for p in cell.paragraphs:
+                p.paragraph_format.keep_with_next = True
+    # Column widths follow the longest cell so labelled values do not wrap mid-number.
+    labelled = [[row[0]] + [f"{header[c]}: {row[c] or 'none'}" for c in range(1, len(row))] for row in rows]
+    longest = [max(len(r[c]) for r in [header, *labelled] if c < len(r)) for c in range(len(header))]
+    total = 7.3  # usable page width in inches
+    table.autofit = False
+    for c, col in enumerate(table.columns):
+        col.width = Inches(total * max(longest[c], 8) / sum(max(n, 8) for n in longest))
+        for cell in col.cells:
+            cell.width = col.width
     doc.add_paragraph()
 
 
@@ -164,6 +199,9 @@ def build(out_dir: Path) -> Path:
     footer.text = DISCLAIMER
     footer.alignment = WD_ALIGN_PARAGRAPH.CENTER
     footer.runs[0].font.size = Pt(8)
+    note = sec.footer.add_paragraph(NOTICE)
+    note.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    note.runs[0].font.size = Pt(8)
 
     # Cover block
     para(doc, SCHOOL, size=12, align=WD_ALIGN_PARAGRAPH.CENTER, color=NAVY)
@@ -172,6 +210,7 @@ def build(out_dir: Path) -> Path:
     para(doc, CASE, bold=True, size=22, align=WD_ALIGN_PARAGRAPH.CENTER)
     para(doc, "Self-Study Guide · Week 2", italic=True, align=WD_ALIGN_PARAGRAPH.CENTER)
     para(doc, DISCLAIMER, italic=True, size=9, align=WD_ALIGN_PARAGRAPH.CENTER)
+    para(doc, NOTICE, italic=True, size=9, align=WD_ALIGN_PARAGRAPH.CENTER)
 
     doc.add_heading("TABLE OF CONTENTS", level=1)
     for line in [
@@ -432,11 +471,43 @@ def build(out_dir: Path) -> Path:
     return out
 
 
+def find_soffice() -> str | None:
+    return shutil.which("soffice") or (SOFFICE_APP if Path(SOFFICE_APP).exists() else None)
+
+
+def to_pdf(docx: Path, out_dir: Path, soffice: str) -> Path:
+    """Convert with LibreOffice into out_dir; the PDF is named like the .docx."""
+    out_dir.mkdir(parents=True, exist_ok=True)
+    with tempfile.TemporaryDirectory() as profile:  # private profile: no clash with a running LibreOffice
+        cmd = [soffice, f"-env:UserInstallation=file://{profile}", "--headless", "--convert-to", "pdf",
+               "--outdir", str(out_dir), str(docx)]
+        done = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+    pdf = out_dir / PDF_FILENAME
+    if done.returncode != 0 or not pdf.exists():
+        raise SystemExit(f"soffice could not convert {docx.name} to PDF: {done.stderr.strip() or done.stdout.strip()}")
+    return pdf
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--out", type=Path, default=Path("sample/curriculum/GUIDE"))
+    ap.add_argument("--pdf", action=argparse.BooleanOptionalAction, default=None,
+                    help="write the demo input as a PDF (default: on when soffice is available)")
+    ap.add_argument("--docx", type=Path, metavar="DIR", help="also keep the editable .docx in DIR")
     args = ap.parse_args()
-    print(f"Saved {build(args.out)}")
+    soffice = find_soffice()
+    want_pdf = soffice is not None if args.pdf is None else args.pdf
+    if want_pdf and not soffice:
+        raise SystemExit("--pdf needs LibreOffice: install it (brew install --cask libreoffice) or pass --no-pdf")
+    if not want_pdf:
+        print(f"Saved {build(args.docx or args.out)}")
+        return 0
+    with tempfile.TemporaryDirectory() as tmp:
+        docx = build(Path(tmp))
+        print(f"Saved {to_pdf(docx, args.out, soffice)}")
+        if args.docx:
+            args.docx.mkdir(parents=True, exist_ok=True)
+            print(f"Saved {shutil.copy(docx, args.docx / docx.name)}")
     return 0
 
 

@@ -9,19 +9,20 @@
       "words": 253
     },
     {
+      "source": "GUIDE/BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf",
+      "notes": "sample/notes/GUIDE/BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).md",
+      "kind": "slides",
+      "units": 9,
+      "words": 3180,
+      "image_only_pages": 0
+    },
+    {
       "source": "PHYS/Renal clearance.pdf",
       "notes": "sample/notes/PHYS/Renal clearance.md",
       "kind": "slides",
       "units": 4,
       "words": 156,
       "image_only_pages": 0
-    },
-    {
-      "source": "GUIDE/BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).docx",
-      "notes": "sample/notes/GUIDE/BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).md",
-      "kind": "document",
-      "units": 210,
-      "words": 2443
     }
   ],
   "skipped": []
