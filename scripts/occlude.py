@@ -277,6 +277,24 @@ def summary_lines(slug: str, labels: list[dict]) -> list[str]:
     return lines
 
 
+def confined_png(folder: Path, name: object) -> Path | None:
+    """folder/name resolved (symlinks too) if it is a .png that stays inside folder, else None.
+    Deliberate copy in anki_sync.py: each script stays standalone."""
+    if not isinstance(name, str) or not name:
+        return None
+    rel = Path(name)
+    if rel.is_absolute() or ".." in rel.parts:
+        return None  # aliases would package a different name than the card references
+    root = folder.resolve()
+    path = root / rel
+    probe = root
+    for part in rel.parts:
+        probe = probe / part
+        if probe.is_symlink():
+            return None
+    return path if path.suffix.lower() == ".png" and path.resolve().is_relative_to(root) else None
+
+
 def build_apkg(folder: Path, case: str) -> int:
     import genanki
     if not SAFE.fullmatch(case):
@@ -300,10 +318,14 @@ def build_apkg(folder: Path, case: str) -> int:
         data = json.loads(f.read_text(encoding="utf-8"))
         for lab in data["labels"]:
             for name in (lab["masked"], lab["highlight"]):
-                if not (folder / name).is_file():
-                    print(f"FAIL: missing {folder / name}; rerun occlude.py on {data['slug']}")
+                path = confined_png(folder, name)
+                if path is None:
+                    print(f"FAIL: {name!r} in {f.name} is outside {folder} or not a .png; rerun occlude.py on {data['slug']}")
                     return 1
-                media.append(str(folder / name))
+                if not path.is_file():
+                    print(f"FAIL: missing {path}; rerun occlude.py on {data['slug']}")
+                    return 1
+                media.append(str(path))
             back = f'<img src="{html.escape(lab["highlight"])}"><br>{back_extra(lab["label"], lab["cite"])}'
             deck.add_note(genanki.Note(model=model, fields=[f'<img src="{html.escape(lab["masked"])}">', back],
                                        guid=lab["note_id"], tags=["msad", "diagram"]))

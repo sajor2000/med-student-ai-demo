@@ -513,3 +513,49 @@ def test_id_with_trailing_newline_is_invalid(check, notes, tmp_path, monkeypatch
     p = write_vignettes(tmp_path, [make_vignette("v1\n")])
     code, out = run_vig(check, notes, p, monkeypatch, capsys)
     assert code == 1 and "invalid id" in out
+
+
+# ---- PHI gate on diagram text ----
+
+@pytest.mark.parametrize("mutate, what", [
+    (lambda s: s.update(title="Jane Smith case 4"), "title"),
+    (lambda s: s["nodes"][0].update(label="Jane Smith, 54"), "node"),
+    (lambda s: s["nodes"][0].update(label="MRN 12345678"), "node"),
+    (lambda s: s["edges"][0].update(label="admitted 03/14/2024"), "edge"),
+    (lambda s: s["nodes"][1].update(note="Call 312-555-0142"), "node"),
+])
+def test_diagram_text_with_phi_fails_closed(check, tmp_path, monkeypatch, capsys, mutate, what):
+    path = spec_copy(tmp_path, mutate)
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "PHI" in out, out
+
+
+def test_diagram_clinical_terms_and_vitals_do_not_false_positive(check, tmp_path, monkeypatch, capsys):
+    def ok(s):
+        s["title"] = "Graves Disease and Toxic Shock Syndrome"
+        s["nodes"][0]["label"] = "Fever 38.5 C, HR 120 bpm"
+        s["nodes"][1]["label"] = "Gram Positive Staphylococcus"
+        s["edges"][0]["label"] = "cleaves in 24 hours"
+    code, out = run_spec(check, spec_copy(tmp_path, ok), monkeypatch, capsys)
+    assert code == 0, out
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda s: (s["nodes"][0].update(id="patient-123456"), s["edges"][0].update({"from": "patient-123456"})),
+    lambda s: s["edges"][0].update(id="mrn-98765432"),
+])
+def test_diagram_ids_with_phi_fail_closed(check, tmp_path, monkeypatch, capsys, mutate):
+    code, out = run_spec(check, spec_copy(tmp_path, mutate), monkeypatch, capsys)
+    assert code == 1 and "PHI" in out, out
+
+
+def test_diagram_citation_with_trailing_name_fails_closed(check, tmp_path, monkeypatch, capsys):
+    path = spec_copy(tmp_path, lambda s: s["nodes"][0].update(cite=SLIDE + " Jane Smith"))
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "PHI" in out, out
+
+
+def test_diagram_citation_path_with_name_fails_closed(check, tmp_path, monkeypatch, capsys):
+    path = spec_copy(tmp_path, lambda s: s["nodes"][0].update(cite="[[MICRO/Jane Smith#S1]]"))
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "PHI" in out, out

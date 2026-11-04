@@ -293,3 +293,16 @@ def test_numbered_page_footers_count_as_running_lines(extract):
     assert extract.running_lines(pages) == {f"{n} of 4 - Self Study Guide: Case 2" for n in range(1, 5)}
     # Content lines that merely contain digits ("p0-a", "p1-a") are not page numbers and stay content.
     assert not any(line.startswith("p") for line in extract.running_lines(pages))
+
+
+def test_tilde_out_is_expanded_for_writes(extract, tmp_path, monkeypatch):
+    home = tmp_path / "home"
+    home.mkdir()
+    monkeypatch.setenv("HOME", str(home))
+    src = tmp_path / "in"
+    src.mkdir()
+    (src / "notes.txt").write_text("One paragraph.", encoding="utf-8")
+    monkeypatch.chdir(tmp_path)
+    assert extract.main([str(src), "--out", "~/notes"]) == 0
+    assert (home / "notes" / "manifest.json").is_file()
+    assert not (tmp_path / "~").exists()

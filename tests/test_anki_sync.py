@@ -649,3 +649,41 @@ def test_hand_imported_crlf_front_is_adopted_not_duplicated(anki_mod, monkeypatc
     # legacy IDs are preserved: the CRLF front keeps its raw-hash id
     assert f"msad-id::{gid_of(front)}" in fake.notes[nid]["tags"]
     assert anki_mod.guid(front) != anki_mod.guid(front.replace("\r\n", "\n"))
+
+
+@pytest.mark.parametrize("kind", ["absolute", "dotdot", "symlink", "not-png"])
+def test_diagram_image_outside_folder_is_skipped(anki_mod, monkeypatch, fake_factory, workdir, capsys, tmp_path, kind):
+    fake = fake_factory()
+    write_csv(workdir)
+    d = write_diagrams(workdir)
+    outside = tmp_path / "secret.png"
+    outside.write_bytes(PNG)
+    spec = d / "staph-toxins.occlusion.json"
+    data = json.loads(spec.read_text(encoding="utf-8"))
+    if kind == "absolute":
+        data["image"] = str(outside)
+    elif kind == "dotdot":
+        data["image"] = "../../../secret.png"
+    elif kind == "symlink":
+        (d / "link.png").symlink_to(outside)
+        data["image"] = "link.png"
+    else:
+        (d / "notes.txt").write_text("not an image", encoding="utf-8")
+        data["image"] = "notes.txt"
+    spec.write_text(json.dumps(data), encoding="utf-8")
+    sync(anki_mod, monkeypatch, fake, workdir, diagrams=d)
+    out = capsys.readouterr().out
+    assert not fake.calls("storeMediaFile")
+    assert "skipped" in out and "staph-toxins.occlusion.json" in out
+
+
+def test_diagram_image_alias_inside_folder_is_skipped(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    write_csv(workdir)
+    d = write_diagrams(workdir)
+    spec = d / "staph-toxins.occlusion.json"
+    data = json.loads(spec.read_text(encoding="utf-8"))
+    data["image"] = "../diagrams/staph-toxins.card.png"
+    spec.write_text(json.dumps(data), encoding="utf-8")
+    sync(anki_mod, monkeypatch, fake, workdir, diagrams=d)
+    assert not fake.calls("storeMediaFile") and "skipped" in capsys.readouterr().out

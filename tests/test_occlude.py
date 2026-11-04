@@ -402,3 +402,37 @@ def test_whitespace_only_edge_label_not_wanted(occ):
     spec = {"nodes": [], "edges": [{"id": "e1", "label": "   "}]}
     fails, _ = occ.validate(spec, [{"id": "e1", "decorative": False, "text": "   "}])
     assert any("has no label in the spec" in f for f in fails)
+
+
+@pytest.mark.parametrize("kind", ["absolute", "dotdot", "symlink"])
+def test_apkg_rejects_assets_outside_folder(occ, monkeypatch, tmp_path, capsys, kind):
+    d = tmp_path / "output" / "case-a" / "diagrams"
+    d.mkdir(parents=True)
+    outside = tmp_path / "secret.png"
+    outside.write_bytes(b"\x89PNG secret")
+    (d / "ok.png").write_bytes(b"\x89PNG ok")
+    bad = {"absolute": str(outside), "dotdot": "../../../secret.png", "symlink": "link.png"}[kind]
+    if kind == "symlink":
+        (d / "link.png").symlink_to(outside)
+    label = {"id": "n1", "kind": "node", "label": "X", "cite": "[[A/B#S1]]", "note_id": "msad-aaaaaaaaaaaa",
+             "occlusion": "x", "masked": "ok.png", "highlight": bad}
+    (d / "s.occlusion.json").write_text(json.dumps(
+        {"slug": "s", "title": "T", "image": "ok.png", "labels": [label]}), encoding="utf-8")
+    assert run_main(occ, ["--apkg", str(d), "--case", "case-a"], monkeypatch) == 1
+    out = capsys.readouterr().out
+    assert "outside" in out and not (d.parent / "diagrams.apkg").exists()
+
+
+@pytest.mark.parametrize("kind", ["abs-inside", "dotdot-inside", "symlink-inside"])
+def test_apkg_rejects_aliases_that_land_inside_folder(occ, monkeypatch, tmp_path, capsys, kind):
+    d = tmp_path / "diagrams"
+    d.mkdir()
+    (d / "ok.png").write_bytes(b"\x89PNG ok")
+    bad = {"abs-inside": str(d / "ok.png"), "dotdot-inside": "../diagrams/ok.png", "symlink-inside": "link.png"}[kind]
+    if kind == "symlink-inside":
+        (d / "link.png").symlink_to(d / "ok.png")
+    label = {"id": "n1", "kind": "node", "label": "X", "cite": "[[A/B#S1]]", "note_id": "msad-aaaaaaaaaaaa",
+             "occlusion": "x", "masked": "ok.png", "highlight": bad}
+    (d / "s.occlusion.json").write_text(json.dumps(
+        {"slug": "s", "title": "T", "image": "ok.png", "labels": [label]}), encoding="utf-8")
+    assert run_main(occ, ["--apkg", str(d), "--case", "case-a"], monkeypatch) == 1

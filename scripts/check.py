@@ -353,6 +353,24 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
         elif str(e.get("label") or "").strip() and not has_citation(cite):
             problems.append(f"{name}: labeled edge has no citation")
         units.append((name, cite))
+    # De-identification gate: every free-text string (title, labels, notes, any other field), fail closed.
+    # Everything is scanned, citations and ids included (phi_hit already ignores well-formed PMID and course tokens).
+    def free_text(value: object, key: str = "") -> list[str]:
+        if isinstance(value, str):
+            return [value]
+        if isinstance(value, dict):
+            return [t for k, v in value.items() for t in free_text(v, str(k))]
+        if isinstance(value, list):
+            return [t for v in value for t in free_text(v, key)]
+        return []
+
+    # phi_hit ignores well-formed course tokens, so scan each citation path (a notes filename) on its own too.
+    texts = free_text(spec)
+    texts += [m.group(1) for t in texts for m in COURSE.finditer(t)]
+    for text in texts:
+        if what := phi_hit(text):
+            problems.append(f"diagram text looks like PHI ({what}); de-identify before it goes in a diagram")
+            break
     return units, problems, f"{len(nodes)} nodes, {len(edges)} edges"
 
 
