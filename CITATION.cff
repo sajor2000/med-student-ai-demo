@@ -1,0 +1,16 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "med-student-ai-demo: a cited, verifiable AI study loop for medical students"
+type: software
+authors:
+  - family-names: Rojas
+    given-names: "J.C."
+repository-code: "https://github.com/sajor2000/med-student-ai-demo"
+license: MIT
+version: 0.2.0
+date-released: "2026-11-03"
+keywords:
+  - medical education
+  - spaced repetition
+  - flashcards
+  - citation verification

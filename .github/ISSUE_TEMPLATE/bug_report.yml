@@ -1,0 +1,43 @@
+name: Bug report
+description: Something in the scripts or skills does not work
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Paste NO course content and NO patient information.** No slide text, notes, exam
+        material, or patient details, in logs, screenshots, or files. Describe the problem
+        in your own words or reproduce it with the synthetic file in `sample/`.
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: macOS 15, Windows 11, Ubuntu 24.04
+    validations:
+      required: true
+  - type: dropdown
+    id: harness
+    attributes:
+      label: Agent harness
+      options: [Claude Code, Codex, Other]
+    validations:
+      required: true
+  - type: input
+    id: command
+    attributes:
+      label: Command or skill you ran
+      placeholder: uv run scripts/check.py --case demo
+    validations:
+      required: true
+  - type: textarea
+    id: error
+    attributes:
+      label: Error message
+      description: Output of `uv run scripts/doctor.py` helps. Remove anything from your course files.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected

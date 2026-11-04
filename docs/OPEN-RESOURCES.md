@@ -12,7 +12,7 @@ course files.
 | Literature search | **PubMed / MEDLINE** | NLM-indexed, MeSH-tagged | PubMed MCP server, NCBI E-utilities (free API key) |
 | Open full text | **PubMed Central OA**, **Europe PMC** | Full text you can legally read and quote briefly | Europe PMC REST API, Paperclip |
 | Review-level textbook | **StatPearls** (NCBI Bookshelf) | Peer-reviewed, updated, free; chapters have PMIDs | PubMed search `statpearls[book]` |
-| Genetics (RMD 560, 566) | **GeneReviews**, **ClinVar**, **MedGen** | Expert-authored, NCBI-hosted | E-utilities |
+| Genetics and genomics courses | **GeneReviews**, **ClinVar**, **MedGen** | Expert-authored, NCBI-hosted | E-utilities |
 | Older free textbooks | NCBI Bookshelf (e.g. *Medical Microbiology*, Baron, 4th ed.) | Classic texts, free online | Bookshelf search |
 | Open textbooks | **OpenStax** *Anatomy & Physiology*, *Microbiology*; **LibreTexts** | CC-BY, faculty-reviewed | Web fetch |
 | Drug facts | **DailyMed** (FDA labels), **openFDA**, **RxNorm/RxNav** | The official label is the legal source of truth | Free REST APIs |
