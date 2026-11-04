@@ -28,4 +28,4 @@ unavailable)" at the top, and go to step 6. Never write a PMID without a tool re
 6. Run `uv run scripts/check.py output/<case>/deepen/<slug>.md --notes notes/<case>`.
    Done when it prints PASS.
 
-To read the explainers on the study page, run `export.py ... --deepen output/<case>/deepen` (adds a "Deep dives" tab).
+To read the explainers on the study page, run `uv run scripts/export.py ... --deepen output/<case>/deepen` (adds a "Deep dives" tab).

@@ -64,7 +64,7 @@ PHI_PATTERNS = [
     (re.compile(r"(?<![\w-])(?:\+?1[\s.-]?)?(?:\(\d{3}\)\s?|\d{3}[\s.-])\d{3}[\s.-]\d{4}(?![\w-])"), "a phone number"),
     (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "an SSN-like number"),
     (re.compile(r"\b\d{1,6}\s+(?:[A-Za-z]+\s+){0,3}(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|"
-                r"Ln|Lane|Ct|Court|Way|Pl|Place|Pkwy|Parkway|Hwy|Highway)\b\.?"), "a street address"),
+                r"Ln|Lane|Ct|Court|Way|Pl|Place|Pkwy|Parkway|Hwy|Highway)\b\.?", re.I), "a street address"),
     (re.compile(r"#\s*\d{4,}|\b(?:chart|account|acct|patient|pt|record)\s*(?:no\.?|number|id|#)?\s*[:#]?\s*\d{4,}\b",
                 re.I), "an MRN-like identifier"),
     (re.compile(r"(?<![\d-])\d{5}(?:-\d{4})?(?![\d-])"), "a ZIP code"),
@@ -95,7 +95,8 @@ def name_hit(text: str) -> str | None:
     """Two or more Title-Case words in a row, none of them a known medical or common term."""
     for m in _CAP_RUN.finditer(text):
         words = m.group(0).split()
-        if not any(w.lower() in NAME_ALLOW for w in words):
+        # adjacent pairs, so one allowlisted word ("Type") cannot exempt a name next to it
+        if any(a.lower() not in NAME_ALLOW and b.lower() not in NAME_ALLOW for a, b in zip(words, words[1:])):
             return "a likely personal name"
     return None
 

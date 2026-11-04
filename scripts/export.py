@@ -235,13 +235,27 @@ def art_section(folder: Path, page: Path) -> str:
     return f"<h2>{ART_HEADING}</h2>\n" + "\n".join(blocks)
 
 
+_URL_ATTR = re.compile(r'\b(href|src)="([^"]*)"', re.I)
+_SAFE_SCHEME = frozenset({"http", "https", "mailto"})
+
+
+def strip_unsafe_urls(page: str) -> str:
+    """Drop href/src values whose scheme is not http(s)/mailto (javascript:, data:, vbscript:, ...); relative links stay."""
+    def fix(m: re.Match) -> str:
+        url = re.sub(r"[\x00-\x20\x7f]+", "", html.unescape(m.group(2)))
+        scheme = re.match(r"([A-Za-z][A-Za-z0-9+.-]*):", url)
+        return m.group(0) if not scheme or scheme.group(1).lower() in _SAFE_SCHEME else f'{m.group(1)}="#"'
+    return _URL_ATTR.sub(fix, page)
+
+
 def deepen_section(folder: Path, linker: SourceLinker | None) -> str:
     """HTML for the Deep dives tab: each explainer rendered with raw HTML escaped, citations linked."""
     folder = _folder(folder, "--deepen").resolve()
     blocks = []
     for md_file in sorted(folder.glob("*.md")):
         text = md_file.read_text(encoding="utf-8").replace("<", "&lt;")  # markdown keeps entities, drops raw tags
-        blocks.append(f'<article class="dd">{linkify(markdown.markdown(text, extensions=["tables"]), linker)}</article>')
+        rendered = strip_unsafe_urls(markdown.markdown(text, extensions=["tables"]))
+        blocks.append(f'<article class="dd">{linkify(rendered, linker)}</article>')
     return "\n".join(blocks)
 
 

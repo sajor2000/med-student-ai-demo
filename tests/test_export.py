@@ -464,3 +464,29 @@ def test_raw_html_in_deepen_file_is_escaped(export, tmp_path, monkeypatch):
     page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
     assert "<script>alert(1)" not in page and "<img src=x" not in page
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in page
+
+
+@pytest.mark.parametrize("md", [
+    "[x](javascript:alert(1))",
+    "[x](JaVaScRiPt:alert(1))",
+    "[x](  javascript:alert(1))",
+    "[x](data:text/html;base64,PHNjcmlwdD4=)",
+    "[x](vbscript:msgbox(1))",
+    "![x](javascript:alert(1))",
+    "<javascript:alert(1)>",
+])
+def test_deepen_unsafe_link_schemes_never_emitted(export, tmp_path, monkeypatch, md):
+    deck = write_deck(tmp_path / "out", MIXED)
+    deepen = make_deepen(tmp_path / "deepen", {"x.md": f"{md}\n"})
+    run_main(export, [str(deck), "--deepen", str(deepen)], monkeypatch)
+    section = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8").split('id="deepen"')[1].split("</section>")[0]
+    assert not re.search(r"(?i)(?:href|src)=\"\s*(?:javascript|data|vbscript):", section)
+
+
+def test_deepen_safe_links_survive(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    deepen = make_deepen(tmp_path / "deepen", {"x.md": "[a](https://example.org/p) [b](mailto:a@b.co) [c](#top) [d](other.md)\n"})
+    run_main(export, [str(deck), "--deepen", str(deepen)], monkeypatch)
+    section = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8").split('id="deepen"')[1].split("</section>")[0]
+    for h in ("https://example.org/p", "mailto:a@b.co", "#top", "other.md"):
+        assert f'href="{h}"' in section

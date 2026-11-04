@@ -1,12 +1,13 @@
 """U2: occlusion boxes, masked cards, Image Occlusion fields, offline deck.
 
-Chromium-dependent tests skip when Chromium is missing.
+Chromium-dependent tests skip when Chromium is missing (fail instead when REQUIRE_CHROMIUM=1, as in CI).
 Run: uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q
 """
 from __future__ import annotations
 
 import io
 import json
+import os
 import re
 import shutil
 import sqlite3
@@ -41,6 +42,8 @@ def chromium_ok(occ):
 @pytest.fixture
 def need_chromium(chromium_ok):
     if not chromium_ok:
+        if os.environ.get("REQUIRE_CHROMIUM") == "1":
+            pytest.fail("REQUIRE_CHROMIUM=1 but Chromium is unavailable: " + SKIP)
         pytest.skip(SKIP)
 
 
@@ -378,6 +381,21 @@ def test_path_separator_ids_rejected_pre_render(occ):
                                     "edges": [{"id": "e/1", "label": "z"}]})
     text = " ".join(probs)
     assert "a/b" in text and "c" in text and "e/1" in text and len(probs) == 3
+
+
+@pytest.mark.parametrize("bad", ["Node1", "n_1", "n 1", "a.b", "x" * 41, "", "n\u00e9"])
+def test_ids_must_match_documented_format(occ, bad):
+    probs = occ.spec_type_problems({"nodes": [{"id": bad, "label": "x"}], "edges": []})
+    assert len(probs) == 1 and "[a-z0-9-]{1,40}" in probs[0]
+
+
+def test_valid_ids_accepted(occ):
+    assert occ.spec_type_problems({"nodes": [{"id": "n-1", "label": "x"}], "edges": [{"id": "e2", "label": "y"}]}) == []
+
+
+def test_image_filenames_escaped_in_anki_src(occ):
+    img = occ.io_fields("t", 'a"b<.png', "l", "", {"left": 0, "top": 0, "width": 1, "height": 1})["Image"]
+    assert 'a"b' not in img and "a&quot;b&lt;.png" in img
 
 
 def test_whitespace_only_edge_label_not_wanted(occ):

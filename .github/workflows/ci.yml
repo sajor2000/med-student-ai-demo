@@ -32,6 +32,8 @@ jobs:
         run: uv run --with playwright playwright install --with-deps chromium
 
       - name: Tests
+        env:
+          REQUIRE_CHROMIUM: "1"  # a missing Chromium fails the Chromium tests instead of skipping them
         run: uv run --with pytest --with markdown --with genanki --with pillow --with playwright pytest tests -q -rs
 
       # check.py queries NCBI for the PMIDs in the examples (public, no secrets).
@@ -57,9 +59,18 @@ jobs:
         shell: bash
         run: |
           set +e
-          uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes
+          out=$(uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes 2>&1)
           code=$?
+          echo "$out"
           if [ "$code" -ne 1 ]; then
             echo "expected exit 1, got $code" >&2
             exit 1
           fi
+          # exit 1 alone is not enough (a missing file or unreachable PubMed also exits 1):
+          # require the three deliberate diagnostics.
+          for expected in "S14 not found" "no citation" "PMID:99999999 does not exist in PubMed"; do
+            if ! grep -qF "$expected" <<<"$out"; then
+              echo "missing expected diagnostic: $expected" >&2
+              exit 1
+            fi
+          done
