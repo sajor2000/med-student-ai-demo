@@ -46,8 +46,9 @@ Paperclip (the second search connector) needs a browser sign-in and was not used
 4. Open `examples/case2/flashcards.html` in a browser tab now. It is your fallback (see the last section).
 5. Close anything with real patient or course data. Use a clean screen share.
 6. Open Anki desktop with the AnkiConnect add-on (code `2055492159`). The Anki line in `doctor.py` should be green.
-7. Start from a clean slate, so the counts on screen match the script: move any earlier `output/sample/` folder out of
-   the repo, and in Anki delete the deck `AI Study::sample` if a rehearsal created it.
+7. Start from a clean slate, so the counts on screen are easy to read: move any earlier `output/sample/` folder out of
+   the repo, and present from a separate Anki profile (**File, Switch Profile, Add**, for example `Demo`) so the demo
+   deck starts empty and your own decks stay off screen and untouched.
 
 **Check you are ready:** `uv run scripts/doctor.py` ends with every line green (the Anki, Playwright, and OpenRouter lines are optional),
 and `uv run scripts/check.py examples/case2/study-guide.md --notes sample/notes` prints `PASS`.
@@ -209,10 +210,10 @@ Say: "Attempt first is the whole point. If you ask for the answer, you learn not
   uv run scripts/anki_sync.py --case sample --csv output/sample/flashcards.csv
   ```
   **Expected** on a clean slate (setup step 7): one line like `added 10, updated 0, adopted 0, skipped 0, weak spots 0`
-  in a few seconds (16 cards took 4 s in rehearsal). The numbers are the real counts, so they follow your card count
-  and whatever the deck already holds.
+  in a few seconds (16 notes took 4 s in rehearsal). The counts are notes, not cards: a cloze note with `c1` and `c2`
+  makes two cards but counts once. They are the real counts, so they follow your CSV and whatever the deck already holds.
   Switch to Anki: the deck `AI Study::sample` holds the basic and cloze cards, each with its source citation on the back.
-  Run the same line again: `added` drops to 0 and `updated` equals the card count. Re-syncing updates cards, it never duplicates them, and it touches
+  Run the same line again: `added` drops to 0 and `updated` equals the note count (one per CSV row). Re-syncing updates cards, it never duplicates them, and it touches
   only notes tagged `msad` in `AI Study::<case>`, never the student's own or premade decks.
 - Say: "After a week of reviews, run the sync again (`/anki-sync sample`). Cards you lapsed 3 or more times are
   pulled into `weak-spots.md`, and the next `/flashcards` run targets them." Nothing updates in the background: the
@@ -268,4 +269,4 @@ The agent steps and the PubMed lookups need the network. Everything you need to 
 - [ ] `docs/RESPONSIBLE-USE.md` open in another tab
 - [ ] A volunteer lined up for the quiz
 - [ ] Anki desktop open, AnkiConnect answering (doctor's Anki line green)
-- [ ] No earlier `output/sample/` folder and no `AI Study::sample` deck
+- [ ] No earlier `output/sample/` folder; Anki on a separate demo profile
