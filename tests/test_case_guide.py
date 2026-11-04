@@ -53,6 +53,19 @@ def test_no_pdf_flag_writes_docx_without_soffice(tmp_path):
     assert [p.suffix for p in tmp_path.iterdir()] == [".docx"]
 
 
+def test_docx_only_build_never_prints_placeholder_page_numbers(tmp_path):
+    docx = pytest.importorskip("docx")
+    out = subprocess.run([sys.executable, str(ROOT / "scripts" / "make_case_guide.py"), "--no-pdf", "--out", str(tmp_path)],
+                         capture_output=True, text=True)
+    if out.returncode and ("docx" in out.stderr or "PIL" in out.stderr or "pymupdf" in out.stderr):
+        pytest.skip("generator dependencies are not installed in this interpreter")
+    assert out.returncode == 0, out.stderr
+    toc = [p.text for p in docx.Document(str(next(tmp_path.glob("*.docx")))).paragraphs if "\t" in p.text]
+    assert toc and not any(t.endswith("\t00") for t in toc)
+    if shutil.which("soffice"):  # with LibreOffice, every entry gets a real page number
+        assert all(t.rsplit("\t", 1)[1].isdigit() for t in toc)
+
+
 @pytest.mark.skipif(not shutil.which("soffice"), reason="LibreOffice is not installed")
 def test_pdf_flag_converts_with_soffice(tmp_path):
     out = subprocess.run([sys.executable, str(ROOT / "scripts" / "make_case_guide.py"), "--pdf", "--out", str(tmp_path)],

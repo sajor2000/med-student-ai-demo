@@ -370,7 +370,8 @@ def table_of_contents(doc, pages: dict[int, int] | None) -> None:
         p.paragraph_format.left_indent = Inches(0.22 * level)
         p.paragraph_format.space_after = Pt(1)
         p.paragraph_format.tab_stops.add_tab_stop(Inches(7.3), WD_TAB_ALIGNMENT.RIGHT)
-        p.add_run(f"{text}\t{pages.get(i, '') if pages else '00'}").font.size = Pt(9.5)
+        # Without computed pages (first pass, or a .docx-only build with no LibreOffice) the number is left blank.
+        p.add_run(f"{text}\t{pages.get(i, '') if pages else ''}").font.size = Pt(9.5)
     page_break(doc)
 
 
@@ -690,7 +691,11 @@ def main() -> int:
     args = ap.parse_args()
     soffice = find_soffice()
     if args.pdf is False:  # explicit --no-pdf: the .docx goes to --docx if given, else --out
-        print(f"Saved {build(args.docx or args.out)}")
+        pages = None
+        if soffice:  # fill the table of contents from a throwaway PDF pass when LibreOffice is available
+            with tempfile.TemporaryDirectory() as tmp:
+                pages = toc_pages(to_pdf(build(Path(tmp)), Path(tmp), soffice))
+        print(f"Saved {build(args.docx or args.out, pages)}")
         return 0
     if not soffice:  # never fall back to a .docx beside the PDF fixture (the demo input is PDF only)
         raise SystemExit("PDF output needs LibreOffice: install it (brew install --cask libreoffice), "
