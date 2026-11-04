@@ -1,0 +1,19 @@
+Content license
+
+The synthetic teaching material in this repository is licensed under the
+Creative Commons Attribution 4.0 International license (CC BY 4.0):
+https://creativecommons.org/licenses/by/4.0/legalcode
+
+Covered:
+  sample/    the synthetic sample lecture and its extracted notes
+  examples/  generated example outputs (flashcards, study guide, diagrams)
+
+Copyright (c) 2026 J.C. Rojas. Attribute as "med-student-ai-demo by J.C. Rojas".
+
+Not covered, and never part of this repository:
+  Course files from any school (slides, notes, handouts, exam material).
+  Those belong to their authors and your institution. See CONTRIBUTING.md.
+
+See NOTICE.md for the scope of these licenses and responsible-use terms.
+
+All other files (code, scripts, skills, docs) are under the MIT license in LICENSE.
