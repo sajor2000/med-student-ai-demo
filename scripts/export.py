@@ -285,7 +285,7 @@ def vignettes_section(path: Path, linker: SourceLinker | None) -> str:
 
 
 VIGNETTE_CSS = (
-    ".vg{margin:0 0 32px;padding-bottom:20px;border-bottom:1px solid var(--line)}.vans{width:100%;font:inherit;padding:8px;"
+    ".vstem{white-space:pre-wrap}.vg{margin:0 0 32px;padding-bottom:20px;border-bottom:1px solid var(--line)}.vans{width:100%;font:inherit;padding:8px;"
     "background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px}.vshow:disabled{opacity:.5;cursor:not-allowed}"
     ".vlist{list-style:none;padding:0}.vopt{display:block;width:100%;text-align:left;margin-top:8px;padding:10px;font:inherit;"
     "background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;cursor:pointer}"
@@ -420,9 +420,14 @@ def main() -> int:
                 raise RuntimeError(f"export template is missing the anchor {anchor!r}; extra tabs cannot be added")
             page = page.replace(anchor, spliced, 1)
         if any(e[0] == "tv" for e in extras):
-            page = page.replace("['ta','art']]", "['ta','art'],['tv','vignettes']]", 1)
-            page = page.replace("</style>", VIGNETTE_CSS + "</style>", 1)
-            page = page.replace("</body></html>", VIGNETTE_JS + "</body></html>", 1)
+            for anchor, spliced in (
+                ("['ta','art']]", "['ta','art'],['tv','vignettes']]"),
+                ("</style>", VIGNETTE_CSS + "</style>"),
+                ("</body></html>", VIGNETTE_JS + "</body></html>"),
+            ):
+                if anchor not in page:
+                    raise RuntimeError(f"export template is missing the anchor {anchor!r}; the Vignettes tab cannot be added")
+                page = page.replace(anchor, spliced, 1)
     site.write_text(page, encoding="utf-8")
 
     print(f"{len(basic)} basic cards -> {anki} (Anki: File > Import)")

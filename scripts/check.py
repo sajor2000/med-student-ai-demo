@@ -113,7 +113,7 @@ PHI_PATTERNS = [
     (re.compile(r"\b(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?\s+\d{1,2}(?:st|nd|rd|th)?,?\s+\d{4}\b"
                 r"|\b\d{1,2}(?:st|nd|rd|th)?\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\.?,?\s+\d{4}\b"), "a date"),
     (re.compile(r"\b(?:born|dob)\b[^.]{0,20}\b(?:19|20)\d{2}\b", re.I), "a birth year"),
-    (re.compile(r"\b[A-Z][a-z]+(?:,\s*|\s+aged?\s+)\d{1,3}\b"), "a name with an age"),
+    (re.compile(r"\b[A-Z][a-z]+(?:,\s*(?!\d{1,3}\s*(?:bpm|mm|mg|mL|ml|kg|cm|lb|%|°|[CF]\b|breaths|/min|mEq|U/L|g/dL))|\s+aged?\s+)\d{1,3}\b"), "a name with an age"),
     (re.compile(r"\b\d{1,3}[- ]years?[- ]old\s+(?:named|called)\b", re.I), "a name with an age"),
 ]
 
@@ -328,6 +328,8 @@ def vignette_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             stem = ""
         if what := phi_hit(stem):
             problems.append(f"{name}: stem contains {what}")
+        if what := phi_hit(str(v.get("discipline") or "")):
+            problems.append(f"{name}: discipline contains {what}")
         opts = v.get("options")
         if not isinstance(opts, list) or len(opts) != 5:
             problems.append(f"{name}: needs exactly 5 options (A-E)")

@@ -355,6 +355,19 @@ def test_missing_anchor_in_explanation_fails(check, notes, tmp_path, monkeypatch
     assert code == 1 and "vx" in out and "S99" in out
 
 
+def test_vitals_in_stem_are_not_flagged_as_name_with_age(check, notes, tmp_path, monkeypatch, capsys):
+    stem = "Vitals: Pulse, 110 bpm, Temperature, 39 C, Respirations, 22 /min. A wound swab grows gram-positive cocci."
+    p = write_vignettes(tmp_path, [mutated(lambda v: v.update(stem=stem), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 0, out
+
+
+def test_phi_in_discipline_fails(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, [mutated(lambda v: v.update(discipline="Maria, 45"), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "discipline" in out
+
+
 @pytest.mark.parametrize(
     "stem",
     [
