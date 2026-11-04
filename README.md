@@ -134,7 +134,7 @@ uv run scripts/export.py output/<case>/flashcards.csv --guide output/<case>/stud
 To include your AI illustrations too, add `--art output/<case>/art` to the end of that command.
 
 The page gets a Diagrams tab (the picture plus each label with its citation) and, with `--art`, a Memory aids
-tab under the heading "AI illustrations — memory aids, not references". A finished example, with no art, is in
+tab under the heading "AI illustrations — memory aids, not references". `--deepen output/<case>/deepen` adds a Deep dives tab with your `/deepen` explainers. A finished example, with no art, is in
 `examples/diagrams/` and `examples/flashcards.html`.
 
 ## How it fits together
