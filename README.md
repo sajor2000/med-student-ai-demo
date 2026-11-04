@@ -100,7 +100,7 @@ Codex reads `AGENTS.md`, `.agents/skills/`, and `.codex/config.toml` here. Name 
 
 Other agent harnesses can follow [`AGENTS.md`](AGENTS.md) and read `.claude/skills/*/SKILL.md`; the PubMed and Paperclip setup is in `.mcp.json`.
 
-**4. Verify.** Run the short checklist in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md#verify-your-setup) (`node -v`, `uv --version`, `claude mcp list` or `codex mcp list`).
+**4. Verify.** Run the short checklist in [`docs/REQUIREMENTS.md`](docs/REQUIREMENTS.md#verify-your-setup) (`node -v`, `uv --version`, `claude mcp list`, or `/mcp` inside Codex).
 
 ## Use it on your own course
 

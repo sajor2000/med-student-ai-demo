@@ -49,7 +49,7 @@ git --version
 node -v                      # v24 or higher
 uv --version
 claude --version             # or: codex --version
-claude mcp list              # pubmed and paperclip listed (Codex: codex mcp list)
+claude mcp list              # pubmed and paperclip listed (Codex: start codex here and run /mcp)
 ```
 
 ```bash
