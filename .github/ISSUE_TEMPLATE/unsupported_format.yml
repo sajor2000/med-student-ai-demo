@@ -1,0 +1,34 @@
+name: My school's file format isn't supported
+description: Slides or notes that ingest cannot read
+labels: [ingest, format]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Follow your institution's AI policy; never include course content or patient information.
+
+        **Do not attach your real course files** (copyright, and your school's rules). Describe
+        the format, or attach a synthetic file with the same structure and made-up content.
+  - type: input
+    id: format
+    attributes:
+      label: File type and the app that made it
+      placeholder: ".pptx from Keynote export, PDF from Articulate, .docx handout, Panopto transcript"
+    validations:
+      required: true
+  - type: textarea
+    id: symptom
+    attributes:
+      label: What happens when you ingest it
+      description: Error text, or what is missing (speaker notes, images, tables, slide numbers).
+    validations:
+      required: true
+  - type: textarea
+    id: structure
+    attributes:
+      label: Structure
+      description: How the files are organized (one per lecture? per week? how are they named?).
+  - type: input
+    id: harness
+    attributes:
+      label: Agent harness and OS

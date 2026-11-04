@@ -278,3 +278,81 @@ def test_never_overwrites_other_concepts_image(art, net, monkeypatch, tmp_path, 
     before = png.read_bytes()
     assert run_main(art, args(**{"--yes": True}), monkeypatch) == 1
     assert png.read_bytes() == before and "different concept" in capsys.readouterr().err
+
+
+# --- fail-closed de-identification gate (heuristic; the student's confirmation stays the real control) ---
+@pytest.mark.parametrize("scene, rule", [
+    ("email me at jane.doe@example.com", "an email address"),
+    ("call (312) 555-0100 now", "a phone number"),
+    ("call 312-555-0100 now", "a phone number"),
+    ("call 312.555.0100 now", "a phone number"),
+    ("call +1 312 555 0100 now", "a phone number"),
+    ("call +1-312-555-0100 now", "a phone number"),
+    ("lives at 123 Main Street", "a street address"),
+    ("lives at 45 Oak Ave", "a street address"),
+    ("near 9 Elm Blvd", "a street address"),
+    ("lives at 123 main street", "a street address"),
+    ("45 OAK AVE", "a street address"),
+    ("John Smith Type 2 diabetes", "a likely personal name"),
+    ("Mary Jones Disease course", "a likely personal name"),
+    ("ssn 123 45 6789", "an SSN-like number"),
+    ("Patient JOHN SMITH with fever", "a title followed by a name"),
+    ("DR SMITH examined", "a title followed by a name"),
+    ("Jane Wilson with fever", "a likely personal name"),
+    ("Anna Turner from Chicago", "a likely personal name"),
+    ("zip 60612", "a ZIP code"),
+    ("zip 60612-1234", "a ZIP code"),
+    ("ssn 123-45-6789", "an SSN-like number"),
+    ("chart #48213 on desk", "an MRN-like identifier"),
+    ("see https://example.com/p?id=5", "a URL with a query string"),
+    ("Mr Smith with a rash", "a title followed by a name"),
+    ("Patient Jones with fever", "a title followed by a name"),
+    ("John Smith from Chicago", "a likely personal name"),
+])
+def test_deid_rule_refuses_in_isolation(art, net, monkeypatch, capsys, scene, rule):
+    hit = art.phi_hit(scene)
+    assert hit is not None and rule in hit
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    assert run_main(art, args(**{"--scene": scene, "--yes": True}), monkeypatch) == 1
+    assert net.calls == []
+    err = capsys.readouterr().err.lower()
+    assert "refus" in err and "a patient" in err and "a farmer" in err and "contact details" in err
+
+
+@pytest.mark.parametrize("scene", [
+    "Graves disease thyroid storm",
+    "Staphylococcus aureus toxin",
+    "Type 2 diabetes",
+    "vitamin B12",
+    "Lyme disease bullseye rash",
+    "a hiker in the woods",
+    "2 cm lesion",
+    "Hashimoto thyroiditis and Cushing syndrome",
+    "Gram positive Streptococcus pyogenes",
+    "Crohn disease with Borrelia",
+    "patient with fever",
+    "Patient with fever and Wilson Disease",
+    "Wilson Disease and Gram Positive Staphylococcus Aureus",
+])
+def test_deid_clinical_negatives_pass(art, net, monkeypatch, scene):
+    assert art.phi_hit(scene) is None
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    assert run_main(art, args(**{"--scene": scene, "--yes": True}), monkeypatch) == 0
+    assert len(net.calls) == 1
+
+
+def test_deid_checks_concept_too(art, net, monkeypatch):
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    assert run_main(art, args(**{"--concept": "John Smith", "--yes": True}), monkeypatch) == 1
+    assert net.calls == []
+
+
+@pytest.mark.parametrize("scene", ["patient JOHN SMITH with fever", "PATIENT JANE DOE presenting"])
+def test_lowercase_or_uppercase_patient_title_with_caps_name_is_refused(art, scene):
+    assert art.phi_hit(scene) is not None
+
+
+@pytest.mark.parametrize("scene", ["Toxic Shock Syndrome", "Acute Myocardial Infarction", "Congestive Heart Failure",
+                                   "patient COPD flare"])
+def test_title_cased_medical_concepts_not_refused(art, scene):
+    assert art.phi_hit(scene) is None
