@@ -52,4 +52,4 @@ Sync owns only notes tagged `msad` in the deck `AI Study::<case>`. Never edit or
 
 ## Skills
 
-Eight skills in `.claude/skills/` (mirrored at `.agents/skills/`): ingest, flashcards, quiz, study-guide, deepen, visualize, mnemonic-art, anki-sync. Each `SKILL.md` holds its steps.
+Eight skills in `.claude/skills/` (mirrored at `.agents/skills/`): ingest, flashcards, quiz, study-guide, deepen, visualize, mnemonic-art, anki-sync. Each `SKILL.md` holds its steps. Run `anki-sync`, `mnemonic-art`, and `visualize` only when the student asks for them by name.

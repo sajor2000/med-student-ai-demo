@@ -37,7 +37,7 @@ account for Claude Code; a ChatGPT plan or API key for Codex).
   `http://127.0.0.1:8765` (loopback).
 - **Codex skills on Windows.** `.agents/skills` is a symlink to `.claude/skills`. Git
   needs `core.symlinks=true` (or Developer Mode) to create it. If your clone has a
-  plain text file there, run `rmdir /s /q .agents\skills` then
+  plain text file there, run `del .agents\skills` (PowerShell: `Remove-Item .agents\skills`) then
   `mklink /D .agents\skills ..\.claude\skills` in an elevated prompt, or copy the folder.
 
 ## Verify your setup
