@@ -53,3 +53,5 @@ Record per vignette: free-text answer, pick, correct or miss. A correct pick wit
 - `/anki-sync <case>` routes `miss` rows to `AI Study::<case>::misses`.
 
 See also: [LEARNING-SCIENCE](../../../docs/LEARNING-SCIENCE.md)
+Responsible use (educational demo; follow your institution's AI policy for anything you upload): [RESPONSIBLE-USE](../../../docs/RESPONSIBLE-USE.md)
+If two lectures in the case both number objectives (1)-(3), tag cards `<lecture-slug>-objN` and add `"lecture": "<slug>"` to the vignette so `coverage.py` keeps them apart.

@@ -43,3 +43,4 @@ Ask one, wait, ask the next. The student's attempt comes before any slide conten
 Open one cited PMID with a PubMed tool call in this session; use only PMIDs that call returned. Read the abstract, then judge whether it supports the specific claim: supports, partly, or does not. A PMID that exists, or that a tool returned, is not evidence that it supports the claim.
 
 See also: [LEARNING-SCIENCE](../../../docs/LEARNING-SCIENCE.md)
+Responsible use (educational demo; follow your institution's AI policy for anything you upload): [RESPONSIBLE-USE](../../../docs/RESPONSIBLE-USE.md)

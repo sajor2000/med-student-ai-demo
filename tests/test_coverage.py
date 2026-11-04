@@ -103,3 +103,47 @@ def test_objectives_from_multiple_files(cov, tmp_path, monkeypatch, capsys):
     (notes / "MICRO" / "Other.md").write_text("- Learning objectives: (4) another one\n", encoding="utf-8")
     assert run_main(cov, ["--notes", str(notes)], monkeypatch) == 0
     assert "4 objective(s) uncovered" in capsys.readouterr().out.splitlines()[-1]
+
+
+def make_two_lectures(tmp_path: Path) -> Path:
+    notes = make_notes(tmp_path)  # MICRO/Deck.md: (1)-(3)
+    (notes / "MICRO" / "Other Lecture.md").write_text(
+        "- Learning objectives: (1) second one; (2) second two; (3) second three\n", encoding="utf-8")
+    return notes
+
+
+def test_same_numbers_in_two_files_stay_separate(cov, tmp_path, monkeypatch, capsys):
+    notes = make_two_lectures(tmp_path)
+    assert run_main(cov, ["--notes", str(notes)], monkeypatch) == 0
+    out = capsys.readouterr().out
+    assert "6 objective(s) uncovered" in out.splitlines()[-1]
+    assert "[deck] (1) identify it" in out and "[other-lecture] (1) second one" in out
+
+
+def test_qualified_card_tag_covers_only_its_lecture(cov, tmp_path, monkeypatch, capsys):
+    notes = make_two_lectures(tmp_path)
+    csv_path = make_csv(tmp_path, ["x;other-lecture-obj2"])
+    assert run_main(cov, ["--notes", str(notes), "--csv", str(csv_path)], monkeypatch) == 0
+    out = capsys.readouterr().out
+    assert "[other-lecture] (2) second two: covered (1 card)" in out
+    assert "[deck] (2) link factors: UNCOVERED" in out
+    assert "5 objective(s) uncovered" in out.splitlines()[-1]
+
+
+def test_qualified_vignette_lecture_field(cov, tmp_path, monkeypatch, capsys):
+    notes = make_two_lectures(tmp_path)
+    p = tmp_path / "v.json"
+    p.write_text(json.dumps({"vignettes": [{"id": "a", "objective": 3, "lecture": "deck"}]}), encoding="utf-8")
+    assert run_main(cov, ["--notes", str(notes), "--vignettes", str(p)], monkeypatch) == 0
+    out = capsys.readouterr().out
+    assert "[deck] (3) explain resistance: covered (1 vignette)" in out
+    assert "[other-lecture] (3) second three: UNCOVERED" in out
+
+
+def test_unqualified_tag_on_ambiguous_number_warns_and_covers_nothing(cov, tmp_path, monkeypatch, capsys):
+    notes = make_two_lectures(tmp_path)
+    csv_path = make_csv(tmp_path, ["x;obj1"])
+    assert run_main(cov, ["--notes", str(notes), "--csv", str(csv_path)], monkeypatch) == 0
+    out = capsys.readouterr().out
+    assert "obj1 is ambiguous" in out and "deck-obj1" in out and "other-lecture-obj1" in out
+    assert "6 objective(s) uncovered" in out.splitlines()[-1]
