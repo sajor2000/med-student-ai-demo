@@ -163,12 +163,12 @@ def grid(doc, header: list[str], rows: list[list[str]], fill="1F3A5F") -> None:
         for cell in row.cells:
             for p in cell.paragraphs:
                 p.paragraph_format.keep_with_next = True
-    # Column widths follow the longest cell, but never narrower than the longest word (10 pt body text is about
-    # 0.1 inch per character, plus cell padding), so no word breaks mid-word in the extracted text.
+    # Column widths follow the longest cell, but never narrower than the longest word (10 pt Arial body text is about
+    # 0.12 inch per character, plus cell padding), so no word breaks mid-word in the extracted text.
     labelled = [[row[0]] + [f"{header[c]}: {row[c] or 'none'}" for c in range(1, len(row))] for row in rows]
     cells_by_col = [[r[c] for r in [header, *labelled] if c < len(r)] for c in range(len(header))]
     longest = [max(max(len(t) for t in col), 8) for col in cells_by_col]
-    need = [max(len(w) for t in col for w in t.split()) * 0.11 + 0.3 for col in cells_by_col]
+    need = [max(len(w) for t in col for w in t.split()) * 0.13 + 0.3 for col in cells_by_col]
     total = 7.3  # usable page width in inches
     widths = [total * n / sum(longest) for n in longest]
     for _ in range(len(widths)):

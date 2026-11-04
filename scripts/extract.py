@@ -126,9 +126,12 @@ def pdf_page_lines(raw: str) -> list[str]:
     return [t for t in (slug(BULLET.sub("", slug(ln))) for ln in raw.splitlines()) if t]
 
 
+PAGE_NUMBER = re.compile(r"^\d+$|\b\d+\s*(?:of|/)\s*\d+\b", re.I)
+
+
 def _shape(line: str) -> str:
-    """A line with its numbers masked, so "3 of 10 - Study Guide" and "4 of 10 - Study Guide" match."""
-    return re.sub(r"\d+", "#", line)
+    """A line with its page number masked, so "3 of 10 - Study Guide" and "4 of 10 - Study Guide" match."""
+    return PAGE_NUMBER.sub("#", line)
 
 
 def running_lines(pages: list[list[str]]) -> set[str]:

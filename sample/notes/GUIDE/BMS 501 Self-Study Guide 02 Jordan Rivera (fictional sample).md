@@ -272,7 +272,8 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - selectin
 - Neutrophil molecule: Sialyl-Lewis X
 - Activation
-- Endothelial molecule: Chemokines (IL-8)
+- Endothelial molecule: Chemokines
+- (IL-8)
 - Neutrophil molecule: Chemokine
 - receptors
 - Tight adhesion
@@ -280,7 +281,8 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Neutrophil molecule: Integrins (LFA-1,
 - Mac-1)
 - Transmigration
-- Endothelial molecule: PECAM-1 (CD31)
+- Endothelial molecule: PECAM-1
+- (CD31)
 - Neutrophil molecule: PECAM-1 (CD31)
 - Killing
 - Opsonized bacteria (IgG, C3b) are phagocytosed and the phagosome fuses with lysosomes.
@@ -369,8 +371,7 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Coagulase
 - Type: Enzyme
 - Action: Activates
-- prothrombin, forming
-- fibrin
+- prothrombin, forming fibrin
 - Disease link: Fibrin wall
 - around the abscess
 - Panton-Valentine leukocidin
@@ -384,24 +385,23 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - debated)
 - TSST-1
 - Type: Superantigen
-- Action: Cross-links MHC
-- II and TCR
+- Action: Cross-links MHC II
+- and TCR
 - Disease link: Toxic shock
 - syndrome
 - Exfoliative toxin
 - Type: Protease
-- Action: Cleaves
-- desmoglein-1
-- Disease link: Scalded skin
-- syndrome
+- Action: Cleaves desmoglein-1
+- Disease link: Scalded
+- skin syndrome
 - Enterotoxin
-- Type: Superantigen;
-- heat-stable
-- Action: Preformed toxin
-- in food
+- Type: Superantigen; heat-
+- stable
+- Action: Preformed toxin in
+- food
 - Disease link: Vomiting 30
-- min-8 h after eating (mean
-- about 3 h)
+- min-8 h after eating
+- (mean about 3 h)
 - Methicillin resistance
 - mecA (on SCCmec) encodes PBP2a, a penicillin-binding protein with low affinity for beta-lactams.
 - MRSA is resistant to nearly all beta-lactams (exception: anti-MRSA cephalosporins such as ceftaroline).
@@ -410,12 +410,12 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - [PMID:22759601].
 - Microbiology: Self-Study Questions
 - 1. Which test distinguishes S. aureus from coagulase-negative staphylococci?
+- A. Catalase
 
-## [S8] A. Catalase
+## [S8] B. Coagulase
 - 8 of 10 - Self Study Guide: Jordan Rivera (Foundations of Infection and Immunity) (v. 11/2026)
 - FICTIONAL SAMPLE for practice with the Med Student AI Study Agent. Invented school, faculty, and patient. Not affiliated with any medical school.
 - Educational demo. AI supports learning, it does not replace it. Real course materials belong to your institution: follow its AI policy before uploading anything.
-- B. Coagulase
 - C. Optochin
 - D. Bacitracin
 - E. Bile solubility
@@ -496,12 +496,12 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - MRSA?
 - Key adverse effects
 - Nafcillin / oxacillin
-- Target: PBPs (beta-
-- lactamase resistant)
+- Target: PBPs (beta-lactamase
+- resistant)
 - Covers
 - MRSA?: No
-- Key adverse effects: Neutropenia; interstitial
-- nephritis (rare)
+- Key adverse effects: Neutropenia;
+- interstitial nephritis (rare)
 - Cefazolin
 - Target: PBPs
 - Covers
@@ -514,12 +514,12 @@ Source: `BMS 501 Self-Study Guide 02 Jordan Rivera (fictional sample).pdf` (slid
 - Key adverse effects: Nephrotoxicity;
 - infusion reaction (flushing)
 - TMP-SMX
-- Target: DHFR +
-- dihydropteroate synthase
+- Target: DHFR + dihydropteroate
+- synthase
 - Covers
 - MRSA?: Yes
-- Key adverse effects: Hyperkalemia, rash,
-- bone marrow suppression
+- Key adverse effects: Hyperkalemia,
+- rash, bone marrow suppression
 - Doxycycline
 - Target: 30S ribosome
 - Covers
