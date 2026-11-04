@@ -6,8 +6,9 @@ import sys
 
 from conftest import ROOT, load_script
 
-# only the docs this repo ships for onboarding; docs/diagram-teaching-profile.md predates the PR
-DOCS = [ROOT / "README.md", ROOT / "NOTICE.md", ROOT / "docs" / "FOR-EDUCATORS.md"]
+# every top-level doc, plus every page under docs/ (diagram-teaching-profile.md links to the upstream repo by URL)
+DOCS = [ROOT / "README.md", ROOT / "NOTICE.md", *sorted((ROOT / "docs").rglob("*.md"))]
+IMG = re.compile(r'<img[^>]+src="([^"]+)"')
 LINK = re.compile(r"\]\(([^)#\s]+)(?:#[^)]*)?\)")
 
 
@@ -20,6 +21,23 @@ def test_relative_markdown_links_resolve():
             if not (doc.parent / target).exists():
                 broken.append(f"{doc.relative_to(ROOT)} -> {target}")
     assert not broken, broken
+
+
+def test_readme_images_exist():
+    readme = ROOT / "README.md"
+    missing = [t for t in IMG.findall(readme.read_text())
+               if not re.match(r"[a-z]+:", t) and not (readme.parent / t).exists()]
+    assert not missing, missing
+
+
+def test_readme_shows_skill_map_and_use_cases():
+    readme = (ROOT / "README.md").read_text()
+    assert "docs/img/skill-map.svg" in readme
+    assert "## Which skill when" in readme
+    skills = sorted(p.name for p in (ROOT / ".claude" / "skills").iterdir() if (p / "SKILL.md").exists())
+    svg = (ROOT / "docs" / "img" / "skill-map.svg").read_text()
+    missing = [n for n in skills if f"/{n}" not in svg]
+    assert not missing, f"skill-map.svg does not show {missing}"
 
 
 def test_doctor_policy_reminder_points_at_existing_file():

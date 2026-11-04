@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-map-root" viewBox="0 0 1200 692" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-map-title skill-map-desc">
+  <title id="skill-map-title">Skill map: which skill when</title>
+  <desc id="skill-map-desc">Ingest turns course files into notes. Practice from memory with quiz, vignette, or teach-back. Misses go to weak-spots.md and become cited flashcards. The check.py gate must pass before export builds the study page and anki-sync pushes cards for spaced review. Anki lapses and misses feed back into flashcards and quizzes. A separate lane, used after you try to recall, holds study-guide, deepen, visualize, and mnemonic-art. Vignette, teach-back, anki-sync, visualize, and mnemonic-art run only when you type them.</desc>
+  <defs>
+    <style>#skill-map-root { font-family: system-ui, sans-serif; }
+      #skill-map-root text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-map-root .name { font-size: 20px; font-weight: 600; }
+      #skill-map-root .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-map-root .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.04em; fill: #2f3a4f; }
+      #skill-map-root .step { font-size: 13px; font-weight: 700; letter-spacing: 0.06em; fill: #2f3a4f; }
+      #skill-map-root .typed { font-size: 13px; font-weight: 700; fill: #0b4f9c; }
+      #skill-map-root .warn { font-size: 13px; font-weight: 700; fill: #a33d00; }
+      #skill-map-root .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-map-root .typedbox { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-map-root .group { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-map-root .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }</style>
+    <marker id="skill-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-map-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="692" fill="#ffffff"/>
+
+  <!-- step labels -->
+  <text x="24" y="30" class="step">1 INGEST</text>
+  <text x="214" y="30" class="step">2 PRACTICE FROM MEMORY</text>
+  <text x="586" y="30" class="step">3 MAKE CARDS</text>
+  <text x="836" y="30" class="step">4 GATE</text>
+  <text x="1020" y="30" class="step">5 REVIEW</text>
+
+  <!-- edges -->
+  <path d="M154,195 H214" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-map-arrow)"/>
+  <path d="M496,195 H586" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-map-arrow)"/>
+  <path d="M746,195 H836" fill="none" stroke="#a33d00" stroke-width="2" marker-end="url(#skill-map-arrow-accent)"/>
+  <path d="M956,195 H1000 M1000,195 V140 H1020 M1000,195 V250 H1020" fill="none" stroke="#2f3a4f" stroke-width="2"/>
+  <path d="M1000,140 H1018" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-map-arrow)"/>
+  <path d="M1000,250 H1018" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-map-arrow)"/>
+  <!-- FAIL loop -->
+  <path d="M896,150 V100 Q896,92 888,92 H674 Q666,92 666,100 V150" fill="none" stroke="#a33d00" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#skill-map-arrow-accent)"/>
+  <!-- misses -> weak spots -->
+  <path d="M496,340 H586" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-map-arrow)"/>
+  <!-- weak spots -> flashcards -->
+  <path d="M666,300 V240" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-map-arrow)"/>
+  <!-- anki lapses -> weak spots -->
+  <path d="M1090,290 V332 Q1090,340 1082,340 H746" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-map-arrow)"/>
+  <!-- notes -> reference lane -->
+  <path d="M89,240 V438" fill="none" stroke="#2f3a4f" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#skill-map-arrow)"/>
+  <!-- reference lane -> export -->
+  <path d="M1176,438 V128 Q1176,120 1168,120 H1148" fill="none" stroke="#2f3a4f" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#skill-map-arrow)"/>
+
+  <!-- edge labels -->
+  <text x="184" y="184" text-anchor="middle" class="lbl">NOTES</text>
+  <text x="541" y="172" text-anchor="middle" class="lbl">MISS</text>
+  <text x="541" y="187" text-anchor="middle" class="lbl">CARDS</text>
+  <text x="541" y="328" text-anchor="middle" class="lbl">MISSES</text>
+  <rect x="740" y="64" width="152" height="22" fill="#ffffff"/>
+  <text x="816" y="80" text-anchor="middle" class="warn">FAIL: AGENT FIXES</text>
+  <text x="960" y="186" text-anchor="start" class="lbl" style="font-size:12px">PASS</text>
+  <text x="676" y="274" text-anchor="start" class="lbl">NEXT CARDS</text>
+  <text x="900" y="330" text-anchor="middle" class="lbl">LAPSES AND MISSES</text>
+  <text x="99" y="334" class="lbl">AFTER YOU</text>
+  <text x="99" y="350" class="lbl">TRY RECALL</text>
+  <text x="1164" y="400" text-anchor="end" class="lbl">ADDED TO PAGE</text>
+
+  <!-- 1 ingest -->
+  <rect x="24" y="150" width="130" height="90" rx="6" class="box"/>
+  <text x="89" y="180" text-anchor="middle" class="name">/ingest</text>
+  <text x="89" y="203" text-anchor="middle" class="sub">notes with</text>
+  <text x="89" y="221" text-anchor="middle" class="sub">slide anchors</text>
+
+  <!-- 2 practice group -->
+  <rect x="214" y="44" width="282" height="344" rx="8" class="group"/>
+  <text x="230" y="68" class="lbl">ATTEMPT FIRST, THEN SEE THE ANSWER</text>
+  <rect x="230" y="84" width="250" height="84" rx="6" class="box"/>
+  <text x="355" y="112" text-anchor="middle" class="name">/quiz</text>
+  <text x="355" y="134" text-anchor="middle" class="sub">one question at a time</text>
+  <text x="355" y="153" text-anchor="middle" class="sub">saves your misses</text>
+  <rect x="230" y="180" width="250" height="84" rx="6" class="typedbox"/>
+  <text x="355" y="208" text-anchor="middle" class="name">/vignette</text>
+  <text x="355" y="230" text-anchor="middle" class="sub">type your answer, then see options</text>
+  <text x="355" y="250" text-anchor="middle" class="typed">typed only</text>
+  <rect x="230" y="276" width="250" height="98" rx="6" class="typedbox"/>
+  <text x="355" y="304" text-anchor="middle" class="name">/teach-back</text>
+  <text x="355" y="326" text-anchor="middle" class="sub">explain one mechanism, 4 steps</text>
+  <text x="355" y="343" text-anchor="middle" class="sub">plus a what-if, then get marked</text>
+  <text x="355" y="364" text-anchor="middle" class="typed">typed only</text>
+
+  <!-- 3 flashcards -->
+  <rect x="586" y="150" width="160" height="90" rx="6" class="box"/>
+  <text x="666" y="180" text-anchor="middle" class="name">/flashcards</text>
+  <text x="666" y="203" text-anchor="middle" class="sub">cited cards,</text>
+  <text x="666" y="221" text-anchor="middle" class="sub">one fact each</text>
+  <rect x="586" y="300" width="160" height="80" rx="6" class="box"/>
+  <text x="666" y="330" text-anchor="middle" class="name">weak-spots.md</text>
+  <text x="666" y="352" text-anchor="middle" class="sub">steers the next</text>
+  <text x="666" y="368" text-anchor="middle" class="sub">cards and quizzes</text>
+
+  <!-- 4 gate -->
+  <rect x="836" y="150" width="120" height="90" rx="6" fill="#ffffff"/>
+  <rect x="836" y="150" width="120" height="90" rx="6" class="gate"/>
+  <text x="896" y="180" text-anchor="middle" class="name">check.py</text>
+  <text x="896" y="203" text-anchor="middle" class="sub">fails fake or</text>
+  <text x="896" y="221" text-anchor="middle" class="sub">missing sources</text>
+
+  <!-- 5 review -->
+  <rect x="1020" y="100" width="130" height="80" rx="6" class="box"/>
+  <text x="1085" y="128" text-anchor="middle" class="name">export.py</text>
+  <text x="1085" y="150" text-anchor="middle" class="sub">study page,</text>
+  <text x="1085" y="167" text-anchor="middle" class="sub">flip cards</text>
+  <rect x="1020" y="210" width="130" height="80" rx="6" class="typedbox"/>
+  <text x="1085" y="236" text-anchor="middle" class="name">/anki-sync</text>
+  <text x="1085" y="257" text-anchor="middle" class="sub">spaced review</text>
+  <text x="1085" y="276" text-anchor="middle" class="typed">typed only</text>
+
+  <!-- reference lane -->
+  <rect x="24" y="438" width="1152" height="196" rx="8" class="group"/>
+  <text x="44" y="464" class="lbl">REFERENCE AFTER RECALL: CHECK YOURSELF AGAINST THESE, DO NOT START HERE</text>
+  <rect x="44" y="484" width="256" height="128" rx="6" class="box"/>
+  <text x="172" y="514" text-anchor="middle" class="name">/study-guide</text>
+  <text x="172" y="538" text-anchor="middle" class="sub">cited reference for the case</text>
+  <text x="172" y="557" text-anchor="middle" class="sub">or one topic</text>
+  <text x="172" y="582" text-anchor="middle" class="warn">goes through check.py</text>
+  <rect x="332" y="484" width="256" height="128" rx="6" class="box"/>
+  <text x="460" y="514" text-anchor="middle" class="name">/deepen</text>
+  <text x="460" y="538" text-anchor="middle" class="sub">"how do we know?" explainer</text>
+  <text x="460" y="557" text-anchor="middle" class="sub">from StatPearls and reviews</text>
+  <text x="460" y="582" text-anchor="middle" class="warn">goes through check.py</text>
+  <rect x="620" y="484" width="256" height="128" rx="6" class="typedbox"/>
+  <text x="748" y="514" text-anchor="middle" class="name">/visualize</text>
+  <text x="748" y="538" text-anchor="middle" class="sub">cited diagram + occlusion cards</text>
+  <text x="748" y="557" text-anchor="middle" class="sub">for Anki</text>
+  <text x="748" y="582" text-anchor="middle" class="warn">goes through check.py</text>
+  <text x="748" y="601" text-anchor="middle" class="typed">typed only</text>
+  <rect x="908" y="484" width="256" height="128" rx="6" class="typedbox"/>
+  <text x="1036" y="514" text-anchor="middle" class="name">/mnemonic-art</text>
+  <text x="1036" y="538" text-anchor="middle" class="sub">one captioned memory hook</text>
+  <text x="1036" y="557" text-anchor="middle" class="sub">an aid, never a source</text>
+  <text x="1036" y="582" text-anchor="middle" class="warn">not checked, not cited</text>
+  <text x="1036" y="601" text-anchor="middle" class="typed">typed only</text>
+
+  <!-- legend -->
+  <rect x="24" y="660" width="34" height="18" rx="4" class="typedbox"/>
+  <text x="70" y="674" class="sub">Runs only when you type its name</text>
+  <rect x="380" y="660" width="34" height="18" rx="4" class="box"/>
+  <text x="426" y="674" class="sub">The agent may suggest it</text>
+  <rect x="680" y="660" width="34" height="18" rx="4" class="gate"/>
+  <text x="726" y="674" class="sub">Citation gate: PASS means the sources exist, not that they are right</text>
+</svg>
