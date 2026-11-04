@@ -64,8 +64,7 @@ def args(**kw):
 def test_success_saves_captioned_png_and_sidecar(art, net, monkeypatch, tmp_path, capsys):
     monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
     assert run_main(art, args(**{"--yes": True}), monkeypatch) == 0
-    png = tmp_path / "output/case1/art/staph-scalded-skin.png"
-    assert png.exists()
+    png = next((tmp_path / "output/case1/art").glob("staph-scalded-skin-*.png"))
     img = Image.open(png).convert("RGB")
     assert img.height > 256 and img.width == 256  # canvas extended with a caption band
     band = img.crop((0, 256, img.width, img.height))
@@ -76,7 +75,7 @@ def test_success_saves_captioned_png_and_sidecar(art, net, monkeypatch, tmp_path
     assert side["caption"] == "Staph scalded skin"
     assert "Staph scalded skin" in side["prompt"] and SCENE in side["prompt"]
     assert side["model"] == "google/gemini-2.5-flash-image"
-    assert "staph-scalded-skin.png" in capsys.readouterr().out
+    assert png.name in capsys.readouterr().out
 
 
 def test_caption_constant(art):
@@ -87,7 +86,7 @@ def test_dark_image_caption_readable(art, net, monkeypatch, tmp_path):
     monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
     net.response = ok_response((0, 0, 0))
     assert run_main(art, args(**{"--yes": True}), monkeypatch) == 0
-    img = Image.open(tmp_path / "output/case1/art/staph-scalded-skin.png").convert("RGB")
+    img = Image.open(next((tmp_path / "output/case1/art").glob("staph-scalded-skin-*.png"))).convert("RGB")
     band = img.crop((0, 256, img.width, img.height))
     lums = {sum(c) // 3 for _, c in band.getcolors(maxcolors=100000)}
     assert min(lums) < 100 and max(lums) > 200
@@ -248,3 +247,33 @@ def test_zdr_policy_error_prints_hint_exit_1(art, monkeypatch, capsys, tmp_path)
     assert "Your OpenRouter privacy settings exclude every image endpoint for this model." in out.err + out.out
     assert "https://openrouter.ai/settings/privacy" in out.err + out.out
     assert KEY not in out.out + out.err
+
+
+def test_distinct_concepts_get_distinct_files(art, net, monkeypatch, tmp_path):
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    for concept in ("IL-1α", "IL-1β"):
+        assert run_main(art, args(**{"--yes": True, "--concept": concept}), monkeypatch) == 0
+    pngs = list((tmp_path / "output/case1/art").glob("*.png"))
+    assert len(pngs) == 2
+    captions = {json.loads(p.with_suffix(".json").read_text())["caption"] for p in pngs}
+    assert captions == {"IL-1α", "IL-1β"}
+
+
+def test_same_concept_regenerates_same_file(art, net, monkeypatch, tmp_path):
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    for _ in range(2):
+        assert run_main(art, args(**{"--yes": True}), monkeypatch) == 0
+    assert len(list((tmp_path / "output/case1/art").glob("*.png"))) == 1
+
+
+def test_never_overwrites_other_concepts_image(art, net, monkeypatch, tmp_path, capsys):
+    monkeypatch.setenv("OPENROUTER_API_KEY", KEY)
+    assert run_main(art, args(**{"--yes": True}), monkeypatch) == 0
+    png = next((tmp_path / "output/case1/art").glob("*.png"))
+    side = png.with_suffix(".json")
+    data = json.loads(side.read_text())
+    data["caption"] = "Something else"
+    side.write_text(json.dumps(data))
+    before = png.read_bytes()
+    assert run_main(art, args(**{"--yes": True}), monkeypatch) == 1
+    assert png.read_bytes() == before and "different concept" in capsys.readouterr().err

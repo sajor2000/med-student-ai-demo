@@ -149,12 +149,26 @@ def linkify(text: str, linker: SourceLinker | None = None) -> str:
 ART_HEADING = "AI illustrations — memory aids, not references"
 
 
-def _media_src(src: Path, kind: str, page: Path) -> str:
-    """Copy a PNG next to the page under <name>_media/<kind>/ and return its relative URL."""
+def _media_src(src: Path, kind: str, page: Path) -> str | None:
+    """Copy a PNG next to the page under <name>_media/<kind>/ and return its relative URL.
+
+    Only files export.py created (listed in the folder's marker) or byte-identical files are replaced;
+    any other existing file is left alone with a warning and None is returned.
+    """
     folder = f"{page.stem}_media"
-    dest = page.parent / folder / kind / src.name
+    root = page.parent / folder
+    rel = f"{kind}/{src.name}"
+    dest = root / rel
+    marker = root / MARKER
+    owned = set(marker.read_text(encoding="utf-8").splitlines()) if marker.is_file() else set()
+    if dest.exists() and rel not in owned and dest.read_bytes() != src.read_bytes():
+        print(f"warning: {dest} already exists and was not created by export.py; left untouched, {src.name} skipped")
+        return None
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dest)
+    if rel not in owned:
+        owned.add(rel)
+        marker.write_text("\n".join(sorted(owned)) + "\n", encoding="utf-8")
     return f"{folder}/{kind}/{urllib.parse.quote(src.name)}"
 
 
@@ -174,6 +188,9 @@ def diagrams_section(folder: Path, page: Path, linker: SourceLinker | None) -> s
         if png.suffix.lower() != ".png" or not png.is_file() or not png.is_relative_to(folder):
             print(f"warning: {spec_path.name}: card image missing; diagram skipped")
             continue
+        url = _media_src(png, "diagrams", page)
+        if url is None:
+            continue
         title = html.escape(str(spec.get("title") or spec.get("slug") or png.stem))
         items = "".join(
             f"<li>{html.escape(str(lab.get('label', '')))} "
@@ -182,7 +199,7 @@ def diagrams_section(folder: Path, page: Path, linker: SourceLinker | None) -> s
         )
         blocks.append(
             f'<figure class="dg"><h2>{title}</h2>'
-            f'<img class="diagram" src="{html.escape(_media_src(png, "diagrams", page))}" alt="{title}">'
+            f'<img class="diagram" src="{html.escape(url)}" alt="{title}">'
             f"<ul>{items}</ul></figure>"
         )
     return "\n".join(blocks)
@@ -193,6 +210,9 @@ def art_section(folder: Path, page: Path) -> str:
     folder = _folder(folder, "--art").resolve()
     blocks = []
     for png in sorted(folder.glob("*.png")):
+        url = _media_src(png, "art", page)
+        if url is None:
+            continue
         caption = png.stem.replace("-", " ").replace("_", " ")
         sidecar = png.with_suffix(".json")
         if sidecar.is_file():
@@ -202,7 +222,7 @@ def art_section(folder: Path, page: Path) -> str:
                 pass
         cap = html.escape(caption)
         blocks.append(
-            f'<figure class="aid"><img class="art" src="{html.escape(_media_src(png, "art", page))}" alt="{cap}">'
+            f'<figure class="aid"><img class="art" src="{html.escape(url)}" alt="{cap}">'
             f"<figcaption>{cap}</figcaption></figure>"
         )
     if not blocks:

@@ -364,3 +364,30 @@ def test_crlf_inside_citation_still_links(export, tmp_path, monkeypatch):
     deck = write_deck(tmp_path / "out", [("Q?", "See [PMID:\r\n12345678] here", S2)])
     run_main(export, [str(deck)], monkeypatch)
     assert "pubmed.ncbi.nlm.nih.gov/12345678/" in (tmp_path / "out/flashcards.anki.txt").read_text(encoding="utf-8")
+
+
+def test_media_never_overwrites_unowned_file(export, tmp_path, monkeypatch, capsys):
+    deck = write_deck(tmp_path / "out", MIXED)
+    art = tmp_path / "art"
+    art.mkdir()
+    make_png(art / "foo.png", "red")
+    mine = tmp_path / "out/flashcards_media/art/foo.png"
+    mine.parent.mkdir(parents=True)
+    mine.write_bytes(b"user file, not ours")
+    run_main(export, [str(deck), "--art", str(art)], monkeypatch)
+    assert mine.read_bytes() == b"user file, not ours"
+    assert "warning" in capsys.readouterr().out
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert 'class="art"' not in page
+
+
+def test_media_rerun_replaces_own_file_and_adopts_identical(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    art = tmp_path / "art"
+    art.mkdir()
+    make_png(art / "foo.png", "red")
+    run_main(export, [str(deck), "--art", str(art)], monkeypatch)
+    make_png(art / "foo.png", "blue")
+    run_main(export, [str(deck), "--art", str(art)], monkeypatch)
+    dest = tmp_path / "out/flashcards_media/art/foo.png"
+    assert dest.read_bytes() == (art / "foo.png").read_bytes()

@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import base64
 import io
+import hashlib
 import json
 import os
 import re
@@ -155,6 +156,7 @@ def main() -> int:
     if not slug:
         print("Error: --concept needs letters or digits.", file=sys.stderr)
         return 1
+    slug = f"{slug}-{hashlib.sha1(a.concept.strip().casefold().encode()).hexdigest()[:8]}"
     key = os.environ.get("OPENROUTER_API_KEY")
     if not key:
         print(SETUP)
@@ -192,6 +194,14 @@ def main() -> int:
     out_dir = Path("output") / a.case / "art"
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{slug}.png"
+    if path.exists() or path.with_suffix(".json").exists():
+        try:
+            old = json.loads(path.with_suffix(".json").read_text(encoding="utf-8")).get("caption")
+        except (OSError, ValueError, AttributeError):
+            old = None
+        if old != a.concept:
+            print(f"Error: {path} belongs to a different concept; not overwriting it.", file=sys.stderr)
+            return 1
     img.save(path, "PNG")
     path.with_suffix(".json").write_text(json.dumps({
         "prompt": prompt,

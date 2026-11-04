@@ -113,8 +113,10 @@ To see them on your study page, add the folders to the export:
 
 ```bash
 uv run scripts/export.py output/<case>/flashcards.csv --guide output/<case>/study-guide.md \
-    --notes notes/<case> --diagrams output/<case>/diagrams [--art output/<case>/art]
+    --notes notes/<case> --diagrams output/<case>/diagrams
 ```
+
+To include your AI illustrations too, add `--art output/<case>/art` to the end of that command.
 
 The page gets a Diagrams tab (the picture plus each label with its citation) and, with `--art`, a Memory aids
 tab under the heading "AI illustrations — memory aids, not references". A finished example, with no art, is in

@@ -251,7 +251,8 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             continue
         name = check_id("edge", i, e)
         for end in ("from", "to"):
-            if e.get(end) not in node_ids:
+            target = e.get(end)
+            if not isinstance(target, str) or target not in node_ids:
                 problems.append(f"{name}: {end} {e.get(end)!r} is not a node id")
         cite = e.get("cite") or ""
         if not isinstance(cite, str):

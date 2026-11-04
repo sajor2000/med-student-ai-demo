@@ -121,8 +121,10 @@ def csv_notes(path: Path) -> list[dict]:
                 model, fields = "Cloze", {"Text": html.escape(front), "Back Extra": back}
             else:
                 model, fields = "Basic", {"Front": html.escape(front), "Back": back}
+            user_tags = tag_list(row.get("tags", ""))
+            disc_tag = [f"msad-disc::{user_tags[1]}"] if len(user_tags) > 1 else []
             notes.append({"id": nid, "model": model, "fields": fields,
-                          "tags": ["msad", f"msad-id::{nid}", *tag_list(row.get("tags", ""))]})
+                          "tags": ["msad", f"msad-id::{nid}", *disc_tag, *user_tags]})
     return notes
 
 
@@ -237,8 +239,7 @@ class Sync:
                 topic, discipline = vals.get("Back Extra", "").partition("<br")[0], "diagram"
             else:
                 topic = vals.get("Front") or vals.get("Text") or ""
-                plain = [t for t in tags if not t.startswith("msad")]
-                discipline = plain[1] if len(plain) > 1 else "unknown"
+                discipline = next((t.split("::", 1)[1] for t in tags if t.startswith("msad-disc::")), "unknown")
             topic = clean_topic(topic)
             out.append({"id": sid, "discipline": discipline, "topic": topic, "cite": first_cite(vals)})
         return out

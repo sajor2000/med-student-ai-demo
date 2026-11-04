@@ -471,3 +471,16 @@ def test_diagrams_only_sync(anki_mod, monkeypatch, fake_factory, workdir, capsys
     d = write_diagrams(workdir)
     assert sync(anki_mod, monkeypatch, fake, workdir, csv_path=False, diagrams=d) == 0
     assert summary(capsys.readouterr().out)["added"] == 2
+
+
+def test_discipline_survives_alphabetical_tag_order(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    write_csv(workdir)
+    sync(anki_mod, monkeypatch, fake, workdir)
+    capsys.readouterr()
+    low = next(i for i, n in fake.notes.items() if n["fields"].get("Front", "").startswith("Catalase"))
+    fake.notes[low]["tags"].sort()  # Anki returns tags alphabetically: case-1, lab, msad..., micro
+    fake.cards[fake.notes[low]["cards"][0]]["lapses"] = 3
+    sync(anki_mod, monkeypatch, fake, workdir)
+    text = (workdir / "weak-spots.md").read_text(encoding="utf-8")
+    assert "| micro | Catalase" in text and "| lab |" not in text

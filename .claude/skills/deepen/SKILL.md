@@ -8,6 +8,10 @@ Arguments: `$ARGUMENTS`. The quoted part is the concept. An optional last word i
 If no case is given and exactly one folder exists under `notes/`, use it. If there are several, ask which one.
 Tool names and query forms live in `reference.md`.
 
+If the PubMed tools are unavailable, skip steps 1-3: write a slide-only explainer from `notes/<case>` (slide
+citations only, `[source needed]` for anything beyond the slides), state "literature step was skipped (PubMed
+unavailable)" at the top, and go to step 6. Never write a PMID without a tool result.
+
 1. Look up the concept with `pubmed_lookup_mesh` and build a query.
    Done when you have a query with MeSH terms.
 2. Search with `pubmed_search_articles`: a StatPearls chapter first, then reviews from the last 10 years, then one

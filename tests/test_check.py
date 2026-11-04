@@ -4,6 +4,8 @@ import csv
 import json
 from pathlib import Path
 
+import pytest
+
 from conftest import run_main
 
 DECK = "[[MICRO/Staph deck (sample)#S3]]"
@@ -260,3 +262,10 @@ def test_crlf_inside_pmid_citation_is_checked(check, notes, tmp_path, monkeypatc
     deck = write_deck(tmp_path / "d.csv", [card("Q?", sources="[PMID:\r\n99999999]")])
     assert run_main(check, [str(deck), "--notes", str(notes)], monkeypatch) == 1
     assert "PMID:99999999 does not exist" in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("bad", [["n1"], {"id": "n1"}, 7])
+def test_non_string_edge_endpoint_is_readable_failure(check, tmp_path, monkeypatch, capsys, bad):
+    path = spec_copy(tmp_path, lambda s: s["edges"][0].__setitem__("from", bad))
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "not a node id" in out and "Traceback" not in out

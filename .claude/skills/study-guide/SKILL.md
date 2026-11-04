@@ -14,12 +14,13 @@ Tool names, query forms, and the section list live in `reference.md`.
    Done when you can name each topic with its slide numbers.
 2. Draft the sections listed in `reference.md`. Every bullet, numbered item, and table row carries a citation
    (`[[path#S#]]`, `[[path#P#]]`, `[[path#T#]]`, or `[PMID:…]`), or is marked `[source needed]` or `(AI mnemonic)`.
-   The Self-test section is exempt from per-line citations because its answers are cited.
-   Done when every line outside Self-test has a citation or a mark.
+   `check.py` verifies this for bullets, numbered items, and table rows outside Self-test. It does not check
+   plain prose lines or the Self-test answers, so read those yourself: each Self-test answer needs a citation.
+   Done when every such line has a citation or a mark and `check.py` agrees.
 3. Add "Beyond the slides" for the 3 highest-yield topics using the PubMed tools (`reference.md`). A fact the course
    has no slide for (a drug mechanism, for example) goes here with a PMID from a tool call this session, or is marked
    `[source needed]`. Attach each fact only to a source that states it. If the PubMed tools are unavailable, write
-   "Beyond the slides: skipped (PubMed unavailable)".
+   "Beyond the slides: skipped (PubMed unavailable) [source needed]".
    Done when each Beyond-the-slides line has a tool-returned PMID or `[source needed]`.
 4. Run `uv run scripts/check.py output/<case>/study-guide.md --notes notes/<case>`. Fix every failure and rerun.
    Done when it prints PASS.

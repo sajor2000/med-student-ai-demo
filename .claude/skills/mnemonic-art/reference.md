@@ -29,7 +29,7 @@ details. The check is a second safeguard; the student review in step 2 is the fi
   `MSAD_IMAGE_MODEL` says otherwise. Check the model's current price on openrouter.ai.
 - Requests set `provider.data_collection: "deny"`, so OpenRouter routes only to providers that do not train on or
   retain prompts. The prompt still leaves the machine, which is why the student confirms it first.
-- Output: `output/<case>/art/<slug>.png` with the caption "AI illustration — not a reference" in a bottom band,
+- Output: `output/<case>/art/<slug>-<hash>.png` (slug plus a short hash of the full concept, so similar names never collide; an image of a different concept is never overwritten) with the caption "AI illustration — not a reference" in a bottom band,
   and `<slug>.json` holding prompt, model, and timestamp.
 
 ## OpenRouter privacy settings (ZDR)
