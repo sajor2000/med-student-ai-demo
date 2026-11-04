@@ -11,7 +11,7 @@ All notable changes are documented here. Format follows
 ### Added
 - Evidence-based practice skills: `/vignette` (synthetic board-style vignettes, answer first, look-alike options), `/teach-back` (explain a mechanism, get marked against the slides), `scripts/coverage.py`, and a Vignettes tab on the study page (#7).
 - Any-school ingest: `scripts/extract.py` reads PDF, plain text, Markdown, VTT/SRT transcripts and more, beyond PowerPoint and Word (#6).
-- Fictional case-based sample guide and a 25-minute demo walkthrough (#8).
+- Fictional case-based sample guide and a 25-minute demo walkthrough (#8). The demo input is a fictional M1 class PDF, built by `scripts/make_case_guide.py` with LibreOffice (#9); the editable Word file is in `docs/sample-case/`.
 - README onboarding for Claude Code and Codex, and `AGENTS.md` as the single source of agent rules (#4).
 - Open-source readiness: MIT license (code), CC BY 4.0 (sample and examples), contributing guide, code of conduct, security policy, citation file, issue and PR templates, `scripts/doctor.py`, and `docs/FOR-EDUCATORS.md` (#5).
 - Follow-ups to the first release: a PHI gate, safer Anki adoption of existing cards, a Deep dives tab, and CI (#3).
