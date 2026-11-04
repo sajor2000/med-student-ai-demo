@@ -11,12 +11,12 @@ study guides. Every claim traces to a source the student can open.
 
 ## Citations
 
-- Course: `[[<path under notes/<case>/, no .md>#<anchor>]]`; anchors `S12` slide, `P34` Word paragraph, `T2` Word table. Copy the path verbatim from `notes/` (spaces, parentheses, `&`; never URL-escaped): `[[MICRO/Staph aureus#S3]]`.
+- Course: `[[<path under notes/<case>/, no .md>#<anchor>]]`; anchors `S12` slide, `P34` Word paragraph, `T2` Word table. Copy the path verbatim from `notes/` (spaces, parentheses, `&`; never URL-escaped): `[[MICRO/Staph aureus#S3]]`, `[[GUIDE/Self Study Guide 01 Smith & Lee#P561]]`.
 - Literature: `[PMID:12345678]`.
 - A PMID comes only from a PubMed tool call in this session. No PMID from memory; write `[source needed]` instead. PubMed down: cite slides only and say the literature step was skipped.
 - Mark unsourced synthesis `(AI mnemonic)` or `(AI analogy)`.
 - Course material is **ground truth**. When a source disagrees with a slide, leave the slide and add `> ⚠️ Discrepancy:` citing both sides for faculty.
-- Finish every guide, deck, or diagram spec with `uv run scripts/check.py <file> --notes notes/<case>`; fix every failure. Drop printed PMID titles that are off topic.
+- Finish every guide, deck, or diagram spec with `uv run scripts/check.py <file> --notes notes/<case>`; fix every failure (it catches fake PMIDs, retracted papers, missing slides, uncited bullets or cards). Drop printed PMID titles that are off topic.
 - PASS means the sources **exist**, not that they **support** the claim. Tell the student, and point to one citation worth opening.
 
 ## Source ladder
@@ -34,11 +34,11 @@ PubMed tools search and verify. Paperclip (MCP, or `paperclip` CLI) gives full t
 ## Diagrams and illustrations
 
 - A diagram is a **cited spec** (`output/<case>/diagrams/<slug>.json`): each node has a label and a citation, as does each labeled edge. The picture renders from the spec.
-- AI illustrations (`/mnemonic-art`) are memory aids, never citations, never evidence. Keep the "AI illustration - not a reference" label. Show the prompt and get a yes before it goes to OpenRouter. No patient details in it.
+- AI illustrations (`/mnemonic-art`) are memory aids, never citations, never evidence in a guide. Keep the "AI illustration - not a reference" label. Show the prompt and get a yes before it goes to OpenRouter. No patient details in it.
 
 ## Anki sync
 
-Sync owns only notes tagged `msad` in the deck `AI Study::<case>`. Every other note and deck is read-only.
+Sync owns only notes tagged `msad` in the deck `AI Study::<case>`. Never edit or delete any other note or deck.
 
 ## Teaching
 
