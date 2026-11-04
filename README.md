@@ -104,7 +104,7 @@ git clone https://github.com/sajor2000/med-student-ai-demo
 cd med-student-ai-demo
 uv run scripts/extract.py sample/curriculum --out sample/notes
 uv run scripts/check.py examples/flashcards.csv --notes sample/notes
-uv run scripts/export.py examples/flashcards.csv --guide examples/study-guide.md --notes sample/notes
+uv run scripts/export.py examples/flashcards.csv --guide examples/study-guide.md --notes sample/notes --diagrams examples/diagrams --vignettes examples/vignettes.json
 open examples/flashcards.html                      # macOS
 ```
 The last line opens the page in your browser. On Windows (PowerShell), open the page with:
