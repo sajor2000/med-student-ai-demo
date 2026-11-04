@@ -8,6 +8,7 @@ https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode
 Covered:
   sample/    the fictional sample lecture, case guide, and their extracted notes
   examples/  generated example outputs (flashcards, study guides, diagrams)
+  docs/sample-case/  the editable Word version of the fictional case guide
 
 Copyright (c) 2026 J.C. Rojas. Attribute as "med-student-ai-demo by J.C. Rojas".
 Commercial use needs a separate written license: open an issue titled

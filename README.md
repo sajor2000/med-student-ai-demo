@@ -212,7 +212,7 @@ What each skill is based on, and how strong that evidence is: [docs/LEARNING-SCI
 ## License
 
 **Free for noncommercial use; not for sale.** The code is under the
-[PolyForm Noncommercial License 1.0.0](LICENSE) and the fictional `sample/` and `examples/` content is under
+[PolyForm Noncommercial License 1.0.0](LICENSE) and the fictional `sample/`, `examples/`, and `docs/sample-case/` content is under
 CC BY-NC-SA 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)). You may use, change, and share it for personal study, and
 schools, universities, public research bodies, and other noncommercial organizations may use it for teaching and
 research. The license text decides the exact scope. Selling it or building it into a paid product or service needs a separate written license: open an issue
