@@ -187,3 +187,13 @@ def test_directory_as_csv_is_argument_error(cov, tmp_path, monkeypatch):
     with pytest.raises(SystemExit) as e:
         run_main(cov, ["--notes", str(notes), "--csv", str(tmp_path)], monkeypatch)
     assert e.value.code == 2
+
+
+@pytest.mark.parametrize("payload", [{"vignettes": ["x"]}, {"vignettes": [{"objective": "1"}]},
+                                     {"vignettes": [{"objective": 1.5}]}, {"vignettes": [{"objective": True}]}])
+def test_malformed_vignette_entries_exit_2(cov, tmp_path, monkeypatch, capsys, payload):
+    notes = make_notes(tmp_path)
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps(payload), encoding="utf-8")
+    assert run_main(cov, ["--notes", str(notes), "--vignettes", str(bad)], monkeypatch) == 2
+    assert "bad.json" in capsys.readouterr().err

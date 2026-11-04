@@ -356,3 +356,8 @@ def test_lowercase_or_uppercase_patient_title_with_caps_name_is_refused(art, sce
                                    "patient COPD flare"])
 def test_title_cased_medical_concepts_not_refused(art, scene):
     assert art.phi_hit(scene) is None
+
+
+@pytest.mark.parametrize("scene", ["Maria, age 45 smiling", "Maria, aged 45 smiling"])
+def test_name_comma_age_forms_refused(art, scene):
+    assert art.phi_hit(scene) is not None

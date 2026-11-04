@@ -79,11 +79,16 @@ def vignette_counts(path: Path) -> dict[Key, int]:
     except (ValueError, KeyError, TypeError) as exc:
         raise ValueError(f"{path}: not a vignettes file ({exc.__class__.__name__}: {exc})") from exc
     counts: dict[Key, int] = {}
-    for v in items:
-        n = v.get("objective") if isinstance(v, dict) else None
-        if isinstance(n, int) and not isinstance(n, bool):
-            lecture = v.get("lecture") if isinstance(v.get("lecture"), str) else ""
-            counts[(lecture, n)] = counts.get((lecture, n), 0) + 1
+    for i, v in enumerate(items, 1):
+        if not isinstance(v, dict):
+            raise ValueError(f"{path}: vignette #{i} is not an object")
+        n = v.get("objective")
+        if n is None:
+            continue
+        if not isinstance(n, int) or isinstance(n, bool):
+            raise ValueError(f"{path}: vignette #{i} has a non-integer objective {n!r}")
+        lecture = v.get("lecture") if isinstance(v.get("lecture"), str) else ""
+        counts[(lecture, n)] = counts.get((lecture, n), 0) + 1
     return counts
 
 

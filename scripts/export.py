@@ -260,7 +260,7 @@ def load_vignettes(path: Path) -> list[dict]:
             or not v["stem"].strip()
             or not isinstance(opts, list)
             or not opts
-            or not all(isinstance(o, dict) and isinstance(o.get("text"), str) for o in opts)
+            or not all(isinstance(o, dict) and isinstance(o.get("text"), str) and o["text"].strip() for o in opts)
         ):
             raise SystemExit(f'--vignettes: vignette #{n} needs a "stem" string and a non-empty "options" list of objects with "text"')
         if (
@@ -531,7 +531,7 @@ document.getElementById('pos').textContent=(i+1)+' / '+C.length}
 const flip=()=>{card.classList.toggle('flipped');const c=C[i];if(c.cloze)card.querySelector('.q').innerHTML=card.classList.contains('flipped')?c.reveal:c.front};card.onclick=e=>{if(e.target.tagName!=='A')flip()};
 document.getElementById('flip').onclick=flip;document.getElementById('next').onclick=()=>{i=(i+1)%C.length;show()};
 document.getElementById('prev').onclick=()=>{i=(i-1+C.length)%C.length;show()};
-document.onkeydown=e=>{if(e.key===' '){e.preventDefault();flip()}if(e.key==='ArrowRight')document.getElementById('next').click();if(e.key==='ArrowLeft')document.getElementById('prev').click()};
+document.onkeydown=e=>{if(e.target.closest&&e.target.closest('input,textarea,select,[contenteditable]'))return;if(e.key===' '){e.preventDefault();flip()}if(e.key==='ArrowRight')document.getElementById('next').click();if(e.key==='ArrowLeft')document.getElementById('prev').click()};
 const tg=document.getElementById('tg'),tc=document.getElementById('tc');
 tg.onclick=()=>{guide.hidden=false;cards.hidden=true;tg.setAttribute('aria-pressed',true);tc.setAttribute('aria-pressed',false)};
 tc.onclick=()=>{guide.hidden=true;cards.hidden=false;tc.setAttribute('aria-pressed',true);tg.setAttribute('aria-pressed',false)};

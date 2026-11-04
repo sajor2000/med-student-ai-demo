@@ -693,3 +693,22 @@ def test_committed_example_imports_carry_ownership_tag():
     for name in ("flashcards.anki.txt", "flashcards.cloze.anki.txt"):
         rows = [ln for ln in (root / name).read_text(encoding="utf-8").splitlines() if ln.startswith("msad-")]
         assert rows and all("msad" in ln.rsplit("\t", 1)[-1].split() for ln in rows), name
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_blank_option_text_exits_readably(export, tmp_path, monkeypatch, blank):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json", texts=["Alpha", blank, "Charlie", "Delta", "Echo"])
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def test_page_shortcuts_ignore_typing_in_form_fields(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    page = (tmp_path / "out" / "flashcards.html").read_text(encoding="utf-8")
+    handler = page.split("document.onkeydown=", 1)[1].split("\n", 1)[0]
+    assert "textarea" in handler and "return" in handler.split("textarea")[0] + handler.split("textarea")[1]
+    assert handler.index("textarea") < handler.index("preventDefault")

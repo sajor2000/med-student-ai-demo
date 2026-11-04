@@ -479,3 +479,13 @@ def test_walkthrough_staging_is_guarded_and_commands_pass_no_patient_name_as_top
             assert "Rivera" not in line, line
     assert "\n   mkdir -p curriculum && cp -R" not in text and "if [ -e curriculum/sample ]" in text
     assert "already exists" in text
+
+
+@pytest.mark.parametrize("stem", ["Maria, age 45 presents with fever", "Maria, aged 45 presents with fever", "Maria aged 45 presents"])
+def test_phi_gate_catches_name_comma_age_forms(check, stem):
+    assert check.phi_hit(stem) == "a name with an age"
+
+
+@pytest.mark.parametrize("stem", ["Fever, 38 C on arrival", "Tachycardic, 104 bpm at rest"])
+def test_phi_gate_keeps_vital_sign_exclusions(check, stem):
+    assert check.phi_hit(stem) is None
