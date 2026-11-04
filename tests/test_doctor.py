@@ -212,3 +212,17 @@ def test_global_ignore_named_gitignore_does_not_count(doctor, monkeypatch):
     assert doctor.git_ignored("notes/") is False
     Done.stdout = f"{doctor.ROOT}/.gitignore:2:notes/\tnotes/x\n".encode()
     assert doctor.git_ignored("notes/") is True
+
+
+@pytest.mark.parametrize("payload", [b"null", b"[]", b'"x"', b"42"])
+def test_anki_probe_ignores_non_object_json(doctor, monkeypatch, payload):
+    class FakeResp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self, *a): return payload
+
+    class FakeOpener:
+        def open(self, req, timeout=None): return FakeResp()
+
+    monkeypatch.setattr(doctor.urllib.request, "build_opener", lambda *h: FakeOpener())
+    assert doctor.anki_version() is None

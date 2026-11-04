@@ -67,7 +67,8 @@ def anki_version(url: str = ANKI_URL, timeout: float = 2.0) -> int | None:
         # loopback probe: never route through HTTP_PROXY (matches anki_sync.py)
         opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
         with opener.open(req, timeout=timeout) as resp:
-            return json.load(resp).get("result")
+            data = json.load(resp)
+            return data.get("result") if isinstance(data, dict) else None
     except (OSError, ValueError):
         return None
 
