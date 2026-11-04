@@ -288,5 +288,5 @@ def test_walkthrough_staging_is_guarded_and_commands_pass_no_patient_name_as_top
     for line in text.splitlines():
         if line.lstrip("| `").startswith(("/study-guide", "/flashcards", "/quiz")):
             assert "Rivera" not in line, line
-    assert "mkdir -p curriculum && cp -R" not in text
+    assert "\n   mkdir -p curriculum && cp -R" not in text and "if [ -e curriculum/sample ]" in text
     assert "already exists" in text
