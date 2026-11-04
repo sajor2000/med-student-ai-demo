@@ -282,7 +282,9 @@ def append_weak_spots(case_dir: Path, items: list[dict]) -> int:
     with (case_dir / "weak-spots.md").open("a", encoding="utf-8") as fh:
         for i in new:
             fh.write(f"- {today} | {i['discipline']} | {i['topic']} | {i['cite']}\n")
-    sidecar.write_text(json.dumps({"synced": done + [i["id"] for i in new]}, indent=1), encoding="utf-8")
+    tmp = sidecar.with_name(sidecar.name + ".tmp")
+    tmp.write_text(json.dumps({"synced": done + [i["id"] for i in new]}, indent=1), encoding="utf-8")
+    tmp.replace(sidecar)
     return len(new)
 
 

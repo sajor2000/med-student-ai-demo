@@ -371,3 +371,16 @@ def test_spec_missing_id_or_label_collected_not_keyerror(occ):
     assert "n2" in text and "label" in text
     assert "node #3" in text or "5" in text
     assert "edge #1" in text and "edge #2" in text
+
+
+def test_path_separator_ids_rejected_pre_render(occ):
+    probs = occ.spec_type_problems({"nodes": [{"id": "a/b", "label": "x"}, {"id": "c\\d", "label": "y"}],
+                                    "edges": [{"id": "e/1", "label": "z"}]})
+    text = " ".join(probs)
+    assert "a/b" in text and "c" in text and "e/1" in text and len(probs) == 3
+
+
+def test_whitespace_only_edge_label_not_wanted(occ):
+    spec = {"nodes": [], "edges": [{"id": "e1", "label": "   "}]}
+    fails, _ = occ.validate(spec, [{"id": "e1", "decorative": False, "text": "   "}])
+    assert any("has no label in the spec" in f for f in fails)
