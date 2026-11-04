@@ -2,8 +2,8 @@
   "mcpServers": {
     "pubmed": {
       "type": "stdio",
-      "command": "npx",
-      "args": ["-y", "@cyanheads/pubmed-mcp-server@2.12.0"],
+      "command": "bash",
+      "args": ["scripts/pubmed-mcp.sh"],
       "env": {
         "MCP_TRANSPORT_TYPE": "stdio",
         "NCBI_API_KEY": "${NCBI_API_KEY:-}",

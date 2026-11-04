@@ -331,12 +331,19 @@ def strip_unsafe_urls(page: str) -> str:
     return _URL_ATTR.sub(fix, page)
 
 
+def read_deepen(md_file: Path) -> str:
+    try:
+        return md_file.read_text(encoding="utf-8")
+    except (OSError, UnicodeDecodeError) as exc:
+        raise SystemExit(f"--deepen: cannot read {md_file}: {exc}")
+
+
 def deepen_section(folder: Path, linker: SourceLinker | None) -> str:
     """HTML for the Deep dives tab: each explainer rendered with raw HTML escaped, citations linked."""
     folder = _folder(folder, "--deepen").resolve()
     blocks = []
     for md_file in sorted(folder.glob("*.md")):
-        text = md_file.read_text(encoding="utf-8").replace("<", "&lt;")  # markdown keeps entities, drops raw tags
+        text = read_deepen(md_file).replace("<", "&lt;")  # markdown keeps entities, drops raw tags
         rendered = strip_unsafe_urls(markdown.markdown(text, extensions=["tables"]))
         blocks.append(f'<article class="dd">{linkify(rendered, linker)}</article>')
     return "\n".join(blocks)
@@ -395,6 +402,17 @@ def main() -> int:
     ap.add_argument("--deepen", type=Path, help="folder of /deepen explainers (*.md); adds a Deep dives tab")
     ap.add_argument("--vignettes", type=Path, help="vignettes.json; adds a Vignettes tab (options hidden until an answer is typed)")
     args = ap.parse_args()
+
+    # Validate optional inputs before anything is written or deleted, so a bad flag leaves the previous
+    # Anki files, sources folder, and page untouched.
+    for flag, folder in (("--diagrams", args.diagrams), ("--art", args.art), ("--deepen", args.deepen)):
+        if folder:
+            _folder(folder, flag)
+    if args.deepen:
+        for md_file in args.deepen.glob("*.md"):
+            read_deepen(md_file)
+    if args.vignettes:
+        load_vignettes(args.vignettes)
 
     with args.csv.open(newline="", encoding="utf-8") as fh:
         cards = list(csv.DictReader(fh))

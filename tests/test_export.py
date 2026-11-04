@@ -712,3 +712,49 @@ def test_page_shortcuts_ignore_typing_in_form_fields(export, tmp_path, monkeypat
     handler = page.split("document.onkeydown=", 1)[1].split("\n", 1)[0]
     assert "textarea" in handler and "return" in handler.split("textarea")[0] + handler.split("textarea")[1]
     assert handler.index("textarea") < handler.index("preventDefault")
+
+
+@pytest.mark.parametrize("flag, make_bad", [
+    ("--vignettes", lambda p: p.write_text("{not json", encoding="utf-8")),
+    ("--diagrams", lambda p: None),   # path that is not a folder
+    ("--art", lambda p: None),
+    ("--deepen", lambda p: None),
+])
+def test_bad_optional_input_leaves_existing_sources_and_page_intact(export, notes, tmp_path, monkeypatch, flag, make_bad):
+    deck = write_deck(tmp_path / "out", [("Q?", "A", S3)])
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    sources = tmp_path / "out/flashcards_sources"
+    before = sorted(p.name for p in sources.rglob("*") if p.is_file())
+    page_before = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert before
+    bad = tmp_path / "bad"
+    make_bad(bad) if flag == "--vignettes" else None
+    if flag == "--vignettes":
+        pass
+    else:
+        bad.write_text("not a folder", encoding="utf-8")
+    with pytest.raises(SystemExit):
+        run_main(export, [str(deck), "--notes", str(notes), flag, str(bad)], monkeypatch)
+    assert sorted(p.name for p in sources.rglob("*") if p.is_file()) == before
+    assert (tmp_path / "out/flashcards.html").read_text(encoding="utf-8") == page_before
+
+
+def test_flashcards_skill_lists_every_export_flag():
+    text = (Path(__file__).resolve().parent.parent / ".claude" / "skills" / "flashcards" / "SKILL.md").read_text(encoding="utf-8")
+    for flag in ("--guide", "--notes", "--diagrams", "--art", "--deepen", "--vignettes"):
+        assert flag in text, flag
+
+
+def test_unreadable_deepen_file_exits_before_any_output_changes(export, notes, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Q?", "A", S3)])
+    run_main(export, [str(deck), "--notes", str(notes)], monkeypatch)
+    anki = deck.with_suffix(".anki.txt")
+    anki_before = anki.read_text(encoding="utf-8")
+    deck.write_text(deck.read_text(encoding="utf-8") + 'Q2?,A2,"' + S3 + '",\n', encoding="utf-8")  # a new card
+    dd = tmp_path / "deepen"
+    dd.mkdir()
+    (dd / "bad.md").write_bytes(b"\xff\xfe\x00bad")
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--notes", str(notes), "--deepen", str(dd)], monkeypatch)
+    assert "--deepen" in str(e.value)
+    assert anki.read_text(encoding="utf-8") == anki_before

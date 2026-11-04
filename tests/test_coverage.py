@@ -197,3 +197,43 @@ def test_malformed_vignette_entries_exit_2(cov, tmp_path, monkeypatch, capsys, p
     bad.write_text(json.dumps(payload), encoding="utf-8")
     assert run_main(cov, ["--notes", str(notes), "--vignettes", str(bad)], monkeypatch) == 2
     assert "bad.json" in capsys.readouterr().err
+
+
+@pytest.mark.parametrize("objective", [0, -1])
+def test_non_positive_objective_exits_2(cov, tmp_path, monkeypatch, capsys, objective):
+    notes = make_notes(tmp_path)
+    bad = tmp_path / "bad.json"
+    bad.write_text(json.dumps({"vignettes": [{"objective": objective}]}), encoding="utf-8")
+    assert run_main(cov, ["--notes", str(notes), "--vignettes", str(bad)], monkeypatch) == 2
+    assert "bad.json" in capsys.readouterr().err
+
+
+def test_numbered_objectives_after_a_heading_are_parsed(cov, tmp_path):
+    notes = tmp_path / "notes" / "GUIDE"
+    notes.mkdir(parents=True)
+    (notes / "Case guide.md").write_text(
+        "# Case guide\n\n## [S1] Page\n- Learning Objectives:\n- 1. Explain rolling\n- 2. Explain adhesion\n"
+        "- Self-Study Questions\n- 3. not an objective\n", encoding="utf-8")
+    found = cov.parse_objectives(tmp_path / "notes")
+    assert sorted(n for (_, n) in found) == [1, 2]
+    assert found[("guide-case-guide", 1)] == "Explain rolling"
+
+
+def test_repeated_objective_sections_in_one_file_get_ordinal_slugs(cov, tmp_path):
+    notes = tmp_path / "notes"
+    notes.mkdir()
+    (notes / "Guide.md").write_text(
+        "- Learning Objectives:\n- 1. First A\n- 2. First B\n- Learning Objectives:\n- 1. Second A\n", encoding="utf-8")
+    found = cov.parse_objectives(notes)
+    assert found[("guide", 1)] == "First A" and found[("guide-2", 1)] == "Second A"
+
+
+def test_sample_micro_objectives_are_all_covered_by_the_shipped_examples(cov, monkeypatch, capsys):
+    root = Path(__file__).resolve().parent.parent
+    run_main(cov, ["--notes", str(root / "sample" / "notes"),
+                   "--csv", str(root / "examples" / "flashcards.csv"),
+                   "--vignettes", str(root / "examples" / "vignettes.json")], monkeypatch)
+    captured = capsys.readouterr()
+    micro = [ln for ln in captured.out.splitlines() if ln.startswith("[micro-")]
+    assert len(micro) == 3 and not any("UNCOVERED" in ln for ln in micro), captured.out
+    assert "ambiguous" not in captured.err

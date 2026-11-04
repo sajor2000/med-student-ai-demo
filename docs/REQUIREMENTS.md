@@ -40,6 +40,10 @@ account for Claude Code; a ChatGPT plan or API key for Codex).
   plain text file there, run `del .agents\skills` (PowerShell: `Remove-Item .agents\skills`) then
   `mklink /D .agents\skills ..\.claude\skills` in an elevated prompt, or copy the folder.
 
+## PubMed connector and Node
+
+The PubMed server needs Node 24+: on Node 22 it starts but every tool call fails with `Promise.try is not a function`. On macOS and Linux, `.mcp.json` and `.codex/config.toml` run `scripts/pubmed-mcp.sh`, which finds a Node 24+ (your `PATH`, then `/opt/homebrew/bin`, then `/usr/local/bin`; or set `PUBMED_MCP_NODE=/path/to/node`) and prints a clear message if there is none. On Windows the script does not run: with Node 24+ installed, point the connector at `npx.cmd` directly, with args `-y @cyanheads/pubmed-mcp-server@2.12.0`.
+
 ## Verify your setup
 
 Run from the repo folder. Each line should print a version or a result, not an error.

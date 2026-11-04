@@ -105,7 +105,8 @@ def pubmed_summaries(pmids: list[str]) -> dict[str, dict]:
     return out
 
 
-# Deliberate copy of PHI_PATTERNS in mnemonic_art.py: each script stays standalone.
+# Deliberate copy of PHI_PATTERNS, NAME_ALLOW, and name_hit in mnemonic_art.py: each script stays standalone,
+# and tests/test_check.py asserts the two stay in sync (apart from the vital-sign exclusion on "Name, 38 C").
 PHI_PATTERNS = [
     (re.compile(r"\d{6,}"), "a number with 6 or more digits (MRN-like)"),
     (re.compile(r"\b(?:MRN|DOB)\b|date\s+of\s+birth|medical\s+record", re.I), "MRN or date-of-birth wording"),
@@ -115,7 +116,65 @@ PHI_PATTERNS = [
     (re.compile(r"\b(?:born|dob)\b[^.]{0,20}\b(?:19|20)\d{2}\b", re.I), "a birth year"),
     (re.compile(r"\b[A-Z][a-z]+(?:,\s*(?!\d{1,3}\s*(?:bpm|mm|mg|mL|ml|kg|cm|lb|%|°|[CF]\b|breaths|/min|mEq|U/L|g/dL))|,?\s+aged?\s+)\d{1,3}\b"), "a name with an age"),
     (re.compile(r"\b\d{1,3}[- ]years?[- ]old\s+(?:named|called)\b", re.I), "a name with an age"),
+    # De-identification gate (heuristic, fail closed): contact details and locators.
+    (re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+"), "an email address"),
+    (re.compile(r"(?<![\w-])(?:\+?1[\s.-]?)?(?:\(\d{3}\)\s?|\d{3}[\s.-])\d{3}[\s.-]\d{4}(?![\w-])"), "a phone number"),
+    (re.compile(r"(?<![\w-])\d{3}[- ]\d{2}[- ]\d{4}(?![\w-])"), "an SSN-like number"),
+    (re.compile(r"\b\d{1,6}\s+(?:[A-Za-z]+\s+){0,3}(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|"
+                r"Ln|Lane|Ct|Court|Way|Pl|Place|Pkwy|Parkway|Hwy|Highway)\b\.?", re.I), "a street address"),
+    (re.compile(r"#\s*\d{4,}|\b(?:chart|account|acct|patient|pt|record)\s*(?:no\.?|number|id|#)?\s*[:#]?\s*\d{4,}\b",
+                re.I), "an MRN-like identifier"),
+    (re.compile(r"(?<![\d-])\d{5}(?:-\d{4})?(?![\d-])"), "a ZIP code"),
+    (re.compile(r"\b(?:https?://|www\.)\S*\?\S+", re.I), "a URL with a query string"),
+    (re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Dr|Patient)\b\.?\s+[A-Z][a-z]+"), "a title followed by a name"),
+    # all-caps names: after a personal title, or two all-caps words after "Patient" (so "Patient COPD" is not refused)
+    (re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Dr|MR|MRS|MS|MISS|DR)\b\.?\s+[A-Z]{2,}\b|\b(?i:patient)\s+[A-Z]{3,}(?:\s+[A-Z]{3,})+"),
+     "a title followed by a name"),
 ]
+
+
+# Title-Case words that are medical or scientific terms (eponyms, genera, units of naming), not people.
+NAME_ALLOW = frozenset(w.lower() for w in """
+Graves Hashimoto Cushing Addison Crohn Lyme Staphylococcus Streptococcus Borrelia Gram Type Vitamin Staph Strep
+Parkinson Alzheimer Huntington Down Turner Klinefelter Marfan Ehlers Danlos Kawasaki Wilson Raynaud Sjogren
+Hodgkin Burkitt Epstein Barr Guillain Barre Bell Paget Hirschsprung Meniere Reye Zika Ebola Salmonella Escherichia
+Pseudomonas Klebsiella Neisseria Clostridium Clostridioides Candida Aspergillus Mycobacterium Helicobacter
+Chlamydia Treponema Plasmodium Giemsa Ziehl Neelsen Wright Coombs Babinski Murphy Virchow Beck Cheyne Stokes
+Kussmaul Trousseau Chvostek Osler Janeway Roth Charcot Horner Wernicke Korsakoff Mallory Weiss Barrett Zenker
+Meckel Wolff Parkinson White Brugada Lewy Pick Creutzfeldt Jakob Tay Sachs Gaucher Fabry Pompe Niemann Hurler
+Hunter Duchenne Becker Rh Factor Toxic Shock Acute Chronic Myocardial Infarction Congestive Heart Failure
+Respiratory Distress Pulmonary Embolism Cardiac Arrest Renal Kidney Liver Septic Diabetes Mellitus Insipidus Multiple
+Sclerosis Systemic Lupus Erythematosus Rheumatoid Arthritis Deep Vein Thrombosis Urinary Tract Infection Chronic
+Obstructive Disease Hypertension Atrial Fibrillation Sickle Anemia Vitamin Group Stage Grade Class Phase Day Week Month Year Case Cell Cells
+Island Islet Islets Bundle Node Valve Nerve Artery Vein Lobe Gland Cortex Syndrome Disease Law Test Sign Triad
+Tetralogy Pentad Reflex Cycle Krebs Calvin Golgi Purkinje Schwann Kupffer Langerhans Leydig Sertoli Meissner
+Pacinian Ruffini Merkel Broca Brodmann Wernicke Heimlich Valsalva Glasgow Apgar Ringer Hartmann Foley Swan Ganz
+The A An In On At Of To For And Or But With From By As If When While Then This That These Those It Its He She
+They We You I My Our Your One Two Three Four Five Each Every Some Any No Not Is Are Was Were Be
+""".split())
+GENERIC_WORDS = frozenset(w.lower() for w in """
+Type Vitamin Group Stage Grade Class Phase Day Week Month Year Case Cell Cells Island Islet Islets Bundle Node Valve
+Nerve Artery Vein Lobe Gland Cortex Syndrome Disease Law Test Sign Triad Tetralogy Pentad Reflex Cycle Factor Rh
+The A An In On At Of To For And Or But With From By As If When While Then This That These Those It Its He She
+They We You I My Our Your One Two Three Four Five Each Every Some Any No Not Is Are Was Were Be
+""".split())
+_CAP_RUN = re.compile(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b")
+
+
+def name_hit(text: str) -> str | None:
+    """Two or more Title-Case words in a row, none of them a known medical or common term."""
+    for m in _CAP_RUN.finditer(text):
+        words = m.group(0).split()
+        # A known medical word first ("Wilson Disease", "Gram Positive") is clinical. An unknown first word
+        # ("Jane Wilson", "John Smith Type") followed by anything but a generic word reads as a name,
+        # even when the second word happens to be an eponym surname.
+        # Words that continue a clinical phrase ("Gram Positive Staphylococcus") are not name candidates.
+        for i, (a, b) in enumerate(zip(words, words[1:], strict=False)):
+            if i and words[i - 1].lower() in NAME_ALLOW:
+                continue
+            if a.lower() not in NAME_ALLOW and b.lower() not in GENERIC_WORDS:
+                return "a likely personal name"
+    return None
 
 
 def phi_hit(*texts: str) -> str | None:
@@ -124,11 +183,13 @@ def phi_hit(*texts: str) -> str | None:
         for rx, what in PHI_PATTERNS:
             if rx.search(text):
                 return what
+        if hit := name_hit(text):
+            return hit
     return None
 
 
 ART_WHY = "AI illustrations are memory aids, not sources"
-ID_OK = re.compile(r"^[a-z0-9-]{1,40}$")
+ID_OK = re.compile(r"[a-z0-9-]{1,40}")
 
 
 def _norm_cite_path(rel: str) -> str:
@@ -248,7 +309,7 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
     def check_id(kind: str, i: int, item: dict) -> str:
         ident = item.get("id")
         name = f"{kind} {ident!r}" if isinstance(ident, str) and ident else f"{kind} #{i}"
-        if not isinstance(ident, str) or not ID_OK.match(ident):
+        if not isinstance(ident, str) or not ID_OK.fullmatch(ident):
             problems.append(f"{name}: invalid id (use 1-40 chars of a-z, 0-9, -)")
         elif ident in seen:
             problems.append(f"{name}: duplicate id")
@@ -314,7 +375,7 @@ def vignette_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             continue
         vid = v.get("id")
         name = f"vignette {vid!r}" if isinstance(vid, str) and vid else f"vignette #{i}"
-        if not isinstance(vid, str) or not ID_OK.match(vid):
+        if not isinstance(vid, str) or not ID_OK.fullmatch(vid):
             problems.append(f"{name}: invalid id (use 1-40 chars of a-z, 0-9, -)")
         elif vid in seen:
             problems.append(f"{name}: duplicate id")
