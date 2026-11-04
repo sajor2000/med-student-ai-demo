@@ -1,8 +1,6 @@
 <div align="center">
 
-<!-- Hero banner: generated later via OpenRouter, then uncomment.
-<img src="docs/img/hero.png" alt="Med Student AI Study Agent" width="100%">
--->
+<img src="docs/img/hero.png" alt="Lecture slides flowing into cited flashcards and a study guide" width="100%">
 
 # Med Student AI Study Agent
 
