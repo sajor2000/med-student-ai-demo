@@ -6,8 +6,8 @@ authors:
   - family-names: Rojas
     given-names: "J.C."
 repository-code: "https://github.com/sajor2000/med-student-ai-demo"
-license: MIT
-version: 0.3.0
+license: PolyForm-Noncommercial-1.0.0
+version: 0.4.0
 abstract: "Educational demonstration of AI that augments, not replaces, medical student learning. Licenses cover only this repository's code and fictional samples; see NOTICE.md."
 keywords:
   - medical education

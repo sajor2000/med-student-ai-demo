@@ -47,5 +47,14 @@ write it the way you would brief a capable colleague who has never seen this rep
 Fill in the PR template. Keep PRs small, and say what you ran. For a new school format,
 include a synthetic file (not a real lecture) that reproduces the problem.
 
-By contributing you agree your code is MIT-licensed and your sample/example content is
-CC BY 4.0 (see `LICENSE` and `LICENSE-CONTENT`). Be kind: see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+**Contributor license grant.** By submitting a contribution you agree that:
+
+1. Your code is published under the PolyForm Noncommercial License 1.0.0 and your sample/example content
+   under CC BY-NC-SA 4.0 (see `LICENSE` and `LICENSE-CONTENT`).
+2. You grant J.C. Rojas, the maintainer, a perpetual, worldwide, non-exclusive, royalty-free, irrevocable
+   license, with the right to sublicense through multiple tiers, to use, copy, modify, distribute, and
+   license your contribution under any terms, including commercial terms.
+3. You grant the maintainer and every recipient of the project a perpetual, worldwide, royalty-free,
+   irrevocable patent license for any patent claims you can license that your contribution would infringe.
+4. You have the right to make these grants. If your employer or school has rights to your work, you have
+   its permission. Be kind: see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
