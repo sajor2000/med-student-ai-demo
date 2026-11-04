@@ -64,7 +64,9 @@ def anki_version(url: str = ANKI_URL, timeout: float = 2.0) -> int | None:
     body = json.dumps({"action": "version", "version": 6}).encode()
     req = urllib.request.Request(url, data=body, method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=timeout) as resp:
+        # loopback probe: never route through HTTP_PROXY (matches anki_sync.py)
+        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+        with opener.open(req, timeout=timeout) as resp:
             return json.load(resp).get("result")
     except (OSError, ValueError):
         return None
@@ -216,7 +218,7 @@ def main(argv: list[str] | None = None) -> int:
         if r.status != OK and r.fix:
             print(f"     fix: {r.fix}")
     print("\nBefore using real course materials, confirm your school's AI policy allows it"
-          " - see docs/RESPONSIBLE-USE.md")
+          " - see NOTICE.md")
     return exit_code(results)
 
 

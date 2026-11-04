@@ -11,7 +11,7 @@ what to decide.
 Nothing here overrides your school's AI, data, and academic-integrity policies. Students
 must confirm those policies allow uploading course content to an AI tool before they use real
 materials. The licenses grant no rights to your course materials. See
-[RESPONSIBLE-USE.md](RESPONSIBLE-USE.md) and [NOTICE.md](../NOTICE.md).
+[NOTICE.md](../NOTICE.md).
 
 ## What it does
 
@@ -59,7 +59,7 @@ but not every wrong claim, so lecture content stays the ground truth.
 ## Evidence base
 
 The design follows retrieval practice, spacing, and interleaving research. See
-[LEARNING-SCIENCE.md](LEARNING-SCIENCE.md) for the sources.
+[OPEN-RESOURCES.md](OPEN-RESOURCES.md) for related resources.
 
 ## How to pilot
 

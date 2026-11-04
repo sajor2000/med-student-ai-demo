@@ -109,7 +109,7 @@ def test_parse_node_major(doctor):
 def test_final_policy_reminder(doctor, monkeypatch, capsys):
     patch_all_ok(doctor, monkeypatch)
     doctor.main([])
-    assert "docs/RESPONSIBLE-USE.md" in capsys.readouterr().out.splitlines()[-1]
+    assert "NOTICE.md" in capsys.readouterr().out.splitlines()[-1]
 
 
 def test_run_cmd_resolves_with_which(doctor, monkeypatch):
@@ -157,3 +157,30 @@ def test_node_fix_names_promise_try(doctor, monkeypatch):
     monkeypatch.setattr(doctor, "run_cmd", lambda a: {"uv": "uv 0.12.0", "node": "v22.1.0", "npx": "10"}.get(a[0], ""))
     fix = by_name(doctor.collect())["node"].fix
     assert "Promise.try is not a function" in fix
+
+
+def test_anki_probe_bypasses_proxies(doctor, monkeypatch):
+    """A set HTTP_PROXY must not capture the loopback AnkiConnect probe."""
+    seen = {}
+
+    class FakeResp:
+        def __enter__(self): return self
+        def __exit__(self, *a): return False
+        def read(self, *a): return b'{"result": 6, "error": null}'
+
+    class FakeOpener:
+        def open(self, req, timeout=None):
+            seen["opener"] = True
+            return FakeResp()
+
+    real = doctor.urllib.request.build_opener
+    def build(*handlers):
+        seen["handlers"] = handlers
+        return FakeOpener()
+    monkeypatch.setattr(doctor.urllib.request, "build_opener", build)
+    monkeypatch.setattr(doctor.urllib.request, "urlopen",
+                        lambda *a, **k: pytest.fail("default opener honours proxies"))
+    assert doctor.anki_version() == 6
+    assert seen.get("opener")
+    assert any(isinstance(h, doctor.urllib.request.ProxyHandler) and h.proxies == {}
+               for h in seen["handlers"])
