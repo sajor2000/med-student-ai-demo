@@ -10,6 +10,7 @@ All notable changes are documented here. Format follows
 - `docs/img/skill-map.svg`, a diagram of every skill and when to use it, plus a "Which skill when" section in the README.
 
 ### Fixed
+- `scripts/export.py` escaped course-citation labels twice, so an "&" in a notes path showed as "&amp;" on the study page. Labels are now escaped once. A test also pins `white-space: pre-wrap` on vignette stems so line breaks stay.
 - `docs/diagram-teaching-profile.md` linked to four files that only exist in the upstream diagram-design repo; the links now point there. The link test covers every page under `docs/`.
 - README repo map lists `doctor.py`, `make_case_guide.py`, and all the docs.
 

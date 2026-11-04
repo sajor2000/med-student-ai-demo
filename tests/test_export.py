@@ -758,3 +758,21 @@ def test_unreadable_deepen_file_exits_before_any_output_changes(export, notes, t
         run_main(export, [str(deck), "--notes", str(notes), "--deepen", str(dd)], monkeypatch)
     assert "--deepen" in str(e.value)
     assert anki.read_text(encoding="utf-8") == anki_before
+
+
+def test_course_label_with_ampersand_is_escaped_exactly_once(export):
+    """Callers escape text before linkify; the label must not be escaped a second time."""
+    cite = "[[GUIDE/Self Study Guide 01 Smith & Lee#P561]]"
+    out = export.linkify(export.html.escape(f"see {cite}", quote=False))
+    assert "Smith &amp; Lee" in out and "&amp;amp;" not in out
+
+
+def test_course_label_ampersand_on_study_page(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", [("Q?", "A", "[[GUIDE/Smith & Lee#P5]]")])
+    run_main(export, [str(deck)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert "Smith &amp; Lee" in page and "&amp;amp;" not in page
+
+
+def test_vignette_stem_keeps_line_breaks(export):
+    assert ".vstem{white-space:pre-wrap}" in export.VIGNETTE_CSS
