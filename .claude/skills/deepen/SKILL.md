@@ -1,7 +1,7 @@
 ---
 name: deepen
 description: Go beyond the slides on one concept with trusted literature (StatPearls, reviews, a landmark paper) via PubMed and Paperclip, producing a short cited explainer tied back to the case.
-argument-hint: "<concept>" [case-name]
+argument-hint: '"<concept>" [case-name]'
 ---
 
 Arguments: `$ARGUMENTS`. The quoted part is the concept. An optional last word is `<case>` (a folder under `notes/`).

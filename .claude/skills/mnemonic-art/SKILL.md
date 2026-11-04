@@ -1,6 +1,6 @@
 ---
 name: mnemonic-art
-description: Draw one *aid* - a captioned memory-hook illustration for a single cited concept, made through the student's own OpenRouter key. Hand-fired; the image is never a reference or a citation. Low evidence: memory aid only.
+description: Draw one *aid* - a captioned memory-hook illustration for a single cited concept, made through the student's own OpenRouter key. Hand-fired; the image is never a reference or a citation. Low evidence, memory aid only.
 argument-hint: <case-name> ["concept"]
 disable-model-invocation: true
 ---
