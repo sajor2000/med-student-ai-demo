@@ -420,7 +420,7 @@ def test_bad_objective_fails(check, notes, tmp_path, monkeypatch, capsys, obj):
     assert code == 1 and "vx" in out and "objective" in out
 
 
-def test_duplicate_and_invalid_ids_fail(check, notes, tmp_path, monkeypatch, capsys):
+def test_vignette_duplicate_and_invalid_ids_fail(check, notes, tmp_path, monkeypatch, capsys):
     p = write_vignettes(tmp_path, [make_vignette("same"), make_vignette("same"), make_vignette("Bad Id")])
     code, out = run_vig(check, notes, p, monkeypatch, capsys)
     assert code == 1 and "duplicate id" in out and "invalid id" in out
@@ -458,3 +458,24 @@ def test_malformed_option_shapes_fail_readably(check, notes, tmp_path, monkeypat
     p = write_vignettes(tmp_path, ["junk", mutated(lambda v: v.update(options=["x"] * 5), "vx")])
     code, out = run_vig(check, notes, p, monkeypatch, capsys)
     assert code == 1 and "Traceback" not in out
+
+
+def test_case2_guide_has_five_cited_recall_questions_and_no_uncited_attribution():
+    import re
+    from pathlib import Path
+    text = (Path(__file__).resolve().parent.parent / "examples" / "case2" / "study-guide.md").read_text(encoding="utf-8")
+    recall = text.split("## Recall questions", 1)[1].split("<details>", 1)[0]
+    qs = re.findall(r"^\d+\. .+$", recall, re.M)
+    assert len(qs) == 5 and all("[[" in q for q in qs)
+    discrepancy = text.split("## Discrepancies", 1)[1].split("## Recall questions", 1)[0]
+    assert "CDC" not in discrepancy
+
+
+def test_walkthrough_staging_is_guarded_and_commands_pass_no_patient_name_as_topic():
+    from pathlib import Path
+    text = (Path(__file__).resolve().parent.parent / "docs" / "DEMO-WALKTHROUGH.md").read_text(encoding="utf-8")
+    for line in text.splitlines():
+        if line.lstrip("| `").startswith(("/study-guide", "/flashcards", "/quiz")):
+            assert "Rivera" not in line, line
+    assert "\n   mkdir -p curriculum && cp -R" not in text and "if [ -e curriculum/sample ]" in text
+    assert "already exists" in text

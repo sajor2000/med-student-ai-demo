@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+
+      # Chromium + system libraries for the occlusion/diagram tests.
+      # Note: tests/test_occlude.py skips Chromium-dependent tests when Chromium
+      # is missing and has no env switch to make that a failure. In this job
+      # Chromium is installed above, so skips should not occur; a skip count in
+      # the pytest summary means the install step regressed.
+      - name: Install Playwright Chromium
+        run: uv run --with playwright playwright install --with-deps chromium
+
+      - name: Tests
+        env:
+          REQUIRE_CHROMIUM: "1"  # a missing Chromium fails the Chromium tests instead of skipping them
+        run: uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q -rs
+
+      # check.py queries NCBI for the PMIDs in the examples (public, no secrets).
+      # Retry to absorb transient network or rate-limit failures.
+      - name: Example checks (must pass)
+        shell: bash
+        run: |
+          retry() {
+            for attempt in 1 2 3; do
+              "$@" && return 0
+              echo "attempt $attempt failed: $*" >&2
+              sleep $((attempt * 10))
+            done
+            return 1
+          }
+          retry uv run scripts/check.py examples/flashcards.csv --notes sample/notes
+          retry uv run scripts/check.py examples/study-guide.md --notes sample/notes
+          retry uv run scripts/check.py examples/diagrams/staph-toxins.json --notes sample/notes
+
+      # Expected to fail with exit code 1 (a deliberate hallucination fixture).
+      # Other exit codes (crash, network error) must not count as success.
+      - name: Hallucination fixture must fail (exit 1)
+        shell: bash
+        run: |
+          set +e
+          # PubMed outages also exit 1 without the PMID diagnostic, so retry until all three show up.
+          for attempt in 1 2 3; do
+            out=$(uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes 2>&1)
+            code=$?
+            [ "$code" -eq 1 ] && grep -qF "PMID:99999999 does not exist in PubMed" <<<"$out" && break
+            sleep $((attempt * 10))
+          done
+          echo "$out"
+          if [ "$code" -ne 1 ]; then
+            echo "expected exit 1, got $code" >&2
+            exit 1
+          fi
+          # exit 1 alone is not enough (a missing file or unreachable PubMed also exits 1):
+          # require the three deliberate diagnostics.
+          for expected in "S14 not found" "no citation" "PMID:99999999 does not exist in PubMed"; do
+            if ! grep -qF "$expected" <<<"$out"; then
+              echo "missing expected diagnostic: $expected" >&2
+              exit 1
+            fi
+          done

@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How the pieces connect</title>
+<style>
+  body { margin: 0; padding: 24px; background: #ffffff; font-family: system-ui, sans-serif; }
+  .wrap { overflow-x: auto; }
+  svg { display: block; width: 100%; min-width: 1088px; max-width: 1088px; }
+  text { font-family: system-ui, sans-serif; fill: #0f1115; }
+  .name { font-size: 20px; font-weight: 600; }
+  .sub { font-size: 14px; fill: #2f3a4f; }
+  .lbl { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; fill: #2f3a4f; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 0.12em; fill: #44506a; }
+  .focal { fill: #a33d00; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg id="architecture-root" viewBox="0 0 1088 480" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="architecture-title architecture-desc">
+  <title id="architecture-title">How the pieces connect</title>
+  <desc id="architecture-desc">Skills call local scripts and MCP connectors. Scripts reach PubMed, AnkiConnect on loopback, and OpenRouter; the MCP connectors reach PubMed and Paperclip.</desc>
+  <defs>
+    <marker id="architecture-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="architecture-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+    <marker id="architecture-arrow-link" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#0b4f9c"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1088" height="480" fill="#ffffff"/>
+  <path d="M240,108 H336" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#architecture-arrow)"/>
+  <path d="M240,212 H336" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#architecture-arrow)"/>
+  <path d="M240,316 H336" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#architecture-arrow)"/>
+  <path d="M240,420 H336" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#architecture-arrow)"/>
+  <path d="M600,96 H800" fill="none" stroke="#0b4f9c" stroke-width="2" marker-end="url(#architecture-arrow-link)"/>
+  <path d="M600,120 H672 Q680,120 680,128 V192 Q680,200 688,200 H800" fill="none" stroke="#0b4f9c" stroke-width="2" marker-end="url(#architecture-arrow-link)"/>
+  <path d="M600,224 H800" fill="none" stroke="#0b4f9c" stroke-width="2" marker-end="url(#architecture-arrow-link)"/>
+  <path d="M600,316 H800" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#architecture-arrow)"/>
+  <path d="M600,420 H800" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#architecture-arrow)"/>
+  <rect x="24" y="72" width="216" height="384" rx="6" fill="#ffffff"/>
+  <rect x="24" y="72" width="216" height="384" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="132" y="112" text-anchor="middle" class="name">Agent skills</text>
+  <text data-decorative="true" x="132" y="156" text-anchor="middle" class="sub" style="font-size:16px">/ingest</text>
+  <text data-decorative="true" x="132" y="184" text-anchor="middle" class="sub" style="font-size:16px">/flashcards</text>
+  <text data-decorative="true" x="132" y="212" text-anchor="middle" class="sub" style="font-size:16px">/quiz</text>
+  <text data-decorative="true" x="132" y="240" text-anchor="middle" class="sub" style="font-size:16px">/study-guide</text>
+  <text data-decorative="true" x="132" y="268" text-anchor="middle" class="sub" style="font-size:16px">/deepen</text>
+  <text data-decorative="true" x="132" y="296" text-anchor="middle" class="sub" style="font-size:16px">/visualize</text>
+  <text data-decorative="true" x="132" y="324" text-anchor="middle" class="sub" style="font-size:16px">/mnemonic-art</text>
+  <text data-decorative="true" x="132" y="352" text-anchor="middle" class="sub" style="font-size:16px">/anki-sync</text>
+  <rect x="336" y="72" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="336" y="72" width="264" height="72" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="468" y="102" text-anchor="middle" class="name">MCP connectors</text>
+  <text data-decorative="true" x="468" y="126" text-anchor="middle" class="sub">PubMed + Paperclip tools</text>
+  <rect x="336" y="176" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="336" y="176" width="264" height="72" rx="6" fill="rgba(163,61,0,0.10)" stroke="#a33d00" stroke-width="3"/>
+  <text data-decorative="true" x="468" y="206" text-anchor="middle" class="name">check.py</text>
+  <text data-decorative="true" x="468" y="230" text-anchor="middle" class="sub">fails fake or missing citations</text>
+  <rect x="336" y="280" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="336" y="280" width="264" height="72" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="468" y="310" text-anchor="middle" class="name">anki_sync.py</text>
+  <text data-decorative="true" x="468" y="334" text-anchor="middle" class="sub">cards in, weak spots out</text>
+  <rect x="336" y="384" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="336" y="384" width="264" height="72" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="468" y="414" text-anchor="middle" class="name">mnemonic_art.py</text>
+  <text data-decorative="true" x="468" y="438" text-anchor="middle" class="sub">one captioned illustration</text>
+  <rect x="800" y="72" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="800" y="72" width="264" height="72" rx="6" fill="#eef1f5" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="932" y="102" text-anchor="middle" class="name">Paperclip</text>
+  <text data-decorative="true" x="932" y="126" text-anchor="middle" class="sub">full text, 3M+ papers</text>
+  <rect x="800" y="176" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="800" y="176" width="264" height="72" rx="6" fill="#eef1f5" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="932" y="206" text-anchor="middle" class="name">PubMed</text>
+  <text data-decorative="true" x="932" y="230" text-anchor="middle" class="sub">does this PMID exist?</text>
+  <rect x="800" y="280" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="800" y="280" width="264" height="72" rx="6" fill="#eef1f5" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="932" y="310" text-anchor="middle" class="name">AnkiConnect</text>
+  <text data-decorative="true" x="932" y="334" text-anchor="middle" class="sub">Anki desktop add-on</text>
+  <rect x="800" y="384" width="264" height="72" rx="6" fill="#ffffff"/>
+  <rect x="800" y="384" width="264" height="72" rx="6" fill="#eef1f5" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="932" y="414" text-anchor="middle" class="name">OpenRouter</text>
+  <text data-decorative="true" x="932" y="438" text-anchor="middle" class="sub">your key, optional</text>
+  <rect x="718" y="64" width="44" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="740" y="80" text-anchor="middle" class="lbl">MCP</text>
+  <rect x="624" y="232" width="72" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="660" y="248" text-anchor="middle" class="lbl">LOOKUP</text>
+  <rect x="652" y="286" width="96" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="700" y="302" text-anchor="middle" class="lbl">LOOPBACK</text>
+  <rect x="658" y="390" width="84" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="700" y="406" text-anchor="middle" class="lbl">YOUR KEY</text>
+  <text data-decorative="true" x="24" y="52" class="eyebrow">SKILLS</text>
+  <text data-decorative="true" x="336" y="52" class="eyebrow">LOCAL SCRIPTS + CONNECTORS</text>
+  <text data-decorative="true" x="800" y="52" class="eyebrow">SERVICES</text>
+</svg>
+</div>
+</body>
+</html>

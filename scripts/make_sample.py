@@ -1,8 +1,8 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["python-pptx>=1.0"]
+# dependencies = ["python-pptx>=1.0", "pymupdf>=1.24"]
 # ///
-"""Build sample/curriculum/MICRO/Staphylococcus aureus (sample lecture).pptx.
+"""Build the sample course files: MICRO .pptx and PHYS .pdf.
 
 Original, synthetic teaching text written for this demo (not from any school),
 so the repo can be cloned and run without real course files.
@@ -31,3 +31,25 @@ out = Path("sample/curriculum/MICRO/Staphylococcus aureus (sample lecture).pptx"
 out.parent.mkdir(parents=True, exist_ok=True)
 prs.save(out)
 print(out)
+
+
+# Second discipline, as a PDF, to show ingest is not tied to one format or school.
+import pymupdf as fitz
+
+PDF_PAGES = [
+    ["Renal clearance (sample lecture)", "Synthetic demo lecture for med-student-ai-demo", "Learning objectives: (1) define clearance; (2) estimate GFR; (3) interpret clearance relative to inulin"],
+    ["Definition of clearance", "Clearance = (U x V) / P: the plasma volume cleared of a substance per unit time", "U = urine concentration, V = urine flow rate, P = plasma concentration", "Units are mL/min"],
+    ["Inulin and GFR", "Inulin is freely filtered and neither reabsorbed nor secreted", "So inulin clearance equals GFR (about 125 mL/min in a healthy adult)", "Creatinine clearance approximates GFR but slightly overestimates it (small tubular secretion)"],
+    ["Interpreting clearance", "Clearance below GFR: net reabsorption (for example glucose, which is 0 at normal plasma levels)", "Clearance above GFR: net secretion (for example para-aminohippuric acid, PAH)", "PAH clearance approximates renal plasma flow (about 600 mL/min)"],
+]
+pdf_out = Path("sample/curriculum/PHYS/Renal clearance.pdf")
+pdf_out.parent.mkdir(parents=True, exist_ok=True)
+doc = fitz.open()
+for lines in PDF_PAGES:
+    page = doc.new_page()
+    y = 72
+    for i, line in enumerate(lines):
+        page.insert_text((60, y), line, fontsize=16 if i == 0 else 11)
+        y += 30 if i == 0 else 20
+doc.save(str(pdf_out))
+print(pdf_out)

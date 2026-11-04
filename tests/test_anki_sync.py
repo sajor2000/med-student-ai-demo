@@ -264,7 +264,7 @@ def test_hand_imported_note_is_adopted(anki_mod, monkeypatch, fake_factory, work
     fake = fake_factory()
     fake.decks.add(DECK)
     front = "What does exfoliative toxin cleave?"
-    nid = fake.put_note("Basic", {"Front": html.escape(front), "Back": "old"}, [], DECK)
+    nid = fake.put_note("Basic", {"Front": html.escape(front), "Back": "old"}, ["msad", "micro"], DECK)
     write_csv(workdir)
     sync(anki_mod, monkeypatch, fake, workdir)
     s = summary(capsys.readouterr().out)
@@ -272,6 +272,22 @@ def test_hand_imported_note_is_adopted(anki_mod, monkeypatch, fake_factory, work
     gid = gid_of(front)
     assert {"msad", f"msad-id::{gid}"} <= set(fake.notes[nid]["tags"])
     assert fake.notes[nid]["fields"]["Back"] != "old"
+
+
+def test_untagged_same_front_note_is_left_alone_and_reported(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    fake.decks.add(DECK)
+    front = "What does exfoliative toxin cleave?"
+    nid = fake.put_note("Basic", {"Front": html.escape(front), "Back": "my own answer"}, [], DECK)
+    write_csv(workdir)
+    sync(anki_mod, monkeypatch, fake, workdir)
+    out = capsys.readouterr().out
+    s = summary(out)
+    assert s["adopted"] == 0 and s["skipped"] == 1 and s["added"] == 2 and len(fake.notes) == 3
+    assert "skip: same front as a generated card but not created by this repo (left untouched)" in out
+    assert fake.notes[nid]["fields"]["Back"] == "my own answer" and fake.notes[nid]["tags"] == []
+    assert all(r["params"]["note"]["id"] != nid for r in fake.calls("updateNoteFields"))
+    assert all(nid not in r["params"].get("notes", []) for r in fake.calls("addTags"))
 
 
 def test_tagged_note_in_foreign_deck_is_skipped(anki_mod, monkeypatch, fake_factory, workdir, capsys):
@@ -589,3 +605,47 @@ def test_lapsed_card_in_misses_deck_reaches_weak_spots_once(anki_mod, monkeypatc
 def test_off_allowlist_action_still_raises_with_misses(anki_mod):
     with pytest.raises(ValueError):
         anki_mod.request("http://127.0.0.1:1", "deleteNotes", {})
+
+
+def test_sidecar_write_is_atomic(anki_mod, tmp_path, monkeypatch):
+    case = tmp_path / "case-1"
+    case.mkdir()
+    sidecar = case / ".weak-spots-synced.json"
+    sidecar.write_text(json.dumps({"synced": ["a"]}), encoding="utf-8")
+    real = Path.write_text
+
+    def boom(self, *a, **k):
+        real(self, "{trunc", encoding="utf-8")
+        raise OSError("disk full")
+
+    monkeypatch.setattr(Path, "write_text", boom)
+    with pytest.raises(OSError):
+        anki_mod.append_weak_spots(case, [{"id": "b", "discipline": "d", "topic": "t", "cite": "c"}])
+    monkeypatch.setattr(Path, "write_text", real)
+    assert json.loads(sidecar.read_text(encoding="utf-8")) == {"synced": ["a"]}
+
+
+def test_hand_imported_multiline_front_is_adopted_not_duplicated(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    fake.decks.add(DECK)
+    front = "Name the toxin\nthat cleaves desmoglein-1?"
+    nid = fake.put_note("Basic", {"Front": html.escape(front).replace("\n", "<br>"), "Back": "old"}, ["msad"], DECK)
+    write_csv(workdir, [(front, "Exfoliative toxin", S3, "case-1;micro")])
+    sync(anki_mod, monkeypatch, fake, workdir)
+    s = summary(capsys.readouterr().out)
+    assert s["adopted"] == 1 and s["added"] == 0 and len(fake.notes) == 1
+    assert f"msad-id::{gid_of(front)}" in fake.notes[nid]["tags"]
+
+
+def test_hand_imported_crlf_front_is_adopted_not_duplicated(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    fake.decks.add(DECK)
+    front = "Name the toxin\r\nthat cleaves desmoglein-1?"
+    nid = fake.put_note("Basic", {"Front": "Name the toxin<br>that cleaves desmoglein-1?", "Back": "old"}, ["msad"], DECK)
+    write_csv(workdir, [(front, "Exfoliative toxin", S3, "case-1;micro")])
+    sync(anki_mod, monkeypatch, fake, workdir)
+    s = summary(capsys.readouterr().out)
+    assert s["adopted"] == 1 and s["added"] == 0 and len(fake.notes) == 1
+    # legacy IDs are preserved: the CRLF front keeps its raw-hash id
+    assert f"msad-id::{gid_of(front)}" in fake.notes[nid]["tags"]
+    assert anki_mod.guid(front) != anki_mod.guid(front.replace("\r\n", "\n"))

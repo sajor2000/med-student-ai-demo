@@ -1,0 +1,13 @@
+# Project-scoped Codex config: the same connectors as .mcp.json.
+# Codex loads this file for this folder; if it does not, trust the project when asked.
+
+[mcp_servers.pubmed]
+command = "npx"
+args = ["-y", "@cyanheads/pubmed-mcp-server@2.12.0"]
+env = { MCP_TRANSPORT_TYPE = "stdio" }
+# Optional: passes your NCBI key and email through when you have set them.
+env_vars = ["NCBI_API_KEY", "NCBI_EMAIL"]
+
+[mcp_servers.paperclip]
+url = "https://paperclip.gxl.ai/mcp"
+# Sign in once with: codex mcp login paperclip

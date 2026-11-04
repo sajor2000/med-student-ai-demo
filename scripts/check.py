@@ -5,7 +5,7 @@
 """Check every citation in a study guide (.md), flashcard deck (.csv), diagram
 spec (.json), or vignette file (.json).
 
-Two citation forms are allowed (see CLAUDE.md):
+Two citation forms are allowed (see AGENTS.md):
   [[MICRO/Staph aureus#S3]]   course material: notes file + slide/paragraph anchor
   [PMID:12345678]             PubMed record (StatPearls chapters have PMIDs too)
 

@@ -20,19 +20,25 @@ Outputs, next to the CSV:
 Usage:
     uv run scripts/export.py output/<case>/flashcards.csv \\
         [--guide output/<case>/study-guide.md] [--notes notes/<case>] \\
-        [--diagrams output/<case>/diagrams] [--art output/<case>/art] \\
+        [--diagrams output/<case>/diagrams] [--art output/<case>/art] [--deepen output/<case>/deepen] \\
         [--vignettes output/<case>/vignettes.json]
 
 --diagrams adds a "Diagrams" tab: each <slug>.occlusion.json (from occlude.py) shows its card
 PNG, title, and labels with linked citations. --art adds a "Memory aids" tab with the PNGs
 from mnemonic_art.py, headed "AI illustrations - memory aids, not references". PNGs are copied
-to <name>_media/. --vignettes adds a "Vignettes" tab from a vignettes.json
+to <name>_media/. --deepen adds a "Deep dives" tab: each *.md in the folder (from /deepen, at
+output/<case>/deepen/) is rendered with raw HTML escaped and citations linked like the guide.
+
+--vignettes adds a "Vignettes" tab from a vignettes.json
 ({"vignettes": [{"id", "objective"?, "discipline"?, "stem", "options": [{"key", "text", "correct",
 "explanation"}]}]}): each case shows its stem and a textarea; "Show options" stays disabled until
 something is typed, and the options live only in an inert <template> until then. Picking an option
 reveals every explanation (citations linked like card citations) and marks right/wrong. Typed text
 and score stay in the page: no storage, no network. A malformed file exits with a readable message.
-Without any of these flags the page is unchanged.
+Without these flags the page is unchanged.
+
+Every row in the .anki.txt files carries the tag `msad`, so notes imported by hand are recognizable
+to scripts/anki_sync.py, which adopts only notes that carry it.
 """
 
 from __future__ import annotations
@@ -311,12 +317,37 @@ VIGNETTE_JS = (
     "const e=x.nextElementSibling;e.hidden=false;e.querySelector('.vmark').textContent=ok?'Correct.':(pick?'Incorrect (your pick).':'Incorrect.')})}))})})})();</script>"
 )
 
+
+_URL_ATTR = re.compile(r'\b(href|src)="([^"]*)"', re.I)
+_SAFE_SCHEME = frozenset({"http", "https", "mailto"})
+
+
+def strip_unsafe_urls(page: str) -> str:
+    """Drop href/src values whose scheme is not http(s)/mailto (javascript:, data:, vbscript:, ...); relative links stay."""
+    def fix(m: re.Match) -> str:
+        url = re.sub(r"[\x00-\x20\x7f]+", "", html.unescape(m.group(2)))
+        scheme = re.match(r"([A-Za-z][A-Za-z0-9+.-]*):", url)
+        return m.group(0) if not scheme or scheme.group(1).lower() in _SAFE_SCHEME else f'{m.group(1)}="#"'
+    return _URL_ATTR.sub(fix, page)
+
+
+def deepen_section(folder: Path, linker: SourceLinker | None) -> str:
+    """HTML for the Deep dives tab: each explainer rendered with raw HTML escaped, citations linked."""
+    folder = _folder(folder, "--deepen").resolve()
+    blocks = []
+    for md_file in sorted(folder.glob("*.md")):
+        text = md_file.read_text(encoding="utf-8").replace("<", "&lt;")  # markdown keeps entities, drops raw tags
+        rendered = strip_unsafe_urls(markdown.markdown(text, extensions=["tables"]))
+        blocks.append(f'<article class="dd">{linkify(rendered, linker)}</article>')
+    return "\n".join(blocks)
+
+
 EXTRA_CSS = (
     "figure{margin:0 0 28px}figure img{max-width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}"
     "figcaption,.dg small{color:var(--muted);font-size:13px}.dg li{margin:4px 0}"
 )
 EXTRA_JS = (
-    "<script>(function(){const T=[['tg','guide'],['tc','cards'],['td','diagrams'],['ta','art']]"
+    "<script>(function(){const T=[['tg','guide'],['tc','cards'],['td','diagrams'],['ta','art'],['te','deepen']]"
     ".filter(p=>document.getElementById(p[0]));T.forEach(([b,s])=>{document.getElementById(b).onclick=()=>{"
     "T.forEach(([b2,s2])=>{document.getElementById(s2).hidden=s2!==s;"
     "document.getElementById(b2).setAttribute('aria-pressed',b2===b)})}})})();</script>"
@@ -349,7 +380,7 @@ def write_anki(path: Path, cards: list[dict], notetype: str, deck: str) -> None:
             extra = anki_breaks(linkify(html.escape(c["back"], quote=False)))
             sources = "<small>" + anki_breaks(linkify(html.escape(c["sources"], quote=False))) + "</small>"
             back = f"{extra}<br>{sources}" if extra else sources
-            tags = " ".join(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())
+            tags = " ".join(["msad", *(t.strip().replace(" ", "_") for t in c.get("tags", "").split(";") if t.strip())])
             # csv quoting keeps a tab or newline inside a field from splitting the Anki record
             writer.writerow([guid(c["front"]), anki_html(c["front"]), back, tags])
 
@@ -361,6 +392,7 @@ def main() -> int:
     ap.add_argument("--notes", type=Path, help="notes folder from extract.py; makes course citations clickable")
     ap.add_argument("--diagrams", type=Path, help="folder of <slug>.occlusion.json + card PNGs; adds a Diagrams tab")
     ap.add_argument("--art", type=Path, help="folder of mnemonic-art PNGs; adds a Memory aids tab")
+    ap.add_argument("--deepen", type=Path, help="folder of /deepen explainers (*.md); adds a Deep dives tab")
     ap.add_argument("--vignettes", type=Path, help="vignettes.json; adds a Vignettes tab (options hidden until an answer is typed)")
     args = ap.parse_args()
 
@@ -416,6 +448,8 @@ def main() -> int:
         extras.append(("ta", "Memory aids", "art", inner))
     if args.vignettes and (inner := vignettes_section(args.vignettes, linker)):
         extras.append(("tv", "Vignettes", "vignettes", inner))
+    if args.deepen and (inner := deepen_section(args.deepen, linker)):
+        extras.append(("te", "Deep dives", "deepen", inner))
     if extras:
         buttons = "".join(f'<button id="{b}" aria-pressed="false">{label}</button>' for b, label, _, _ in extras)
         sections = "".join(f'<section id="{sid}" hidden>{inner}</section>\n' for _, _, sid, inner in extras)
@@ -430,7 +464,7 @@ def main() -> int:
             page = page.replace(anchor, spliced, 1)
         if any(e[0] == "tv" for e in extras):
             for anchor, spliced in (
-                ("['ta','art']]", "['ta','art'],['tv','vignettes']]"),
+                ("['te','deepen']]", "['te','deepen'],['tv','vignettes']]"),
                 ("</style>", VIGNETTE_CSS + "</style>"),
                 ("</body></html>", VIGNETTE_JS + "</body></html>"),
             ):

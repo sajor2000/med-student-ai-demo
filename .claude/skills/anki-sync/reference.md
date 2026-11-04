@@ -13,8 +13,10 @@ all other cards go to `AI Study::<case>`. Re-syncing updates notes in place and 
 The script writes and updates only owned notes. A tagged note with a card in another deck is skipped and counted.
 A student's own notes, and the `AI Study::<case>::diagrams-offline` subdeck from `diagrams.apkg`, are never touched.
 
-Adoption: a note in the owned deck with no `msad-id` tag, whose Front or Text hashes to a CSV card's id, was imported
-by hand from `flashcards.anki.txt`. The script tags it and updates it in place instead of adding a duplicate.
+Adoption: a note in the owned deck with the `msad` tag (`export.py` adds it to every row of the `.anki.txt` files) but
+no `msad-id` tag, whose Front or Text hashes to a CSV card's id, was imported by hand from those files. The script tags
+it and updates it in place instead of adding a duplicate. A note with the same front but no `msad` tag is the student's
+own: it is skipped, counted, and left untouched (`skip: same front as a generated card but not created by this repo`).
 
 ## Install AnkiConnect
 

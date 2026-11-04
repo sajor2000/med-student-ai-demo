@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The study loop</title>
+<style>
+  body { margin: 0; padding: 24px; background: #ffffff; font-family: system-ui, sans-serif; }
+  .wrap { overflow-x: auto; }
+  svg { display: block; width: 100%; min-width: 1200px; max-width: 1200px; }
+  text { font-family: system-ui, sans-serif; fill: #0f1115; }
+  .name { font-size: 20px; font-weight: 600; }
+  .sub { font-size: 14px; fill: #2f3a4f; }
+  .lbl { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; fill: #2f3a4f; }
+  .eyebrow { font-size: 14px; font-weight: 700; letter-spacing: 0.12em; fill: #44506a; }
+  .focal { fill: #a33d00; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<svg id="study-loop-root" viewBox="0 0 1200 336" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="study-loop-title study-loop-desc">
+  <title id="study-loop-title">The study loop</title>
+  <desc id="study-loop-desc">Slides become notes, then cards, quiz and guide; a citation check gates the output before it reaches Anki and the study page; quiz misses and Anki lapses feed new cards.</desc>
+  <defs>
+    <marker id="study-loop-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="study-loop-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+    <marker id="study-loop-arrow-link" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#0b4f9c"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="336" fill="#ffffff"/>
+  <path d="M264,124 H328" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#study-loop-arrow)"/>
+  <path d="M568,124 H632" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#study-loop-arrow)"/>
+  <path d="M872,124 H936" fill="none" stroke="#a33d00" stroke-width="2" marker-end="url(#study-loop-arrow-accent)"/>
+  <path d="M1056,96 V64 Q1056,56 1048,56 H760 Q752,56 752,64 V96" fill="none" stroke="#a33d00" stroke-width="2" stroke-dasharray="5,4" marker-end="url(#study-loop-arrow-accent)"/>
+  <path d="M1056,152 V240" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#study-loop-arrow)"/>
+  <path d="M936,268 H720" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#study-loop-arrow)"/>
+  <path d="M680,240 V152" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#study-loop-arrow)"/>
+  <rect x="24" y="96" width="240" height="56" rx="6" fill="#ffffff"/>
+  <rect x="24" y="96" width="240" height="56" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="144" y="131" text-anchor="middle" class="name">Your slides</text>
+  <rect x="328" y="96" width="240" height="56" rx="6" fill="#ffffff"/>
+  <rect x="328" y="96" width="240" height="56" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="448" y="131" text-anchor="middle" class="name">Extract notes</text>
+  <rect x="632" y="96" width="240" height="56" rx="6" fill="#ffffff"/>
+  <rect x="632" y="96" width="240" height="56" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="752" y="131" text-anchor="middle" class="name">Cards, quiz, guide</text>
+  <rect x="936" y="96" width="240" height="56" rx="6" fill="#ffffff"/>
+  <rect x="936" y="96" width="240" height="56" rx="6" fill="rgba(163,61,0,0.10)" stroke="#a33d00" stroke-width="3"/>
+  <text data-decorative="true" x="1056" y="131" text-anchor="middle" class="name">Check citations</text>
+  <rect x="936" y="240" width="240" height="56" rx="6" fill="#ffffff"/>
+  <rect x="936" y="240" width="240" height="56" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="1056" y="275" text-anchor="middle" class="name">Anki + study page</text>
+  <rect x="480" y="240" width="240" height="56" rx="6" fill="#ffffff"/>
+  <rect x="480" y="240" width="240" height="56" rx="6" fill="#ffffff" stroke="#0f1115" stroke-width="2"/>
+  <text data-decorative="true" x="600" y="275" text-anchor="middle" class="name">Weak spots</text>
+  <rect x="829" y="24" width="150" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="904" y="40" text-anchor="middle" class="lbl">FAIL: AGENT FIXES</text>
+  <rect x="1064" y="184" width="52" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="1068" y="200" text-anchor="start" class="lbl">PASS</text>
+  <rect x="760" y="236" width="136" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="828" y="252" text-anchor="middle" class="lbl">MISSES + LAPSES</text>
+  <rect x="692" y="184" width="92" height="24" fill="#ffffff"/>
+  <text data-decorative="true" x="696" y="200" text-anchor="start" class="lbl">NEW CARDS</text>
+</svg>
+</div>
+</body>
+</html>
