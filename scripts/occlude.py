@@ -34,6 +34,7 @@ import tempfile
 from pathlib import Path
 
 SAFE = re.compile(r"[a-z0-9-]{1,60}")
+ID_FORMAT = re.compile(r"[a-z0-9-]{1,40}")  # same format scripts/check.py enforces for node and edge ids
 PAPER_COLOR = (245, 245, 245)
 MASK_COLOR = (31, 41, 55)
 HIGHLIGHT_COLOR = (234, 88, 12)
@@ -98,7 +99,7 @@ def io_fields(title: str, image: str, label: str, cite: str, box: dict) -> dict:
     """Image Occlusion note fields in Anki's field order (rslib/src/image_occlusion)."""
     return {
         "Occlusion": occlusion_string(box),
-        "Image": f'<img src="{image}">',
+        "Image": f'<img src="{html.escape(image)}">',
         "Header": html.escape(title),
         "Back Extra": back_extra(label, cite),
         "Comments": "",
@@ -133,6 +134,8 @@ def spec_type_problems(spec: dict) -> list[str]:
                 continue
             if not isinstance(item.get("id"), str):
                 probs.append(f"{kind} #{i}: id is missing or not a string")
+            elif not ID_FORMAT.fullmatch(item["id"]):
+                probs.append(f"{kind} {item['id']!r}: id must match [a-z0-9-]{{1,40}}")
             if kind == "node" and "label" not in item:
                 probs.append(f"{kind} {item['id'] if isinstance(item.get('id'), str) else '#' + str(i)}: label is missing")
             ident = item.get("id") if isinstance(item.get("id"), str) else f"#{i}"
@@ -149,7 +152,7 @@ def validate(spec: dict, texts: list[dict]) -> tuple[list[str], dict]:
     for n in spec.get("nodes", []):
         want[n["id"]] = {"kind": "node", "label": n["label"], "cite": n.get("cite", "")}
     for e in spec.get("edges", []):
-        if e.get("label"):
+        if str(e.get("label") or "").strip():
             want[e["id"]] = {"kind": "edge", "label": e["label"], "cite": e.get("cite", "")}
     found: dict[str, dict] = {}
     for t in texts:
@@ -301,8 +304,8 @@ def build_apkg(folder: Path, case: str) -> int:
                     print(f"FAIL: missing {folder / name}; rerun occlude.py on {data['slug']}")
                     return 1
                 media.append(str(folder / name))
-            back = f'<img src="{lab["highlight"]}"><br>{back_extra(lab["label"], lab["cite"])}'
-            deck.add_note(genanki.Note(model=model, fields=[f'<img src="{lab["masked"]}">', back],
+            back = f'<img src="{html.escape(lab["highlight"])}"><br>{back_extra(lab["label"], lab["cite"])}'
+            deck.add_note(genanki.Note(model=model, fields=[f'<img src="{html.escape(lab["masked"])}">', back],
                                        guid=lab["note_id"], tags=["msad", "diagram"]))
             count += 1
     pkg = genanki.Package(deck)

@@ -29,7 +29,7 @@ Image Library**.
 
 | Step | Open-source option | Notes |
 |---|---|---|
-| Agent harness | **OpenCode**, **Aider**, **Goose**, **Cline** (Claude Code / Codex are not open source) | All can read `CLAUDE.md`/`AGENTS.md`-style rules and call MCP servers |
+| Agent harness | **OpenCode**, **Aider**, **Goose**, **Cline** (Claude Code / Codex are not open source) | All can read `AGENTS.md`-style rules and call MCP servers |
 | Literature tools | **PubMed MCP server** (`@cyanheads/pubmed-mcp-server`), **Zotero** + a Zotero MCP server | Zotero becomes your personal citation library |
 | Local / private models | **Ollama** or **LM Studio** with open-weight models (Llama, Qwen, Gemma, gpt-oss) | Course files stay on your laptop; weaker at accuracy, so run the citation check |
 | Flashcards | **Anki** (open source) + **FSRS** scheduler, **genanki** (build `.apkg` in Python), **AnkiConnect** (open source; wired into `/anki-sync`, which adds your cards and reads which ones you miss) | Lets the agent see which cards you miss and write new ones on those weak spots |
