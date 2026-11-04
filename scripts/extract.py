@@ -126,15 +126,24 @@ def pdf_page_lines(raw: str) -> list[str]:
     return [t for t in (slug(BULLET.sub("", slug(ln))) for ln in raw.splitlines()) if t]
 
 
+def _shape(line: str) -> str:
+    """A line with its numbers masked, so "3 of 10 - Study Guide" and "4 of 10 - Study Guide" match."""
+    return re.sub(r"\d+", "#", line)
+
+
 def running_lines(pages: list[list[str]]) -> set[str]:
-    """Edge lines repeated on at least half the pages of a 3+ page PDF: a banner or footer, not page content."""
+    """Edge lines repeated on at least half the pages of a 3+ page PDF: a banner or footer, not page content.
+
+    Lines are compared with their numbers masked, so a numbered footer ("N of M - ...") counts as one running line.
+    """
     if len(pages) < RUNNING_MIN_PAGES:
         return set()
     counts: dict[str, int] = {}
     for page in pages:
-        for line in set(page[:EDGE_LINES] + page[-EDGE_LINES:]):
-            counts[line] = counts.get(line, 0) + 1
-    return {line for line, n in counts.items() if n * 2 >= len(pages)}
+        for shape in {_shape(line) for line in page[:EDGE_LINES] + page[-EDGE_LINES:]}:
+            counts[shape] = counts.get(shape, 0) + 1
+    shapes = {shape for shape, n in counts.items() if n * 2 >= len(pages)}
+    return {line for page in pages for line in page[:EDGE_LINES] + page[-EDGE_LINES:] if _shape(line) in shapes}
 
 
 def pdf_to_md(path: Path) -> tuple[str, int, int]:
