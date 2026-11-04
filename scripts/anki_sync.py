@@ -143,9 +143,17 @@ def confined_png(folder: Path, name: object) -> Path | None:
     Deliberate copy in occlude.py: each script stays standalone."""
     if not isinstance(name, str) or not name:
         return None
+    rel = Path(name)
+    if rel.is_absolute() or ".." in rel.parts:
+        return None  # aliases would package a different name than the card references
     root = folder.resolve()
-    path = (root / name).resolve()
-    return path if path.suffix.lower() == ".png" and path.is_relative_to(root) else None
+    path = root / rel
+    probe = root
+    for part in rel.parts:
+        probe = probe / part
+        if probe.is_symlink():
+            return None
+    return path if path.suffix.lower() == ".png" and path.resolve().is_relative_to(root) else None
 
 
 def diagram_notes(folder: Path) -> list[dict]:

@@ -421,3 +421,18 @@ def test_apkg_rejects_assets_outside_folder(occ, monkeypatch, tmp_path, capsys, 
     assert run_main(occ, ["--apkg", str(d), "--case", "case-a"], monkeypatch) == 1
     out = capsys.readouterr().out
     assert "outside" in out and not (d.parent / "diagrams.apkg").exists()
+
+
+@pytest.mark.parametrize("kind", ["abs-inside", "dotdot-inside", "symlink-inside"])
+def test_apkg_rejects_aliases_that_land_inside_folder(occ, monkeypatch, tmp_path, capsys, kind):
+    d = tmp_path / "diagrams"
+    d.mkdir()
+    (d / "ok.png").write_bytes(b"\x89PNG ok")
+    bad = {"abs-inside": str(d / "ok.png"), "dotdot-inside": "../diagrams/ok.png", "symlink-inside": "link.png"}[kind]
+    if kind == "symlink-inside":
+        (d / "link.png").symlink_to(d / "ok.png")
+    label = {"id": "n1", "kind": "node", "label": "X", "cite": "[[A/B#S1]]", "note_id": "msad-aaaaaaaaaaaa",
+             "occlusion": "x", "masked": "ok.png", "highlight": bad}
+    (d / "s.occlusion.json").write_text(json.dumps(
+        {"slug": "s", "title": "T", "image": "ok.png", "labels": [label]}), encoding="utf-8")
+    assert run_main(occ, ["--apkg", str(d), "--case", "case-a"], monkeypatch) == 1

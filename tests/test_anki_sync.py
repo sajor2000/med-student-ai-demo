@@ -675,3 +675,15 @@ def test_diagram_image_outside_folder_is_skipped(anki_mod, monkeypatch, fake_fac
     out = capsys.readouterr().out
     assert not fake.calls("storeMediaFile")
     assert "skipped" in out and "staph-toxins.occlusion.json" in out
+
+
+def test_diagram_image_alias_inside_folder_is_skipped(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    write_csv(workdir)
+    d = write_diagrams(workdir)
+    spec = d / "staph-toxins.occlusion.json"
+    data = json.loads(spec.read_text(encoding="utf-8"))
+    data["image"] = "../diagrams/staph-toxins.card.png"
+    spec.write_text(json.dumps(data), encoding="utf-8")
+    sync(anki_mod, monkeypatch, fake, workdir, diagrams=d)
+    assert not fake.calls("storeMediaFile") and "skipped" in capsys.readouterr().out

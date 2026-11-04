@@ -547,3 +547,9 @@ def test_diagram_clinical_terms_and_vitals_do_not_false_positive(check, tmp_path
 def test_diagram_ids_with_phi_fail_closed(check, tmp_path, monkeypatch, capsys, mutate):
     code, out = run_spec(check, spec_copy(tmp_path, mutate), monkeypatch, capsys)
     assert code == 1 and "PHI" in out, out
+
+
+def test_diagram_citation_with_trailing_name_fails_closed(check, tmp_path, monkeypatch, capsys):
+    path = spec_copy(tmp_path, lambda s: s["nodes"][0].update(cite=SLIDE + " Jane Smith"))
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "PHI" in out, out
