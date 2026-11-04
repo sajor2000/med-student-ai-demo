@@ -553,3 +553,9 @@ def test_diagram_citation_with_trailing_name_fails_closed(check, tmp_path, monke
     path = spec_copy(tmp_path, lambda s: s["nodes"][0].update(cite=SLIDE + " Jane Smith"))
     code, out = run_spec(check, path, monkeypatch, capsys)
     assert code == 1 and "PHI" in out, out
+
+
+def test_diagram_citation_path_with_name_fails_closed(check, tmp_path, monkeypatch, capsys):
+    path = spec_copy(tmp_path, lambda s: s["nodes"][0].update(cite="[[MICRO/Jane Smith#S1]]"))
+    code, out = run_spec(check, path, monkeypatch, capsys)
+    assert code == 1 and "PHI" in out, out

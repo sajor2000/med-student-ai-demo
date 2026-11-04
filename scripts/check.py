@@ -364,7 +364,10 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             return [t for v in value for t in free_text(v, key)]
         return []
 
-    for text in free_text(spec):
+    # phi_hit ignores well-formed course tokens, so scan each citation path (a notes filename) on its own too.
+    texts = free_text(spec)
+    texts += [m.group(1) for t in texts for m in COURSE.finditer(t)]
+    for text in texts:
         if what := phi_hit(text):
             problems.append(f"diagram text looks like PHI ({what}); de-identify before it goes in a diagram")
             break
