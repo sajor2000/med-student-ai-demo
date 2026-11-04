@@ -62,7 +62,7 @@ PHI_PATTERNS = [
     # De-identification gate (heuristic, fail closed): contact details and locators.
     (re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+"), "an email address"),
     (re.compile(r"(?<![\w-])(?:\+?1[\s.-]?)?(?:\(\d{3}\)\s?|\d{3}[\s.-])\d{3}[\s.-]\d{4}(?![\w-])"), "a phone number"),
-    (re.compile(r"\b\d{3}-\d{2}-\d{4}\b"), "an SSN-like number"),
+    (re.compile(r"(?<![\w-])\d{3}[- ]\d{2}[- ]\d{4}(?![\w-])"), "an SSN-like number"),
     (re.compile(r"\b\d{1,6}\s+(?:[A-Za-z]+\s+){0,3}(?:St|Street|Ave|Avenue|Rd|Road|Blvd|Boulevard|Dr|Drive|"
                 r"Ln|Lane|Ct|Court|Way|Pl|Place|Pkwy|Parkway|Hwy|Highway)\b\.?", re.I), "a street address"),
     (re.compile(r"#\s*\d{4,}|\b(?:chart|account|acct|patient|pt|record)\s*(?:no\.?|number|id|#)?\s*[:#]?\s*\d{4,}\b",
@@ -70,6 +70,9 @@ PHI_PATTERNS = [
     (re.compile(r"(?<![\d-])\d{5}(?:-\d{4})?(?![\d-])"), "a ZIP code"),
     (re.compile(r"\b(?:https?://|www\.)\S*\?\S+", re.I), "a URL with a query string"),
     (re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Dr|Patient)\b\.?\s+[A-Z][a-z]+"), "a title followed by a name"),
+    # all-caps names: after a personal title, or two all-caps words after "Patient" (so "Patient COPD" is not refused)
+    (re.compile(r"\b(?:Mr|Mrs|Ms|Miss|Dr|MR|MRS|MS|MISS|DR)\b\.?\s+[A-Z]{2,}\b|\bPatient\s+[A-Z]{3,}(?:\s+[A-Z]{3,})+"),
+     "a title followed by a name"),
 ]
 
 # Title-Case words that are medical or scientific terms (eponyms, genera, units of naming), not people.
@@ -88,6 +91,12 @@ Pacinian Ruffini Merkel Broca Brodmann Wernicke Heimlich Valsalva Glasgow Apgar 
 The A An In On At Of To For And Or But With From By As If When While Then This That These Those It Its He She
 They We You I My Our Your One Two Three Four Five Each Every Some Any No Not Is Are Was Were Be
 """.split())
+GENERIC_WORDS = frozenset(w.lower() for w in """
+Type Vitamin Group Stage Grade Class Phase Day Week Month Year Case Cell Cells Island Islet Islets Bundle Node Valve
+Nerve Artery Vein Lobe Gland Cortex Syndrome Disease Law Test Sign Triad Tetralogy Pentad Reflex Cycle Factor Rh
+The A An In On At Of To For And Or But With From By As If When While Then This That These Those It Its He She
+They We You I My Our Your One Two Three Four Five Each Every Some Any No Not Is Are Was Were Be
+""".split())
 _CAP_RUN = re.compile(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+\b")
 
 
@@ -95,9 +104,15 @@ def name_hit(text: str) -> str | None:
     """Two or more Title-Case words in a row, none of them a known medical or common term."""
     for m in _CAP_RUN.finditer(text):
         words = m.group(0).split()
-        # adjacent pairs, so one allowlisted word ("Type") cannot exempt a name next to it
-        if any(a.lower() not in NAME_ALLOW and b.lower() not in NAME_ALLOW for a, b in zip(words, words[1:])):
-            return "a likely personal name"
+        # A known medical word first ("Wilson Disease", "Gram Positive") is clinical. An unknown first word
+        # ("Jane Wilson", "John Smith Type") followed by anything but a generic word reads as a name,
+        # even when the second word happens to be an eponym surname.
+        # Words that continue a clinical phrase ("Gram Positive Staphylococcus") are not name candidates.
+        for i, (a, b) in enumerate(zip(words, words[1:], strict=False)):
+            if i and words[i - 1].lower() in NAME_ALLOW:
+                continue
+            if a.lower() not in NAME_ALLOW and b.lower() not in GENERIC_WORDS:
+                return "a likely personal name"
     return None
 
 

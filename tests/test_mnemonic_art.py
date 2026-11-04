@@ -295,6 +295,11 @@ def test_never_overwrites_other_concepts_image(art, net, monkeypatch, tmp_path, 
     ("45 OAK AVE", "a street address"),
     ("John Smith Type 2 diabetes", "a likely personal name"),
     ("Mary Jones Disease course", "a likely personal name"),
+    ("ssn 123 45 6789", "an SSN-like number"),
+    ("Patient JOHN SMITH with fever", "a title followed by a name"),
+    ("DR SMITH examined", "a title followed by a name"),
+    ("Jane Wilson with fever", "a likely personal name"),
+    ("Anna Turner from Chicago", "a likely personal name"),
     ("zip 60612", "a ZIP code"),
     ("zip 60612-1234", "a ZIP code"),
     ("ssn 123-45-6789", "an SSN-like number"),
@@ -325,6 +330,9 @@ def test_deid_rule_refuses_in_isolation(art, net, monkeypatch, capsys, scene, ru
     "Hashimoto thyroiditis and Cushing syndrome",
     "Gram positive Streptococcus pyogenes",
     "Crohn disease with Borrelia",
+    "patient with fever",
+    "Patient with fever and Wilson Disease",
+    "Wilson Disease and Gram Positive Staphylococcus Aureus",
 ])
 def test_deid_clinical_negatives_pass(art, net, monkeypatch, scene):
     assert art.phi_hit(scene) is None
