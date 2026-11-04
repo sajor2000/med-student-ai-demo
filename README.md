@@ -67,7 +67,11 @@ cd med-student-ai-demo
 uv run scripts/extract.py sample/curriculum --out sample/notes
 uv run scripts/check.py examples/flashcards.csv --notes sample/notes
 uv run scripts/export.py examples/flashcards.csv --guide examples/study-guide.md --notes sample/notes
-open examples/flashcards.html                      # Windows: start examples\flashcards.html
+open examples/flashcards.html                      # macOS
+```
+On Windows (PowerShell), open the page with:
+```powershell
+start examples\flashcards.html
 ```
 
 **3. Start your agent in the folder.**
@@ -85,8 +89,8 @@ Skills are slash commands: `/ingest`, `/flashcards`, ...
 </td><td>
 
 ```bash
+codex mcp login paperclip   # once, before the first session
 codex
-codex mcp login paperclip
 ```
 Codex reads `AGENTS.md`, `.agents/skills/`, and `.codex/config.toml` here. Name a skill in your prompt, for example "use the ingest skill on <case>".
 
