@@ -538,6 +538,75 @@ def test_uncited_weak_spot_uses_source_needed_marker(anki_mod):
     assert anki_mod.first_cite({"Back": "no citation here"}) == "[source needed]"
 
 
+MISSES = DECK + "::misses"
+MISS_ROW = ("Why does MRSA resist nafcillin?", "PBP2a", S3, "case-1;micro;miss;obj1")
+
+
+def test_miss_row_goes_to_misses_deck_and_resync_is_idempotent(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    write_csv(workdir, [MISS_ROW, ("Catalase test separates staph from strep?", "Positive", S2, "case-1;micro;lab")])
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    assert summary(capsys.readouterr().out)["added"] == 2
+    assert MISSES in fake.decks
+    by_id = {next(t for t in n["tags"] if t.startswith("msad-id::")): n for n in fake.notes.values()}
+    miss = by_id["msad-id::" + gid_of(MISS_ROW[0])]
+    assert fake.deck_of(next(k for k, v in fake.notes.items() if v is miss)) == {MISSES}
+    assert "msad" in miss["tags"] and "miss" in miss["tags"]
+    other = by_id["msad-id::" + gid_of("Catalase test separates staph from strep?")]
+    assert fake.deck_of(next(k for k, v in fake.notes.items() if v is other)) == {DECK}
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    assert summary(capsys.readouterr().out) == {"added": 0, "updated": 2, "adopted": 0, "skipped": 0, "weak": 0}
+    assert len(fake.notes) == 2
+    assert {d for n in fake.notes for d in fake.deck_of(n)} == {MISSES, DECK}
+
+
+def test_misses_deck_not_created_without_miss_rows(anki_mod, monkeypatch, fake_factory, workdir):
+    fake = fake_factory()
+    write_csv(workdir)
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    assert MISSES not in fake.decks
+    assert all(r["params"].get("deck") != MISSES for r in fake.calls("createDeck"))
+
+
+def test_note_in_diagrams_offline_subdeck_is_skipped(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    write_csv(workdir, [MISS_ROW])
+    nid = fake.put_note("Basic", {"Front": "old", "Back": "old"},
+                        ["msad", "msad-id::" + gid_of(MISS_ROW[0])], DECK + "::diagrams-offline")
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    assert summary(capsys.readouterr().out)["skipped"] == 1
+    assert fake.notes[nid]["fields"]["Front"] == "old" and not fake.calls("updateNoteFields")
+
+
+def test_existing_note_in_base_deck_is_updated_not_moved(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    write_csv(workdir, [MISS_ROW])
+    nid = fake.put_note("Basic", {"Front": "old", "Back": "old"},
+                        ["msad", "msad-id::" + gid_of(MISS_ROW[0])], DECK)
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    assert summary(capsys.readouterr().out)["updated"] == 1
+    assert fake.deck_of(nid) == {DECK} and fake.notes[nid]["fields"]["Front"] != "old"
+
+
+def test_lapsed_card_in_misses_deck_reaches_weak_spots_once(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    write_csv(workdir, [MISS_ROW])
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    capsys.readouterr()
+    for c in fake.cards.values():
+        c["lapses"] = 3
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    assert summary(capsys.readouterr().out)["weak"] == 1
+    assert sync(anki_mod, monkeypatch, fake, workdir) == 0
+    assert summary(capsys.readouterr().out)["weak"] == 0
+    assert (workdir / "weak-spots.md").read_text().count("MRSA") == 1
+
+
+def test_off_allowlist_action_still_raises_with_misses(anki_mod):
+    with pytest.raises(ValueError):
+        anki_mod.request("http://127.0.0.1:1", "deleteNotes", {})
+
+
 def test_sidecar_write_is_atomic(anki_mod, tmp_path, monkeypatch):
     case = tmp_path / "case-1"
     case.mkdir()

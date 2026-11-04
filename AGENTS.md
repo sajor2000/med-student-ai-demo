@@ -40,7 +40,11 @@ PubMed tools search and verify. Paperclip (MCP, or `paperclip` CLI) gives full t
 
 ## Anki sync
 
-Sync owns only notes tagged `msad` in the deck `AI Study::<case>`. Never edit or delete any other note or deck.
+Sync owns only notes tagged `msad` in the deck `AI Study::<case>` (and its `::misses` subdeck for cards tagged `miss`). Never edit or delete any other note or deck.
+
+## Practice skills
+
+`/vignette` and `/teach-back` are **attempt-first**: wait for the student's own written answer before showing options or the expert model. A vignette is a cited spec (`output/<case>/vignettes.json`): five options, one correct, every explanation cited. Run `check.py` on it like any deck. Synthetic patients only. Evidence for each skill: `docs/LEARNING-SCIENCE.md`.
 
 ## Teaching
 
@@ -52,4 +56,4 @@ Sync owns only notes tagged `msad` in the deck `AI Study::<case>`. Never edit or
 
 ## Skills
 
-Eight skills in `.claude/skills/` (mirrored at `.agents/skills/`): ingest, flashcards, quiz, study-guide, deepen, visualize, mnemonic-art, anki-sync. Each `SKILL.md` holds its steps. Run `anki-sync`, `mnemonic-art`, and `visualize` only when the student asks for them by name.
+Ten skills in `.claude/skills/` (mirrored at `.agents/skills/`): ingest, flashcards, quiz, study-guide, deepen, visualize, mnemonic-art, anki-sync, vignette, teach-back. Each `SKILL.md` holds its steps. Run `anki-sync`, `mnemonic-art`, `visualize`, `vignette`, and `teach-back` only when the student asks for them by name.

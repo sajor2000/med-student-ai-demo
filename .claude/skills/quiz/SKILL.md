@@ -22,3 +22,6 @@ At the end, show the score, then append each missed topic to `output/<case>/weak
 (create the file if it is missing). Then run `uv run scripts/check.py output/<case>/weak-spots.md --notes notes/<case>`.
 Done when it prints PASS. Tell the student `/flashcards <case>` will target these.
 Also suggest `/anki-sync <case>` to push cards into Anki and pull back the ones the student keeps missing.
+Offer to turn each miss into a cited cloze card: `/vignette` `reference.md` has the recipe (tags `miss;objN`, merged into
+`output/<case>/flashcards.csv`, then `check.py`). `/anki-sync` files them under `AI Study::<case>::misses`.
+Ask the student to type their own answer before you show the options when they want harder practice: `/vignette <case>` does this for every question.

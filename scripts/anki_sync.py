@@ -4,9 +4,12 @@
 # ///
 """Sync verified cards into Anki desktop through AnkiConnect, and pull missed cards back.
 
-Owned means: notes tagged `msad` + `msad-id::<id>` in the deck `AI Study::<case>`.
-The client talks only to a loopback AnkiConnect (API version 6), sends only the
-actions in ALLOWED, and never edits a note whose cards sit outside the owned deck.
+Owned means: notes tagged `msad` + `msad-id::<id>` in the deck `AI Study::<case>` or its
+`::misses` subdeck. CSV rows tagged `miss` go to `AI Study::<case>::misses` (created only
+when such a row exists); other rows go to the base deck. Existing notes are updated in
+place and never moved. The client talks only to a loopback AnkiConnect (API version 6),
+sends only the actions in ALLOWED, and never edits a note whose cards sit outside the
+owned decks (so `::diagrams-offline` stays untouched).
 
 Inputs:
   --csv output/<case>/flashcards.csv      basic and cloze notes (same rules as export.py)
@@ -107,7 +110,7 @@ def tag_list(raw: str) -> list[str]:
     return [t.strip().replace(" ", "_") for t in (raw or "").split(";") if t.strip()]
 
 
-def csv_notes(path: Path) -> list[dict]:
+def csv_notes(path: Path, case: str = "") -> list[dict]:
     notes, seen = [], set()
     with path.open(newline="", encoding="utf-8") as fh:
         for row in csv.DictReader(fh):
@@ -127,8 +130,11 @@ def csv_notes(path: Path) -> list[dict]:
                 model, fields = "Basic", {"Front": html.escape(front), "Back": back}
             user_tags = tag_list(row.get("tags", ""))
             disc_tag = [f"msad-disc::{user_tags[1]}"] if len(user_tags) > 1 else []
-            notes.append({"id": nid, "model": model, "fields": fields,
-                          "tags": ["msad", f"msad-id::{nid}", *disc_tag, *user_tags]})
+            note = {"id": nid, "model": model, "fields": fields,
+                    "tags": ["msad", f"msad-id::{nid}", *disc_tag, *user_tags]}
+            if case and "miss" in user_tags:
+                note["deck"] = f"AI Study::{case}::misses"
+            notes.append(note)
     return notes
 
 
@@ -159,6 +165,8 @@ class Sync:
     def __init__(self, url: str, case: str):
         self.url, self.case = url, case
         self.deck = f"AI Study::{case}"
+        self.misses = f"{self.deck}::misses"
+        self.owned_decks = {self.deck, self.misses}
         self.counts = {"added": 0, "updated": 0, "adopted": 0, "skipped": 0}
         self._adopt: dict[tuple[str, str], int] | None = None
         self._foreign: set[tuple[str, str]] = set()
@@ -176,7 +184,7 @@ class Sync:
 
     def owned(self, nid: int) -> bool:
         cards = self.call("notesInfo", notes=[nid])[0]["cards"]
-        return all(c["deckName"] == self.deck for c in self.call("cardsInfo", cards=cards))
+        return all(c["deckName"] in self.owned_decks for c in self.call("cardsInfo", cards=cards))
 
     def adoptable(self) -> dict[tuple[str, str], int]:
         """Hand-imported notes (tag `msad`, no `msad-id::`) in the owned deck, keyed by (model, guid of
@@ -208,6 +216,7 @@ class Sync:
         self.call("storeMediaFile", filename=name, data=base64.b64encode(png).decode(), deleteExisting=False)
 
     def upsert(self, note: dict) -> None:
+        deck = note.get("deck", self.deck)
         tag = f"msad-id::{note['id']}"
         found = self.call("findNotes", query=f'deck:"{self.deck}" tag:{tag}')
         adopted = False
@@ -225,6 +234,8 @@ class Sync:
             return
         else:
             nid = None
+            if deck not in self.call("deckNames"):
+                self.call("createDeck", deck=deck)
         if nid is not None and not self.owned(nid):
             self.counts["skipped"] += 1
             print(f"skip {note['id']}: note has a card outside {self.deck}")
@@ -232,7 +243,7 @@ class Sync:
         if "media" in note:
             self.store_media(note)
         if nid is None:
-            self.call("addNote", note={"deckName": self.deck, "modelName": note["model"], "fields": note["fields"],
+            self.call("addNote", note={"deckName": deck, "modelName": note["model"], "fields": note["fields"],
                                        "tags": note["tags"], "options": {"allowDuplicate": True}})
             self.counts["added"] += 1
             return
@@ -244,9 +255,10 @@ class Sync:
 
     def lapsed(self, threshold: int) -> list[dict]:
         """Owned cards with lapses >= threshold: stable id, discipline, topic, citation."""
-        card_ids = self.call("findCards", query=f'deck:"{self.deck}" tag:msad')
+        card_ids = sorted({c for d in sorted(self.owned_decks)
+                           for c in self.call("findCards", query=f'deck:"{d}" tag:msad')})
         cards = self.call("cardsInfo", cards=card_ids) if card_ids else []
-        note_ids = sorted({c["note"] for c in cards if c["deckName"] == self.deck and c["lapses"] >= threshold})
+        note_ids = sorted({c["note"] for c in cards if c["deckName"] in self.owned_decks and c["lapses"] >= threshold})
         out = []
         for n in self.call("notesInfo", notes=note_ids) if note_ids else []:
             tags = n["tags"]
@@ -327,7 +339,7 @@ def main() -> int:
     if args.diagrams and not args.diagrams.is_dir():
         ap.error(f"no such folder: {args.diagrams}")
 
-    notes = csv_notes(args.csv) if args.csv else []
+    notes = csv_notes(args.csv, args.case) if args.csv else []
     diagrams = diagram_notes(args.diagrams) if args.diagrams else []
     s = Sync(args.url, args.case)
     try:

@@ -393,6 +393,69 @@ def test_media_rerun_replaces_own_file_and_adopts_identical(export, tmp_path, mo
     assert dest.read_bytes() == (art / "foo.png").read_bytes()
 
 
+# --- vignettes tab ----------------------------------------------------------
+
+OPT_TEXTS = ["Alpha opt", "Bravo opt", "Charlie opt", "Delta opt", "Echo opt"]
+
+
+def make_vignettes(path: Path, stem: str = "A 4-year-old has honey-crust lesions. Next step?", texts=None, explanations=None) -> Path:
+    texts = texts or OPT_TEXTS
+    explanations = explanations or [f"Why {k}. {S3} [PMID: 12345678]" for k in "ABCDE"]
+    vg = {"vignettes": [{
+        "id": "staph-1", "objective": 1, "discipline": "micro", "stem": stem,
+        "options": [{"key": k, "text": t, "correct": k == "B", "explanation": e}
+                    for k, t, e in zip("ABCDE", texts, explanations)],
+    }]}
+    path.write_text(json.dumps(vg), encoding="utf-8")
+    return path
+
+
+def outside_templates(page: str) -> str:
+    return re.sub(r"<template.*?</template>", "", page, flags=re.S)
+
+
+def test_vignettes_tab_added_only_with_flag_and_page_otherwise_identical(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    run_main(export, [str(deck)], monkeypatch)
+    before = (tmp_path / "out/flashcards.html").read_bytes()
+    assert b"Vignettes" not in before
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert 'id="tv"' in page and "Vignettes" in page and 'id="vignettes"' in page
+    run_main(export, [str(deck)], monkeypatch)
+    assert (tmp_path / "out/flashcards.html").read_bytes() == before
+
+
+def test_diagrams_only_page_unchanged_by_vignette_support(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    diagrams = make_diagrams(tmp_path / "diagrams", [("X", S3)])
+    run_main(export, [str(deck), "--diagrams", str(diagrams)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    assert "vignette" not in page.lower() and "'tv'" not in page
+
+
+def test_option_text_only_inside_template(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    visible = outside_templates(page)
+    assert "honey-crust" in visible and "<textarea" in visible and "disabled" in visible
+    for t in OPT_TEXTS:
+        assert t not in visible and t in page
+    assert "Why B" not in visible and "Why B" in page
+    assert page.count("<template") == 1
+
+
+def test_vignette_text_is_escaped(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    evil = "<script>alert(1)</script>"
+    vg = make_vignettes(tmp_path / "vignettes.json", stem=evil,
+                        texts=[evil] + OPT_TEXTS[1:], explanations=["<img src=x onerror=alert(2)>"] * 5)
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+
+
 def test_anki_rows_carry_msad_tag(export, tmp_path, monkeypatch):
     deck = write_deck(tmp_path / "out", MIXED)
     run_main(export, [str(deck)], monkeypatch)
@@ -466,6 +529,139 @@ def test_raw_html_in_deepen_file_is_escaped(export, tmp_path, monkeypatch):
     assert "&lt;script&gt;alert(1)&lt;/script&gt;" in page
 
 
+def test_vignette_citations_link_like_cards(export, notes, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--notes", str(notes), "--vignettes", str(vg)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    tpl = re.search(r"<template.*?</template>", page, re.S).group(0)
+    assert "pubmed.ncbi.nlm.nih.gov/12345678/" in tpl
+    links = hrefs(tpl)
+    assert links and all(urllib.parse.unquote(h).endswith("#S3") for h in links)
+    # without --notes the course citation stays a label, PMID still links
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    tpl = re.search(r"<template.*?</template>", (tmp_path / "out/flashcards.html").read_text(encoding="utf-8"), re.S).group(0)
+    assert hrefs(tpl) == [] and "pubmed.ncbi.nlm.nih.gov/12345678/" in tpl
+
+
+def test_page_has_no_storage_or_network_calls(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    page = (tmp_path / "out/flashcards.html").read_text(encoding="utf-8")
+    for bad in ("localStorage", "sessionStorage", "indexedDB", "fetch(", "XMLHttpRequest", "sendBeacon", "WebSocket", "document.cookie"):
+        assert bad not in page
+
+
+@pytest.mark.parametrize("content", ["{not json", "[]", '{"vignettes": "x"}', '{"vignettes": [{"stem": "s"}]}',
+                                     '{"vignettes": [{"stem": "s", "options": ["x"]}]}', '{"vignettes": ["x"]}'])
+def test_malformed_vignettes_file_exits_readably(export, tmp_path, monkeypatch, content):
+    deck = write_deck(tmp_path / "out", MIXED)
+    bad = tmp_path / "bad.json"
+    bad.write_text(content, encoding="utf-8")
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(bad)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def test_missing_vignettes_file_exits_readably(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(tmp_path / "nope.json")], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def _chromium_page():
+    sync_api = pytest.importorskip("playwright.sync_api", reason="playwright is not installed")
+    pw = sync_api.sync_playwright().start()
+    try:
+        browser = pw.chromium.launch()
+    except Exception as exc:  # browser binary not installed
+        pw.stop()
+        pytest.skip(f"Chromium unavailable for Playwright: {str(exc).splitlines()[0]}")
+    return pw, browser
+
+
+def test_vignette_flow_in_browser(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    pw, browser = _chromium_page()
+    try:
+        page = browser.new_page()
+        page.goto((tmp_path / "out/flashcards.html").as_uri())
+        page.click("#tv")
+        btn = page.locator("#vignettes button.vshow")
+        assert btn.is_disabled()
+        assert page.locator("#vignettes .vopt").count() == 0
+        page.fill("#vignettes textarea", "   ")
+        assert btn.is_disabled()
+        page.fill("#vignettes textarea", "Impetigo; give mupirocin")
+        assert btn.is_enabled()
+        assert page.locator("#vignettes .vopt").count() == 0
+        btn.click()
+        assert page.locator("#vignettes .vopt").count() == 5
+        assert page.locator("#vignettes .vexp:visible").count() == 0
+        page.locator("#vignettes .vopt", has_text="Alpha opt").click()
+        assert page.locator("#vignettes .vexp:visible").count() == 5
+        assert page.locator("#vignettes .vopt.correct").count() == 1
+        assert "Bravo opt" in page.locator("#vignettes .vopt.correct").inner_text()
+        assert page.locator("#vignettes .vopt.incorrect").count() == 1  # the chosen wrong one
+    finally:
+        browser.close()
+        pw.stop()
+
+
+def _vignette_with(tmp_path, mutate):
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    data = json.loads(vg.read_text(encoding="utf-8"))
+    mutate(data["vignettes"][0])
+    vg.write_text(json.dumps(data), encoding="utf-8")
+    return vg
+
+
+@pytest.mark.parametrize("mutate", [
+    lambda v: v.__setitem__("options", v["options"][:4]),
+    lambda v: v["options"][0].__setitem__("key", "Z"),
+    lambda v: [o.__setitem__("correct", False) for o in v["options"]],
+    lambda v: v["options"][2].__setitem__("explanation", ""),
+    lambda v: v["options"][1].pop("explanation"),
+], ids=["four-options", "bad-key", "no-correct", "empty-explanation", "missing-explanation"])
+def test_incomplete_vignette_schema_exits_readably(export, tmp_path, monkeypatch, mutate):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = _vignette_with(tmp_path, mutate)
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+@pytest.mark.parametrize("content", ['{"vignettes": []}'], ids=["empty-list"])
+def test_empty_vignette_list_exits_readably(export, tmp_path, monkeypatch, content):
+    deck = write_deck(tmp_path / "out", MIXED)
+    bad = tmp_path / "bad.json"
+    bad.write_text(content, encoding="utf-8")
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(bad)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def test_blank_stem_exits_readably(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json", stem="   ")
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def test_vignettes_tab_has_running_score(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    page = (deck.parent / "flashcards.html").read_text(encoding="utf-8")
+    assert 'id="vscore"' in page and "Score: 0 / 0" in page
+    assert "getElementById('vscore')" in page and "'Score: '+sc" in page
+
+
 @pytest.mark.parametrize("md", [
     "[x](javascript:alert(1))",
     "[x](JaVaScRiPt:alert(1))",
@@ -497,3 +693,22 @@ def test_committed_example_imports_carry_ownership_tag():
     for name in ("flashcards.anki.txt", "flashcards.cloze.anki.txt"):
         rows = [ln for ln in (root / name).read_text(encoding="utf-8").splitlines() if ln.startswith("msad-")]
         assert rows and all("msad" in ln.rsplit("\t", 1)[-1].split() for ln in rows), name
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_blank_option_text_exits_readably(export, tmp_path, monkeypatch, blank):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json", texts=["Alpha", blank, "Charlie", "Delta", "Echo"])
+    with pytest.raises(SystemExit) as e:
+        run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    assert "--vignettes" in str(e.value)
+
+
+def test_page_shortcuts_ignore_typing_in_form_fields(export, tmp_path, monkeypatch):
+    deck = write_deck(tmp_path / "out", MIXED)
+    vg = make_vignettes(tmp_path / "vignettes.json")
+    run_main(export, [str(deck), "--vignettes", str(vg)], monkeypatch)
+    page = (tmp_path / "out" / "flashcards.html").read_text(encoding="utf-8")
+    handler = page.split("document.onkeydown=", 1)[1].split("\n", 1)[0]
+    assert "textarea" in handler and "return" in handler.split("textarea")[0] + handler.split("textarea")[1]
+    assert handler.index("textarea") < handler.index("preventDefault")

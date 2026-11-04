@@ -1,0 +1,194 @@
+{
+  "vignettes": [
+    {
+      "id": "lab-clusters",
+      "objective": 1,
+      "discipline": "MICRO",
+      "stem": "A wound swab grows gram-positive cocci in clusters. The colonies are golden and beta-hemolytic on blood agar, and the isolate is catalase positive. Which additional result best identifies the organism as Staphylococcus aureus?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Catalase negative",
+          "correct": false,
+          "explanation": "Wrong: catalase positivity already places the isolate with the staphylococci, and streptococci are the catalase-negative group. [[MICRO/Staphylococcus aureus (sample lecture)#S2]]"
+        },
+        {
+          "key": "B",
+          "text": "Coagulase negative",
+          "correct": false,
+          "explanation": "Wrong: a coagulase-negative result points to a staphylococcus other than S. aureus. [[MICRO/Staphylococcus aureus (sample lecture)#S2]]"
+        },
+        {
+          "key": "C",
+          "text": "Coagulase positive",
+          "correct": true,
+          "explanation": "Correct: coagulase positivity separates S. aureus from most other staphylococci. [[MICRO/Staphylococcus aureus (sample lecture)#S2]]"
+        },
+        {
+          "key": "D",
+          "text": "Gram-positive cocci in chains",
+          "correct": false,
+          "explanation": "Wrong: chains suggest a streptococcus; the stem describes clusters, a staphylococcal arrangement. [[MICRO/Staphylococcus aureus (sample lecture)#S2]]"
+        },
+        {
+          "key": "E",
+          "text": "Alpha-hemolysis with a green zone on blood agar",
+          "correct": false,
+          "explanation": "Wrong: the stem gives beta-hemolytic golden colonies, the S. aureus pattern, not a green alpha-hemolytic zone. [[MICRO/Staphylococcus aureus (sample lecture)#S2]]"
+        }
+      ]
+    },
+    {
+      "id": "protein-a-evasion",
+      "objective": 2,
+      "discipline": "MICRO",
+      "stem": "A researcher studies why S. aureus survives in blood despite circulating antibodies. Mutants lacking one surface protein are cleared much faster because antibody-coated bacteria are phagocytosed. Which factor was deleted?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Capsule",
+          "correct": false,
+          "explanation": "Wrong: the polysaccharide capsule resists phagocytosis directly; it does not bind the antibody Fc region. [[MICRO/Staphylococcus aureus (sample lecture)#S3]]"
+        },
+        {
+          "key": "B",
+          "text": "Protein A",
+          "correct": true,
+          "explanation": "Correct: protein A binds the Fc region of IgG, blocking opsonization and phagocytosis. [[MICRO/Staphylococcus aureus (sample lecture)#S3]]"
+        },
+        {
+          "key": "C",
+          "text": "Clumping factor",
+          "correct": false,
+          "explanation": "Wrong: clumping factor binds fibrinogen and does not act on IgG. [[MICRO/Staphylococcus aureus (sample lecture)#S3]]"
+        },
+        {
+          "key": "D",
+          "text": "TSST-1",
+          "correct": false,
+          "explanation": "Wrong: TSST-1 is a secreted superantigen that drives cytokine release, not a surface protein that blocks opsonization. [[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+        },
+        {
+          "key": "E",
+          "text": "Panton-Valentine leukocidin",
+          "correct": false,
+          "explanation": "Wrong: PVL is a secreted toxin that kills leukocytes; it does not bind IgG. [[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+        }
+      ]
+    },
+    {
+      "id": "toxic-shock",
+      "objective": 2,
+      "discipline": "MICRO",
+      "stem": "A young adult develops sudden high fever, hypotension, a diffuse sunburn-like rash, and vomiting in the days after a surgical wound packing procedure. Wound culture grows S. aureus. Which virulence factor best explains the shock?",
+      "options": [
+        {
+          "key": "A",
+          "text": "TSST-1, a superantigen that cross-links MHC II and the T-cell receptor",
+          "correct": true,
+          "explanation": "Correct: TSST-1 acts outside the peptide groove and causes massive cytokine release, producing toxic shock syndrome. [[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+        },
+        {
+          "key": "B",
+          "text": "Exfoliative toxin cleaving desmoglein-1",
+          "correct": false,
+          "explanation": "Wrong: exfoliative toxins cause staphylococcal scalded skin syndrome, with skin blistering rather than shock. [[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+        },
+        {
+          "key": "C",
+          "text": "Preformed heat-stable enterotoxin",
+          "correct": false,
+          "explanation": "Wrong: preformed enterotoxins cause rapid-onset vomiting after a meal, not a multisystem shock picture. [[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+        },
+        {
+          "key": "D",
+          "text": "Panton-Valentine leukocidin",
+          "correct": false,
+          "explanation": "Wrong: PVL kills leukocytes and is linked to necrotizing skin infection and pneumonia. [[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+        },
+        {
+          "key": "E",
+          "text": "Protein A",
+          "correct": false,
+          "explanation": "Wrong: protein A blocks opsonization on the bacterial surface and is not a superantigen. [[MICRO/Staphylococcus aureus (sample lecture)#S3]]"
+        }
+      ]
+    },
+    {
+      "id": "iv-drug-endocarditis",
+      "objective": 2,
+      "discipline": "MICRO",
+      "stem": "A person who injects drugs presents with fever and a new regurgitant murmur. Blood cultures grow gram-positive cocci in clusters that are coagulase positive. Which valve is most often involved in this setting?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Mitral valve",
+          "correct": false,
+          "explanation": "Wrong: the lecture ties endocarditis in people who inject drugs to the tricuspid valve, not the mitral valve. [[MICRO/Staphylococcus aureus (sample lecture)#S5]]"
+        },
+        {
+          "key": "B",
+          "text": "Aortic valve",
+          "correct": false,
+          "explanation": "Wrong: the aortic valve is not the classic site in this setting; the lecture names the tricuspid valve. [[MICRO/Staphylococcus aureus (sample lecture)#S5]]"
+        },
+        {
+          "key": "C",
+          "text": "Pulmonic valve",
+          "correct": false,
+          "explanation": "Wrong: the pulmonic valve is rarely the focus; the lecture names the tricuspid valve. [[MICRO/Staphylococcus aureus (sample lecture)#S5]]"
+        },
+        {
+          "key": "D",
+          "text": "Tricuspid valve",
+          "correct": true,
+          "explanation": "Correct: S. aureus endocarditis is often tricuspid in people who inject drugs. [[MICRO/Staphylococcus aureus (sample lecture)#S5]]"
+        },
+        {
+          "key": "E",
+          "text": "No valve is typically involved; infection stays in the skin",
+          "correct": false,
+          "explanation": "Wrong: invasive disease includes bacteremia and endocarditis, beyond skin and soft tissue infection. [[MICRO/Staphylococcus aureus (sample lecture)#S5]]"
+        }
+      ]
+    },
+    {
+      "id": "mrsa-mechanism",
+      "objective": 3,
+      "discipline": "MICRO",
+      "stem": "A skin abscess fails to improve on a beta-lactam. Culture grows S. aureus that carries mecA on a mobile element. What explains the treatment failure?",
+      "options": [
+        {
+          "key": "A",
+          "text": "Protein A binds the Fc region of IgG",
+          "correct": false,
+          "explanation": "Wrong: protein A impairs opsonization; it does not make the organism resistant to beta-lactam drugs. [[MICRO/Staphylococcus aureus (sample lecture)#S3]]"
+        },
+        {
+          "key": "B",
+          "text": "Panton-Valentine leukocidin kills leukocytes",
+          "correct": false,
+          "explanation": "Wrong: PVL is a virulence toxin and does not explain drug resistance. [[MICRO/Staphylococcus aureus (sample lecture)#S4]]"
+        },
+        {
+          "key": "C",
+          "text": "Loss of coagulase expression",
+          "correct": false,
+          "explanation": "Wrong: coagulase is a lab identification marker and is unrelated to beta-lactam resistance. [[MICRO/Staphylococcus aureus (sample lecture)#S2]]"
+        },
+        {
+          "key": "D",
+          "text": "The capsule resists phagocytosis",
+          "correct": false,
+          "explanation": "Wrong: the capsule affects immune evasion, not antibiotic target binding. [[MICRO/Staphylococcus aureus (sample lecture)#S3]]"
+        },
+        {
+          "key": "E",
+          "text": "PBP2a, encoded by mecA, has low affinity for beta-lactams",
+          "correct": true,
+          "explanation": "Correct: mecA on the SCCmec element encodes PBP2a, giving resistance to almost all beta-lactams. [[MICRO/Staphylococcus aureus (sample lecture)#S6]]"
+        }
+      ]
+    }
+  ]
+}

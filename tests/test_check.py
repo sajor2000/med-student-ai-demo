@@ -271,6 +271,195 @@ def test_non_string_edge_endpoint_is_readable_failure(check, tmp_path, monkeypat
     assert code == 1 and "not a node id" in out and "Traceback" not in out
 
 
+# ---- vignette files ----
+
+CITE_OK = "[[MICRO/Staph deck (sample)#S3]]"
+
+
+def make_vignette(vid="v1", **over):
+    opts = [
+        {"key": k, "text": f"Option {k}", "correct": k == "A", "explanation": f"Because {k}. {CITE_OK}"}
+        for k in "ABCDE"
+    ]
+    v = {"id": vid, "objective": 2, "discipline": "MICRO", "stem": "A synthetic patient has a rash.", "options": opts}
+    v.update(over)
+    return v
+
+
+def write_vignettes(tmp_path, vignettes):
+    p = tmp_path / "vignettes.json"
+    p.write_text(json.dumps({"vignettes": vignettes}), encoding="utf-8")
+    return p
+
+
+def run_vig(check, notes, path, monkeypatch, capsys):
+    code = run_main(check, [str(path), "--notes", str(notes)], monkeypatch)
+    return code, capsys.readouterr().out
+
+
+def mutated(fn, vid="v1"):
+    v = make_vignette(vid)
+    fn(v)
+    return v
+
+
+def test_pmid_digits_in_a_citation_are_not_phi(check, notes, tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(check, "pubmed_summaries", lambda pmids: {p: {"title": "T", "pubdate": "2024"} for p in pmids})
+    v = mutated(lambda v: v["options"][0].update(explanation=v["options"][0]["explanation"] + " [PMID:38247655]"))
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
+    assert code == 0 and "PMID:38247655" in out
+
+
+def test_bad_citation_in_stem_fails(check, notes, tmp_path, monkeypatch, capsys):
+    v = mutated(lambda v: v.update(stem=v["stem"] + " See [[MICRO/does-not-exist#S99]]."), "vx")
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
+    assert code == 1 and "stem" in out and "does-not-exist" in out
+
+
+def test_bad_citation_in_option_text_fails(check, notes, tmp_path, monkeypatch, capsys):
+    v = mutated(lambda v: v["options"][1].update(text=v["options"][1]["text"] + " [[MICRO/does-not-exist#S99]]"), "vx")
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
+    assert code == 1 and "does-not-exist" in out
+
+
+def test_stem_without_citation_still_passes(check, notes, tmp_path, monkeypatch, capsys):
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [make_vignette("v1")]), monkeypatch, capsys)
+    assert code == 0
+
+
+def test_valid_vignette_file_passes(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, [make_vignette("v1"), make_vignette("v2", objective=1)])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 0 and "2 vignettes" in out and "PASS" in out
+
+
+def test_vignette_optional_fields_may_be_absent(check, notes, tmp_path, monkeypatch, capsys):
+    v = make_vignette()
+    del v["objective"], v["discipline"]
+    code, _ = run_vig(check, notes, write_vignettes(tmp_path, [v]), monkeypatch, capsys)
+    assert code == 0
+
+
+@pytest.mark.parametrize("count", [4, 6])
+def test_wrong_option_count_fails(check, notes, tmp_path, monkeypatch, capsys, count):
+    def f(v):
+        v["options"] = [dict(v["options"][0], key=k, correct=k == "A") for k in "ABCDEF"[:count]]
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [mutated(f, "vx")]), monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "5 options" in out
+
+
+def test_duplicate_option_keys_fail(check, notes, tmp_path, monkeypatch, capsys):
+    code, out = run_vig(
+        check, notes, write_vignettes(tmp_path, [mutated(lambda v: v["options"][1].update(key="A"), "vx")]),
+        monkeypatch, capsys,
+    )
+    assert code == 1 and "vx" in out and "keys" in out
+
+
+@pytest.mark.parametrize("flags", [[False] * 5, [True, True, False, False, False]])
+def test_zero_or_two_correct_fail(check, notes, tmp_path, monkeypatch, capsys, flags):
+    def f(v):
+        for o, c in zip(v["options"], flags):
+            o["correct"] = c
+    code, out = run_vig(check, notes, write_vignettes(tmp_path, [mutated(f, "vx")]), monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "exactly one correct" in out
+
+
+@pytest.mark.parametrize("expl", ["", "   ", "No citation here."])
+def test_empty_or_uncited_explanation_fails(check, notes, tmp_path, monkeypatch, capsys, expl):
+    p = write_vignettes(tmp_path, [mutated(lambda v: v["options"][2].update(explanation=expl), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "C" in out and "explanation" in out
+
+
+def test_missing_anchor_in_explanation_fails(check, notes, tmp_path, monkeypatch, capsys):
+    bad = "Because. [[MICRO/Staph deck (sample)#S99]]"
+    p = write_vignettes(tmp_path, [mutated(lambda v: v["options"][0].update(explanation=bad), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "S99" in out
+
+
+def test_vitals_in_stem_are_not_flagged_as_name_with_age(check, notes, tmp_path, monkeypatch, capsys):
+    stem = "Vitals: Pulse, 110 bpm, Temperature, 39 C, Respirations, 22 /min. A wound swab grows gram-positive cocci."
+    p = write_vignettes(tmp_path, [mutated(lambda v: v.update(stem=stem), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 0, out
+
+
+def test_phi_in_discipline_fails(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, [mutated(lambda v: v.update(discipline="Maria, 45"), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "discipline" in out
+
+
+@pytest.mark.parametrize(
+    "stem",
+    [
+        "Patient MRN 12345678 presents with a rash.",
+        "Seen on 03/14/2024 with a rash.",
+        "Seen on 2024-03-14 with a rash.",
+        "Maria, 45 presents with a rash.",
+    ],
+)
+def test_phi_shaped_stem_fails(check, notes, tmp_path, monkeypatch, capsys, stem):
+    p = write_vignettes(tmp_path, [mutated(lambda v: v.update(stem=stem), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "stem" in out
+
+
+def test_phi_in_option_text_fails(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, [mutated(lambda v: v["options"][3].update(text="DOB noted"), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "D" in out
+
+
+@pytest.mark.parametrize("obj", [0, "two", -1, True, 1.5])
+def test_bad_objective_fails(check, notes, tmp_path, monkeypatch, capsys, obj):
+    p = write_vignettes(tmp_path, [mutated(lambda v: v.update(objective=obj), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "objective" in out
+
+
+def test_vignette_duplicate_and_invalid_ids_fail(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, [make_vignette("same"), make_vignette("same"), make_vignette("Bad Id")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "duplicate id" in out and "invalid id" in out
+
+
+def test_empty_stem_fails(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, [mutated(lambda v: v.update(stem=" "), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "vx" in out and "stem" in out
+
+
+def test_json_without_vignettes_key_is_diagram_spec_failure(check, notes, tmp_path, monkeypatch, capsys):
+    p = tmp_path / "other.json"
+    p.write_text(json.dumps({"stuff": []}), encoding="utf-8")
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "nodes" in out and "vignettes" not in out.split("FAIL")[0]
+
+
+def test_vignettes_not_a_list_or_empty_fails_readably(check, notes, tmp_path, monkeypatch, capsys):
+    for val in ({}, []):
+        p = tmp_path / "v.json"
+        p.write_text(json.dumps({"vignettes": val}), encoding="utf-8")
+        code, out = run_vig(check, notes, p, monkeypatch, capsys)
+        assert code == 1 and "Traceback" not in out and "vignettes" in out
+
+
+def test_non_json_file_fails_readably(check, notes, tmp_path, monkeypatch, capsys):
+    p = tmp_path / "bad.json"
+    p.write_text("{not json", encoding="utf-8")
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "not valid JSON" in out and "Traceback" not in out
+
+
+def test_malformed_option_shapes_fail_readably(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, ["junk", mutated(lambda v: v.update(options=["x"] * 5), "vx")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "Traceback" not in out
+
+
 def test_case2_guide_has_five_cited_recall_questions_and_no_uncited_attribution():
     import re
     from pathlib import Path
@@ -290,3 +479,13 @@ def test_walkthrough_staging_is_guarded_and_commands_pass_no_patient_name_as_top
             assert "Rivera" not in line, line
     assert "\n   mkdir -p curriculum && cp -R" not in text and "if [ -e curriculum/sample ]" in text
     assert "already exists" in text
+
+
+@pytest.mark.parametrize("stem", ["Maria, age 45 presents with fever", "Maria, aged 45 presents with fever", "Maria aged 45 presents"])
+def test_phi_gate_catches_name_comma_age_forms(check, stem):
+    assert check.phi_hit(stem) == "a name with an age"
+
+
+@pytest.mark.parametrize("stem", ["Fever, 38 C on arrival", "Tachycardic, 104 bpm at rest"])
+def test_phi_gate_keeps_vital_sign_exclusions(check, stem):
+    assert check.phi_hit(stem) is None

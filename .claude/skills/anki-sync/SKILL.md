@@ -21,6 +21,8 @@ Sync touches only *owned* notes: tagged `msad`, living in the deck `AI Study::<c
    Done when every skip has a one-line reason for the student.
 3. **Report weak spots.** If `weak spots` is above 0, show the new lines at the end of `output/<case>/weak-spots.md`.
    Done when the count shown matches the summary line.
-4. **Next step.** Tell the student `/flashcards <case>` will now target those weak spots first.
+4. **Misses.** Cards tagged `miss` land in `AI Study::<case>::misses`. Tell the student that deck holds the cards made from their misses.
+   Done when the student knows where to find them.
+5. **Next step.** Tell the student `/flashcards <case>` will now target those weak spots first.
 
 Report added, updated, adopted, skipped, and the new weak spots. Anki desktop stays the place to review.

@@ -120,6 +120,8 @@ Other agent harnesses can follow [`AGENTS.md`](AGENTS.md) and read `.claude/skil
 | `/deepen "<concept>" [case]` | A "how do we know?" explainer from StatPearls, reviews, and Paperclip full text |
 | `/visualize <case> "topic"` | A cited diagram spec, a rendered diagram, and Image Occlusion cards. Needs the diagram-design plugin and Chromium |
 | `/mnemonic-art <case> ["concept"]` | One captioned AI illustration as a memory hook. An aid, never a reference. Needs an OpenRouter key |
+| `/vignette <case> [n]` | About 5 synthetic board-style vignettes. You type an answer first, then see 5 look-alike options. Misses become cited cards |
+| `/teach-back <case> "mechanism"` | Explain a mechanism in four steps plus a what-if, get marked against the slides, then compare with a cited expert model |
 | `/anki-sync <case>` | Pushes cards into Anki desktop and pulls cards you keep missing into `weak-spots.md`. Needs AnkiConnect |
 
 These cards **supplement** a premade deck (for example AnKing): they follow *your course's* cases and faculty emphasis.
@@ -187,14 +189,16 @@ A 20-30 minute demo uses the fictional case in `sample/curriculum/GUIDE` (BMS 50
 ```
 AGENTS.md                 agent rules: citations, source ladder, privacy (single source of truth)
 CLAUDE.md                 imports AGENTS.md, plus Claude Code notes
-.claude/skills/           the eight skills (ingest ... anki-sync)
+.claude/skills/           the ten skills (ingest ... anki-sync, vignette, teach-back)
 .agents/skills            symlink to .claude/skills, for Codex
 .mcp.json                 PubMed + Paperclip for Claude Code
 .codex/config.toml        the same connectors for Codex
 .claude/settings.json     pre-approves the scripts and PubMed/Paperclip tools
-scripts/                  extract, check, export, occlude, anki_sync, mnemonic_art
+scripts/                  extract, check, export, occlude, anki_sync, mnemonic_art, coverage
 sample/  examples/        synthetic lecture, and finished outputs built from it
 docs/                     REQUIREMENTS, OPEN-RESOURCES, diagram teaching profile, images
 curriculum/               YOUR files go here (gitignored)
 tests/                    script tests: uv run --with pytest --with markdown --with genanki --with pillow --with playwright --with pymupdf pytest tests -q
 ```
+
+What each skill is based on, and how strong that evidence is: [docs/LEARNING-SCIENCE.md](docs/LEARNING-SCIENCE.md).
