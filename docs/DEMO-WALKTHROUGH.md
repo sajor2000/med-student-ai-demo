@@ -15,8 +15,9 @@ abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/
 1. Clone the repo, then follow the README install (`uv`, Claude Code, the project MCP servers).
 2. Stage the sample as your "course" (the skills read from the gitignored `curriculum/` folder):
    ```bash
-   mkdir -p curriculum && cp -R sample/curriculum curriculum/sample
+   if [ -e curriculum/sample ]; then echo "curriculum/sample already exists: move it away first"; else mkdir -p curriculum && cp -R sample/curriculum curriculum/sample; fi
    ```
+   If it says `already exists`, stop and rename or remove that folder yourself, so nothing but the fictional sample is ingested.
 3. Open a terminal in the repo and start `claude`. Approve the project MCP servers when asked.
 4. Open `examples/case2/flashcards.html` in a browser tab now. It is your fallback (see the last section).
 5. Close anything with real patient or course data. Use a clean screen share.
@@ -29,7 +30,7 @@ abscess) plus a short *S. aureus* lecture deck. Both live in `sample/curriculum/
 |---|---|---|
 | 0-3 | Why, and responsible use | Slide-free talk, then show `docs/RESPONSIBLE-USE.md` |
 | 3-8 | `/ingest sample` | Turn a case guide and a deck into citable notes |
-| 8-15 | `/study-guide sample "Jordan Rivera"` | Build a cited guide, then check it live |
+| 8-15 | `/study-guide sample` | Build a cited guide, then check it live |
 | 15-21 | `/flashcards sample` + export | Open the page, click a citation |
 | 21-26 | `/quiz sample` | Attempt first, then explain |
 | 26-30 | Anki import, your own course | Hand off to the audience |
@@ -59,7 +60,7 @@ Open `notes/sample/GUIDE/` and show paragraph numbers in the Markdown, so the au
 ### Act 3 (8-15 min): study guide with a live citation check
 
 ```
-/study-guide sample "Jordan Rivera"
+/study-guide sample
 ```
 
 **Expected:** `output/sample/study-guide.md` with objectives, a one-page summary, a mechanism chain
@@ -84,7 +85,7 @@ enterotoxin vomiting starts 1-6 h after eating, and the case guide says 30 min-8
 ### Act 4 (15-21 min): flashcards, export, click a citation
 
 ```
-/flashcards sample "Jordan Rivera" 14
+/flashcards sample 14
 ```
 
 **Expected:** `output/sample/flashcards.csv` with about 14 cards (basic and cloze), each with a source. Then:
@@ -105,7 +106,7 @@ Say: "This is how you verify an AI-written card in 5 seconds." Then show one `{{
 ### Act 5 (21-26 min): quiz, attempt first
 
 ```
-/quiz sample "Jordan Rivera" 3
+/quiz sample 3
 ```
 
 **Expected:** one vignette at a time, no answers shown. **Rule for the presenter:** ask a volunteer to answer

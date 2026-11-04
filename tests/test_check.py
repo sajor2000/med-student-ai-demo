@@ -280,3 +280,13 @@ def test_case2_guide_has_five_cited_recall_questions_and_no_uncited_attribution(
     assert len(qs) == 5 and all("[[" in q for q in qs)
     discrepancy = text.split("## Discrepancies", 1)[1].split("## Recall questions", 1)[0]
     assert "CDC" not in discrepancy
+
+
+def test_walkthrough_staging_is_guarded_and_commands_pass_no_patient_name_as_topic():
+    from pathlib import Path
+    text = (Path(__file__).resolve().parent.parent / "docs" / "DEMO-WALKTHROUGH.md").read_text(encoding="utf-8")
+    for line in text.splitlines():
+        if line.lstrip("| `").startswith(("/study-guide", "/flashcards", "/quiz")):
+            assert "Rivera" not in line, line
+    assert "mkdir -p curriculum && cp -R" not in text
+    assert "already exists" in text
