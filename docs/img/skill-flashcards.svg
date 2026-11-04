@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-flashcards" viewBox="0 0 1200 389" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-flashcards-title skill-flashcards-desc">
+  <title id="skill-flashcards-title">How flashcards works</title>
+  <desc id="skill-flashcards-desc">/flashcards sample "MRSA resistance and treatment" 10. Goes in: notes/&lt;case&gt;/; output/&lt;case&gt;/weak-spots.md if it exists (those topics come first); Optional topic and card count (default 20). The AI: Writes one-fact cards, about a quarter of them cloze (fill-in-the-blank), each with a slide or PubMed source; check.py verifies every citation; the AI fixes the file until it prints PASS; export.py builds the Anki files and the study page. You get: output/&lt;case&gt;/flashcards.csv; flashcards.anki.txt (basic); flashcards.cloze.anki.txt (cloze); flashcards.html (study page). Next: Anki: File &gt; Import each .anki.txt; Or open the page and click a citation; Spot-check 3 cards; /anki-sync &lt;case&gt;.</desc>
+  <defs>
+    <style>#skill-flashcards { font-family: system-ui, sans-serif; }
+      #skill-flashcards text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-flashcards .name { font-size: 18px; font-weight: 700; }
+      #skill-flashcards .t { font-size: 14px; }
+      #skill-flashcards .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-flashcards .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-flashcards .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-flashcards .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-flashcards .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-flashcards .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-flashcards .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-flashcards .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-flashcards .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-flashcards .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-flashcards .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-flashcards .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-flashcards .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-flashcards-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-flashcards-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="389" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/flashcards sample "MRSA resistance and treatment" 10</text>
+  <text x="1162" y="70" class="name" text-anchor="end">Make cited Anki cards from your notes</text>
+  <rect x="20" y="112" width="270" height="257" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,240 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-flashcards-arrow)"/>
+  <rect x="316" y="112" width="270" height="257" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,240 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-flashcards-arrow)"/>
+  <rect x="612" y="112" width="270" height="257" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,240 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-flashcards-arrow)"/>
+  <rect x="908" y="112" width="270" height="257" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">notes/&lt;case&gt;/</text>
+  <circle cx="39" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="191" class="t">output/&lt;case&gt;/weak-spots.md if</text>
+    <text x="50" y="210" class="t">it exists (those topics come</text>
+    <text x="50" y="229" class="t">first)</text>
+  <circle cx="39" cy="251" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="256" class="t">Optional topic and card count</text>
+    <text x="50" y="275" class="t">(default 20)</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Writes one-fact cards, about</text>
+    <text x="360" y="183" class="t">a quarter of them cloze</text>
+    <text x="360" y="202" class="t">(fill-in-the-blank), each</text>
+    <text x="360" y="221" class="t">with a slide or PubMed source</text>
+  <circle cx="341" cy="247" r="10" fill="#0b4f9c"/>
+  <text x="341" y="252" class="num" text-anchor="middle">2</text>
+  <text x="360" y="252" class="t">check.py verifies every</text>
+    <text x="360" y="271" class="t">citation; the AI fixes the</text>
+    <text x="360" y="290" class="t">file until it prints PASS</text>
+  <circle cx="341" cy="316" r="10" fill="#0b4f9c"/>
+  <text x="341" y="321" class="num" text-anchor="middle">3</text>
+  <text x="360" y="321" class="t">export.py builds the Anki</text>
+    <text x="360" y="340" class="t">files and the study page</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">output/&lt;case&gt;/flashcards.csv</text>
+  <circle cx="631" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="191" class="t">flashcards.anki.txt (basic)</text>
+  <circle cx="631" cy="213" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="218" class="t">flashcards.cloze.anki.txt</text>
+    <text x="642" y="237" class="t">(cloze)</text>
+  <circle cx="631" cy="259" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="264" class="t">flashcards.html (study page)</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">Anki: File &gt; Import each</text>
+    <text x="938" y="183" class="t">.anki.txt</text>
+  <circle cx="927" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="210" class="t">Or open the page and click a</text>
+    <text x="938" y="229" class="t">citation</text>
+  <circle cx="927" cy="251" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="256" class="t">Spot-check 3 cards</text>
+  <circle cx="927" cy="278" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="283" class="t">/anki-sync &lt;case&gt;</text>
+</svg>

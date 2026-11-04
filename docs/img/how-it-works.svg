@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="how-it-works" viewBox="0 0 1200 664" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="how-it-works-title how-it-works-desc">
+  <title id="how-it-works-title">How one command works, end to end</title>
+  <desc id="how-it-works-desc">You type a skill command in Claude Code. Claude reads your files in curriculum/ or notes/ and the skill's recipe, sends that text to the AI provider, looks things up in PubMed and Paperclip, writes files into output/, check.py verifies the citations, and you study in Anki or the study page. Your files stay on your computer; the text Claude reads goes to the AI provider.</desc>
+  <defs>
+    <style>#how-it-works { font-family: system-ui, sans-serif; }
+      #how-it-works text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #how-it-works .name { font-size: 18px; font-weight: 700; }
+      #how-it-works .t { font-size: 14px; }
+      #how-it-works .sub { font-size: 14px; fill: #2f3a4f; }
+      #how-it-works .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #how-it-works .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #how-it-works .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #how-it-works .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #how-it-works .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #how-it-works .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #how-it-works .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #how-it-works .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #how-it-works .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #how-it-works .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #how-it-works .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #how-it-works .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="how-it-works-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="how-it-works-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="664" fill="#ffffff"/>
+<text x="20" y="30" class="lbl">HOW ONE COMMAND WORKS, END TO END</text>
+  <rect x="14" y="48" width="1172" height="306" rx="14" class="local" fill-opacity="0.55"/>
+  <text x="30" y="76" class="localt">ON YOUR COMPUTER (your files stay here)</text>
+  <text x="1170" y="76" class="localt" text-anchor="end">Claude Code works inside the folder you open it in</text>
+  <text x="30" y="106" class="sub">Your folder: curriculum/ holds your slides and PDFs. notes/ holds their text, with a slide address on each piece. output/ holds what the AI writes.</text>
+  <rect x="30" y="124" width="166" height="206" rx="10" class="typed"/>
+  <circle cx="52" cy="150" r="13" fill="#0b4f9c"/>
+  <text x="52" y="155" class="num" text-anchor="middle">1</text>
+  <text x="72" y="156" class="name">You type a</text>
+    <text x="72" y="177" class="name">command</text>
+  <text x="44" y="212" class="t">In the terminal (a</text>
+    <text x="44" y="231" class="t">window where you</text>
+    <text x="44" y="250" class="t">type commands),</text>
+    <text x="44" y="269" class="t">start Claude Code</text>
+    <text x="44" y="288" class="t">and type</text>
+    <text x="44" y="307" class="t">/flashcards sample</text>
+  <path d="M198,224 H218" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#how-it-works-arrow)"/>
+  <rect x="222" y="124" width="166" height="206" rx="10" class="box"/>
+  <circle cx="244" cy="150" r="13" fill="#0b4f9c"/>
+  <text x="244" y="155" class="num" text-anchor="middle">2</text>
+  <text x="264" y="156" class="name">Claude reads</text>
+  <text x="236" y="191" class="t">Your files and the</text>
+    <text x="236" y="210" class="t">skill's recipe: a</text>
+    <text x="236" y="229" class="t">saved set of steps</text>
+    <text x="236" y="248" class="t">for this job</text>
+  <path d="M390,224 H410" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#how-it-works-arrow)"/>
+  <rect x="414" y="124" width="166" height="206" rx="10" class="box"/>
+  <circle cx="436" cy="150" r="13" fill="#0b4f9c"/>
+  <text x="436" y="155" class="num" text-anchor="middle">3</text>
+  <text x="456" y="156" class="name">It looks</text>
+    <text x="456" y="177" class="name">things up</text>
+  <text x="428" y="212" class="t">Searches PubMed (a</text>
+    <text x="428" y="231" class="t">free article</text>
+    <text x="428" y="250" class="t">database) and</text>
+    <text x="428" y="269" class="t">Paperclip</text>
+    <text x="428" y="288" class="t">(full-text papers)</text>
+  <path d="M582,224 H602" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#how-it-works-arrow)"/>
+  <rect x="606" y="124" width="166" height="206" rx="10" class="box"/>
+  <circle cx="628" cy="150" r="13" fill="#0b4f9c"/>
+  <text x="628" y="155" class="num" text-anchor="middle">4</text>
+  <text x="648" y="156" class="name">It writes</text>
+    <text x="648" y="177" class="name">files</text>
+  <text x="620" y="212" class="t">Into output/: a CSV</text>
+    <text x="620" y="231" class="t">of cards, Anki</text>
+    <text x="620" y="250" class="t">files, a study</text>
+    <text x="620" y="269" class="t">page, a guide</text>
+  <path d="M774,224 H794" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#how-it-works-arrow)"/>
+  <rect x="798" y="124" width="166" height="206" rx="10" class="gate"/>
+  <circle cx="820" cy="150" r="13" fill="#0b4f9c"/>
+  <text x="820" y="155" class="num" text-anchor="middle">5</text>
+  <text x="840" y="156" class="name">check.py</text>
+    <text x="840" y="177" class="name">verifies</text>
+  <text x="812" y="212" class="t">Slides must exist.</text>
+    <text x="812" y="231" class="t">PubMed IDs must</text>
+    <text x="812" y="250" class="t">exist and not be</text>
+    <text x="812" y="269" class="t">retracted. A card</text>
+    <text x="812" y="288" class="t">with no source</text>
+    <text x="812" y="307" class="t">fails.</text>
+  <path d="M966,224 H986" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#how-it-works-arrow)"/>
+  <rect x="990" y="124" width="166" height="206" rx="10" class="typed"/>
+  <circle cx="1012" cy="150" r="13" fill="#0b4f9c"/>
+  <text x="1012" y="155" class="num" text-anchor="middle">6</text>
+  <text x="1032" y="156" class="name">You study</text>
+  <text x="1004" y="191" class="t">Import the cards</text>
+    <text x="1004" y="210" class="t">into Anki, or open</text>
+    <text x="1004" y="229" class="t">the study page and</text>
+    <text x="1004" y="248" class="t">click a citation</text>
+  <rect x="14" y="376" width="1172" height="220" rx="14" class="cloud" fill-opacity="0.55"/>
+  <text x="30" y="590" class="cloudt">LEAVES YOUR COMPUTER (check your school's AI policy first)</text>
+  <rect x="30" y="396" width="370" height="168" rx="10" class="box"/>
+  <text x="46" y="428" class="name">AI provider (Claude or Codex)</text>
+  <text x="46" y="458" class="t">Receives your prompts and the text Claude reads</text>
+    <text x="46" y="477" class="t">from your files. The model does its thinking</text>
+    <text x="46" y="496" class="t">here, not on your laptop.</text>
+  <rect x="416" y="396" width="490" height="168" rx="10" class="box"/>
+  <text x="432" y="428" class="name">PubMed (NCBI) and Paperclip</text>
+  <text x="432" y="458" class="t">Get only the words of each search, and the PubMed IDs that</text>
+    <text x="432" y="477" class="t">check.py looks up. They never get your files.</text>
+  <rect x="922" y="396" width="248" height="168" rx="10" class="box"/>
+  <text x="938" y="428" class="name">OpenRouter</text>
+  <text x="938" y="458" class="t">Only if you use /mnemonic-art,</text>
+    <text x="938" y="477" class="t">and only after you say yes to</text>
+    <text x="938" y="496" class="t">one picture prompt.</text>
+  <path d="M305,332 V392" fill="none" stroke="#a33d00" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#how-it-works-arrow-accent)"/>
+  <path d="M497,332 V392" fill="none" stroke="#a33d00" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#how-it-works-arrow-accent)"/>
+  <path d="M881,332 V392" fill="none" stroke="#a33d00" stroke-width="2" stroke-dasharray="6,4" marker-end="url(#how-it-works-arrow-accent)"/>
+  <rect x="30" y="626" width="22" height="16" rx="3" class="local"/>
+  <text x="62" y="639" class="t">Stays on your computer</text>
+  <rect x="260" y="626" width="22" height="16" rx="3" class="cloud"/>
+  <text x="292" y="639" class="t">Sent to an online service</text>
+  <rect x="520" y="626" width="22" height="16" rx="3" class="typed"/>
+  <text x="552" y="639" class="t">You do this</text>
+  <rect x="680" y="626" width="22" height="16" rx="3" class="gate"/>
+  <text x="712" y="639" class="t">The safety check</text>
+</svg>

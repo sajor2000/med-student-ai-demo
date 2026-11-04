@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="skill-deepen" viewBox="0 0 1200 427" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="skill-deepen-title skill-deepen-desc">
+  <title id="skill-deepen-title">How deepen works</title>
+  <desc id="skill-deepen-desc">/deepen "PBP2a" sample. Goes in: Your concept in quotes, plus the case; notes/&lt;case&gt;/ (to compare against); PubMed, and Paperclip full text if you signed in. The AI: Searches PubMed: a StatPearls chapter, then recent reviews, then a landmark paper if you ask "how do we know?"; Reads the best open-access papers in Paperclip, one claim at a time; Writes a short cited explainer, flags where papers and slides disagree, and runs check.py. You get: output/&lt;case&gt;/deepen/&lt;slug&gt;.md: about 300 words, a "how this connects to the case" box, a bibliography. Next: Read it after you try to recall; Add --deepen output/&lt;case&gt;/deepen to export for a Deep dives tab.</desc>
+  <defs>
+    <style>#skill-deepen { font-family: system-ui, sans-serif; }
+      #skill-deepen text { font-family: system-ui, sans-serif; fill: #0f1115; }
+      #skill-deepen .name { font-size: 18px; font-weight: 700; }
+      #skill-deepen .t { font-size: 14px; }
+      #skill-deepen .sub { font-size: 14px; fill: #2f3a4f; }
+      #skill-deepen .lbl { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #44506a; }
+      #skill-deepen .cmd { font-size: 20px; font-weight: 700; fill: #0b4f9c; font-family: ui-monospace, Menlo, Consolas, monospace; }
+      #skill-deepen .file { font-size: 13px; font-family: ui-monospace, Menlo, Consolas, monospace; fill: #0f1115; }
+      #skill-deepen .num { font-size: 13px; font-weight: 700; fill: #ffffff; }
+      #skill-deepen .box { fill: #ffffff; stroke: #0f1115; stroke-width: 2; }
+      #skill-deepen .typed { fill: #ffffff; stroke: #0b4f9c; stroke-width: 2.5; stroke-dasharray: 7,4; }
+      #skill-deepen .local { fill: #eef6f0; stroke: #2e6b44; stroke-width: 2; }
+      #skill-deepen .cloud { fill: #fff3e6; stroke: #a33d00; stroke-width: 2; stroke-dasharray: 7,4; }
+      #skill-deepen .panel { fill: #f4f6f9; stroke: #b9c3d3; stroke-width: 1.5; }
+      #skill-deepen .gate { fill: #a33d00; fill-opacity: 0.10; stroke: #a33d00; stroke-width: 3; }
+      #skill-deepen .localt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #2e6b44; }
+      #skill-deepen .cloudt { font-size: 13px; font-weight: 700; letter-spacing: 0.08em; fill: #a33d00; }</style>
+    <marker id="skill-deepen-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#2f3a4f"/></marker>
+    <marker id="skill-deepen-arrow-accent" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#a33d00"/></marker>
+  </defs>
+  <rect x="0" y="0" width="1200" height="427" fill="#ffffff"/>
+<rect x="20" y="16" width="1160" height="72" rx="10" class="typed"/>
+  <text x="38" y="38" class="lbl">YOU TYPE IN CLAUDE CODE</text>
+  <text x="38" y="70" class="cmd">/deepen "PBP2a" sample</text>
+  <text x="1162" y="70" class="name" text-anchor="end">Go past the slides on one concept</text>
+  <rect x="20" y="112" width="270" height="295" rx="10" class="panel"/>
+  <text x="36" y="138" class="lbl">WHAT GOES IN</text>
+  <path d="M293,259 H313" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-deepen-arrow)"/>
+  <rect x="316" y="112" width="270" height="295" rx="10" class="panel"/>
+  <text x="332" y="138" class="lbl">WHAT THE AI DOES</text>
+  <path d="M589,259 H609" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-deepen-arrow)"/>
+  <rect x="612" y="112" width="270" height="295" rx="10" class="local"/>
+  <text x="628" y="138" class="lbl">WHAT YOU GET</text>
+  <path d="M885,259 H905" fill="none" stroke="#2f3a4f" stroke-width="2" marker-end="url(#skill-deepen-arrow)"/>
+  <rect x="908" y="112" width="270" height="295" rx="10" class="panel"/>
+  <text x="924" y="138" class="lbl">WHAT YOU DO NEXT</text>
+  <circle cx="39" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="164" class="t">Your concept in quotes, plus</text>
+    <text x="50" y="183" class="t">the case</text>
+  <circle cx="39" cy="205" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="210" class="t">notes/&lt;case&gt;/ (to compare</text>
+    <text x="50" y="229" class="t">against)</text>
+  <circle cx="39" cy="251" r="2.6" fill="#2f3a4f"/>
+  <text x="50" y="256" class="t">PubMed, and Paperclip full text</text>
+    <text x="50" y="275" class="t">if you signed in</text>
+  <circle cx="341" cy="159" r="10" fill="#0b4f9c"/>
+  <text x="341" y="164" class="num" text-anchor="middle">1</text>
+  <text x="360" y="164" class="t">Searches PubMed: a StatPearls</text>
+    <text x="360" y="183" class="t">chapter, then recent reviews,</text>
+    <text x="360" y="202" class="t">then a landmark paper if you</text>
+    <text x="360" y="221" class="t">ask "how do we know?"</text>
+  <circle cx="341" cy="247" r="10" fill="#0b4f9c"/>
+  <text x="341" y="252" class="num" text-anchor="middle">2</text>
+  <text x="360" y="252" class="t">Reads the best open-access</text>
+    <text x="360" y="271" class="t">papers in Paperclip, one</text>
+    <text x="360" y="290" class="t">claim at a time</text>
+  <circle cx="341" cy="316" r="10" fill="#0b4f9c"/>
+  <text x="341" y="321" class="num" text-anchor="middle">3</text>
+  <text x="360" y="321" class="t">Writes a short cited</text>
+    <text x="360" y="340" class="t">explainer, flags where papers</text>
+    <text x="360" y="359" class="t">and slides disagree, and runs</text>
+    <text x="360" y="378" class="t">check.py</text>
+  <circle cx="631" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="642" y="164" class="t">output/&lt;case&gt;/deepen/&lt;slug&gt;.md:</text>
+    <text x="642" y="183" class="t">about 300 words, a "how this</text>
+    <text x="642" y="202" class="t">connects to the case" box, a</text>
+    <text x="642" y="221" class="t">bibliography</text>
+  <circle cx="927" cy="159" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="164" class="t">Read it after you try to recall</text>
+  <circle cx="927" cy="186" r="2.6" fill="#2f3a4f"/>
+  <text x="938" y="191" class="t">Add --deepen</text>
+    <text x="938" y="210" class="t">output/&lt;case&gt;/deepen to export</text>
+    <text x="938" y="229" class="t">for a Deep dives tab</text>
+</svg>
