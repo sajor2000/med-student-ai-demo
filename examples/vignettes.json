@@ -3,6 +3,7 @@
     {
       "id": "lab-clusters",
       "objective": 1,
+      "lecture": "micro-staphylococcus-aureus-sample-lecture",
       "discipline": "MICRO",
       "stem": "A wound swab grows gram-positive cocci in clusters. The colonies are golden and beta-hemolytic on blood agar, and the isolate is catalase positive. Which additional result best identifies the organism as Staphylococcus aureus?",
       "options": [
@@ -41,6 +42,7 @@
     {
       "id": "protein-a-evasion",
       "objective": 2,
+      "lecture": "micro-staphylococcus-aureus-sample-lecture",
       "discipline": "MICRO",
       "stem": "A researcher studies why S. aureus survives in blood despite circulating antibodies. Mutants lacking one surface protein are cleared much faster because antibody-coated bacteria are phagocytosed. Which factor was deleted?",
       "options": [
@@ -79,6 +81,7 @@
     {
       "id": "toxic-shock",
       "objective": 2,
+      "lecture": "micro-staphylococcus-aureus-sample-lecture",
       "discipline": "MICRO",
       "stem": "A young adult develops sudden high fever, hypotension, a diffuse sunburn-like rash, and vomiting in the days after a surgical wound packing procedure. Wound culture grows S. aureus. Which virulence factor best explains the shock?",
       "options": [
@@ -117,6 +120,7 @@
     {
       "id": "iv-drug-endocarditis",
       "objective": 2,
+      "lecture": "micro-staphylococcus-aureus-sample-lecture",
       "discipline": "MICRO",
       "stem": "A person who injects drugs presents with fever and a new regurgitant murmur. Blood cultures grow gram-positive cocci in clusters that are coagulase positive. Which valve is most often involved in this setting?",
       "options": [
@@ -155,6 +159,7 @@
     {
       "id": "mrsa-mechanism",
       "objective": 3,
+      "lecture": "micro-staphylococcus-aureus-sample-lecture",
       "discipline": "MICRO",
       "stem": "A skin abscess fails to improve on a beta-lactam. Culture grows S. aureus that carries mecA on a mobile element. What explains the treatment failure?",
       "options": [

@@ -507,3 +507,9 @@ def test_phi_pattern_lists_stay_in_sync_with_mnemonic_art(check):
     theirs = [(rx.pattern, w) for rx, w in art.PHI_PATTERNS if not rx.pattern.startswith(r"\b[A-Z][a-z]+(?:,")]
     assert mine == theirs
     assert check.NAME_ALLOW == art.NAME_ALLOW and check.GENERIC_WORDS == art.GENERIC_WORDS
+
+
+def test_id_with_trailing_newline_is_invalid(check, notes, tmp_path, monkeypatch, capsys):
+    p = write_vignettes(tmp_path, [make_vignette("v1\n")])
+    code, out = run_vig(check, notes, p, monkeypatch, capsys)
+    assert code == 1 and "invalid id" in out

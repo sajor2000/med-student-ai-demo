@@ -28,6 +28,8 @@ from pathlib import Path
 
 LINE_RE = re.compile(r"Learning objectives:\s*(.*)", re.IGNORECASE)
 MARK_RE = re.compile(r"\((\d+)\)")
+HEADING_RE = re.compile(r"^\W*Learning objectives:?\s*$", re.IGNORECASE)
+NUMBERED_RE = re.compile(r"^\W*(\d+)\.\s+(\S.*)$")
 TAG_RE = re.compile(r"(?:([a-z0-9-]+)-)?obj(\d+)")
 Key = tuple[str, int]  # (lecture slug, objective number); slug "" means unqualified
 
@@ -46,7 +48,24 @@ def parse_objectives(notes: Path) -> dict[Key, str]:
         slug = lecture_slug(md, notes)
         if owner.setdefault(slug, md) != md:
             raise ValueError(f"{md} and {owner[slug]} give the same lecture slug {slug!r}; rename one")
+        # A heading line ("Learning Objectives:") followed by numbered lines ("1. ...") is a section. A file
+        # with several such sections (one per discipline) names them slug, slug-2, slug-3, ... in order.
+        sections = 0
+        in_section = False
+        section_slug = slug
         for line in md.read_text(encoding="utf-8").splitlines():
+            if HEADING_RE.match(line):
+                sections += 1
+                section_slug = slug if sections == 1 else f"{slug}-{sections}"
+                in_section = True
+                continue
+            if in_section:
+                n = NUMBERED_RE.match(line)
+                if n:
+                    found.setdefault((section_slug, int(n.group(1))), n.group(2).strip())
+                    continue
+                if line.strip():
+                    in_section = False
             m = LINE_RE.search(line)
             if not m:
                 continue

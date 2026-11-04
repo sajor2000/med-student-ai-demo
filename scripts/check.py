@@ -189,7 +189,7 @@ def phi_hit(*texts: str) -> str | None:
 
 
 ART_WHY = "AI illustrations are memory aids, not sources"
-ID_OK = re.compile(r"^[a-z0-9-]{1,40}$")
+ID_OK = re.compile(r"[a-z0-9-]{1,40}")
 
 
 def _norm_cite_path(rel: str) -> str:
@@ -309,7 +309,7 @@ def spec_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
     def check_id(kind: str, i: int, item: dict) -> str:
         ident = item.get("id")
         name = f"{kind} {ident!r}" if isinstance(ident, str) and ident else f"{kind} #{i}"
-        if not isinstance(ident, str) or not ID_OK.match(ident):
+        if not isinstance(ident, str) or not ID_OK.fullmatch(ident):
             problems.append(f"{name}: invalid id (use 1-40 chars of a-z, 0-9, -)")
         elif ident in seen:
             problems.append(f"{name}: duplicate id")
@@ -375,7 +375,7 @@ def vignette_units(path: Path) -> tuple[list[tuple[str, str]], list[str], str]:
             continue
         vid = v.get("id")
         name = f"vignette {vid!r}" if isinstance(vid, str) and vid else f"vignette #{i}"
-        if not isinstance(vid, str) or not ID_OK.match(vid):
+        if not isinstance(vid, str) or not ID_OK.fullmatch(vid):
             problems.append(f"{name}: invalid id (use 1-40 chars of a-z, 0-9, -)")
         elif vid in seen:
             problems.append(f"{name}: duplicate id")
