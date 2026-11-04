@@ -554,3 +554,15 @@ def test_sidecar_write_is_atomic(anki_mod, tmp_path, monkeypatch):
         anki_mod.append_weak_spots(case, [{"id": "b", "discipline": "d", "topic": "t", "cite": "c"}])
     monkeypatch.setattr(Path, "write_text", real)
     assert json.loads(sidecar.read_text(encoding="utf-8")) == {"synced": ["a"]}
+
+
+def test_hand_imported_multiline_front_is_adopted_not_duplicated(anki_mod, monkeypatch, fake_factory, workdir, capsys):
+    fake = fake_factory()
+    fake.decks.add(DECK)
+    front = "Name the toxin\nthat cleaves desmoglein-1?"
+    nid = fake.put_note("Basic", {"Front": html.escape(front).replace("\n", "<br>"), "Back": "old"}, ["msad"], DECK)
+    write_csv(workdir, [(front, "Exfoliative toxin", S3, "case-1;micro")])
+    sync(anki_mod, monkeypatch, fake, workdir)
+    s = summary(capsys.readouterr().out)
+    assert s["adopted"] == 1 and s["added"] == 0 and len(fake.notes) == 1
+    assert f"msad-id::{gid_of(front)}" in fake.notes[nid]["tags"]

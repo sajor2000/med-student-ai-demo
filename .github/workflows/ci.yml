@@ -59,8 +59,13 @@ jobs:
         shell: bash
         run: |
           set +e
-          out=$(uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes 2>&1)
-          code=$?
+          # PubMed outages also exit 1 without the PMID diagnostic, so retry until all three show up.
+          for attempt in 1 2 3; do
+            out=$(uv run scripts/check.py examples/hallucination-test.csv --notes sample/notes 2>&1)
+            code=$?
+            [ "$code" -eq 1 ] && grep -qF "PMID:99999999 does not exist in PubMed" <<<"$out" && break
+            sleep $((attempt * 10))
+          done
           echo "$out"
           if [ "$code" -ne 1 ]; then
             echo "expected exit 1, got $code" >&2

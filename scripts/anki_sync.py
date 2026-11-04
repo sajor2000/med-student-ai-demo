@@ -189,7 +189,7 @@ class Sync:
                     continue
                 first = {"Basic": "Front", "Cloze": "Text"}.get(n["modelName"])
                 if first and first in n["fields"]:
-                    key = (n["modelName"], guid(html.unescape(n["fields"][first]["value"])))
+                    key = (n["modelName"], guid(html.unescape(re.sub(r"<br\s*/?>", "\n", n["fields"][first]["value"]))))
                     if "msad" in n["tags"]:
                         self._adopt.setdefault(key, n["noteId"])
                     else:
