@@ -211,4 +211,10 @@ What each skill is based on, and how strong that evidence is: [docs/LEARNING-SCI
 
 ## License
 
-Code is MIT ([`LICENSE`](LICENSE)). The fictional `sample/` and `examples/` content is CC BY 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)). Your own course materials are not covered: they belong to your institution. See [`NOTICE.md`](NOTICE.md).
+**Free for students, educators, and schools; not for sale.** The code is under the
+[PolyForm Noncommercial License 1.0.0](LICENSE) and the fictional `sample/` and `examples/` content is under
+CC BY-NC-SA 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)). Use it, change it, and share it for studying, teaching, and
+research. Selling it or building it into a paid product or service needs a separate written license: open an issue
+titled "Commercial license". These are source-available, noncommercial licenses, not OSI open source.
+
+Your own course materials are not covered: they belong to your institution. See [`NOTICE.md`](NOTICE.md).

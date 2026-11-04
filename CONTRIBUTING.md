@@ -47,5 +47,7 @@ write it the way you would brief a capable colleague who has never seen this rep
 Fill in the PR template. Keep PRs small, and say what you ran. For a new school format,
 include a synthetic file (not a real lecture) that reproduces the problem.
 
-By contributing you agree your code is MIT-licensed and your sample/example content is
-CC BY 4.0 (see `LICENSE` and `LICENSE-CONTENT`). Be kind: see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
+By contributing you agree that your code is licensed under the PolyForm Noncommercial License 1.0.0
+and your sample/example content under CC BY-NC-SA 4.0 (see `LICENSE` and `LICENSE-CONTENT`), and that the
+maintainer may also license your contribution to others under different terms, including a commercial
+license. Be kind: see [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).

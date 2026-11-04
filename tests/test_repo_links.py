@@ -84,7 +84,10 @@ def test_readme_links_required_files_and_they_exist():
         assert f"]({target})" in readme, f"README does not link {target}"
         assert (ROOT / target).exists(), target
     assert "scripts/doctor.py" in readme
-    assert "MIT" in readme and "CC BY 4.0" in readme
+    assert "PolyForm Noncommercial License 1.0.0" in readme and "CC BY-NC-SA 4.0" in readme
+    assert "PolyForm Noncommercial License 1.0.0" in (ROOT / "LICENSE").read_text()
+    assert "NonCommercial-ShareAlike 4.0" in (ROOT / "LICENSE-CONTENT").read_text()
+    assert "PolyForm-Noncommercial-1.0.0" in (ROOT / "CITATION.cff").read_text()
 
 
 def test_demo_walkthrough_shows_every_screenshot_and_keeps_them_small():
