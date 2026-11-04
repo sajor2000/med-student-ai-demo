@@ -5,6 +5,7 @@ study guides. Every claim traces to a source the student can open.
 
 ## Privacy
 
+- This is an educational demo: AI powers the student's learning and does not replace it. Course materials belong to the institution, and anything uploaded must follow the institution's AI policy.
 - **No PHI**, ever, in a prompt, file, or tool call. A deck with real patient cases or images stays out.
 - `curriculum/`, `notes/`, `output/` are gitignored course files. Never commit, post, or share them. They belong to the school, and what you read goes to the student's AI provider.
 - Once per session, remind the student to confirm their institution's AI policy allows uploading course content.

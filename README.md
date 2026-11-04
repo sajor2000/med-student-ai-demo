@@ -74,6 +74,8 @@ On Windows (PowerShell), open the page with:
 start examples\flashcards.html
 ```
 
+Optional but recommended: `uv run scripts/doctor.py` checks uv, Python, Node, network, and optional features, and tells you what to fix.
+
 **3. Start your agent in the folder.**
 
 <table>
@@ -202,3 +204,11 @@ tests/                    script tests: uv run --with pytest --with markdown --w
 ```
 
 What each skill is based on, and how strong that evidence is: [docs/LEARNING-SCIENCE.md](docs/LEARNING-SCIENCE.md).
+
+## For educators and contributors
+
+[For educators](docs/FOR-EDUCATORS.md) · [Contributing](CONTRIBUTING.md) · [Code of conduct](CODE_OF_CONDUCT.md) · [Security](SECURITY.md) · [Changelog](CHANGELOG.md) · [Notices](NOTICE.md)
+
+## License
+
+Code is MIT ([`LICENSE`](LICENSE)). The fictional `sample/` and `examples/` content is CC BY 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)). Your own course materials are not covered: they belong to your institution. See [`NOTICE.md`](NOTICE.md).

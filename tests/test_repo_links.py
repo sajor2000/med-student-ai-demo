@@ -55,3 +55,33 @@ def test_citation_has_no_unverifiable_release_date():
     assert "date-released" not in cff
     version = re.search(r"^version:\s*(\S+)", cff, re.M).group(1)
     assert re.search(rf"^## \[{re.escape(version)}\]", (ROOT / "CHANGELOG.md").read_text(), re.M)
+
+
+MESSAGE_FILES = ["README.md", "AGENTS.md", "docs/DEMO-WALKTHROUGH.md", "docs/RESPONSIBLE-USE.md"]
+MESSAGE_MARKERS = {
+    "educational demo": r"educational demo",
+    "AI powers learning, does not replace it": r"(power|augment)\w*[^.\n]{0,40}(learning|learn)|not replace",
+    "materials belong to the institution": r"belong\w* to (your|the) (institution|school|medical school)",
+    "institution's AI policy": r"(institution|school)['’]s AI policy|AI policy",
+}
+
+
+def test_responsible_use_message_in_key_docs():
+    missing = []
+    for name in MESSAGE_FILES:
+        text = (ROOT / name).read_text()
+        for label, pattern in MESSAGE_MARKERS.items():
+            if not re.search(pattern, text, re.IGNORECASE):
+                missing.append(f"{name}: {label}")
+    assert not missing, missing
+
+
+def test_readme_links_required_files_and_they_exist():
+    readme = (ROOT / "README.md").read_text()
+    required = ["docs/FOR-EDUCATORS.md", "CONTRIBUTING.md", "SECURITY.md",
+                "CODE_OF_CONDUCT.md", "CHANGELOG.md", "NOTICE.md", "LICENSE", "LICENSE-CONTENT"]
+    for target in required:
+        assert f"]({target})" in readme, f"README does not link {target}"
+        assert (ROOT / target).exists(), target
+    assert "scripts/doctor.py" in readme
+    assert "MIT" in readme and "CC BY 4.0" in readme
