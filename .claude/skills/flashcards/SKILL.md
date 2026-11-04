@@ -32,7 +32,9 @@ optional card count (default 20). If `notes/<case>` does not exist, tell the stu
      folder is course material: keep it for yourself and don't share it.
    - These cards supplement a premade deck: they cover *this course's* framing and faculty emphasis.
    - Before studying, spot-check 3 random cards against their cited slide or paper.
-   - Pass every export flag that applies on the first run, including `--diagrams` and `--art` when output from
-     `/visualize` or `/mnemonic-art` already exists. After a later `/study-guide`, `/visualize` or `/mnemonic-art`, re-run
-     export with all applicable flags (`--guide`, `--notes`, `--diagrams`, `--art`) so the study page picks up the new files.
+   - Pass every export flag that applies on the first run, including `--diagrams`, `--art`, `--deepen`, and `--vignettes`
+     when output from `/visualize`, `/mnemonic-art`, `/deepen`, or `/vignette` already exists. After a later `/study-guide`,
+     `/visualize`, `/mnemonic-art`, `/deepen`, or `/vignette`, re-run export with all applicable flags (`--guide`, `--notes`,
+     `--diagrams output/<case>/diagrams`, `--art output/<case>/art`, `--deepen output/<case>/deepen`,
+     `--vignettes output/<case>/vignettes.json`) so the study page keeps every tab and picks up the new files.
 6. Suggest `/anki-sync <case>` to push these cards into Anki and pull back the ones the student keeps missing.

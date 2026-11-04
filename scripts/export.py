@@ -396,6 +396,14 @@ def main() -> int:
     ap.add_argument("--vignettes", type=Path, help="vignettes.json; adds a Vignettes tab (options hidden until an answer is typed)")
     args = ap.parse_args()
 
+    # Validate optional inputs before anything is written or deleted, so a bad flag leaves the previous
+    # Anki files, sources folder, and page untouched.
+    for flag, folder in (("--diagrams", args.diagrams), ("--art", args.art), ("--deepen", args.deepen)):
+        if folder:
+            _folder(folder, flag)
+    if args.vignettes:
+        load_vignettes(args.vignettes)
+
     with args.csv.open(newline="", encoding="utf-8") as fh:
         cards = list(csv.DictReader(fh))
 
